@@ -438,40 +438,6 @@
             display: inline-block;
         }
 
-        .toast-banner {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--bg-card);
-            border: 1px solid var(--accent-primary);
-            color: var(--text-main);
-            padding: 12px 18px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: fadeIn 0.3s ease-in-out;
-            font-size: 0.85rem;
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background-color: var(--bg-input);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background-color: var(--accent-primary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -537,6 +503,10 @@
         </div>
 
         <nav class="nav-menu">
+            <button type="button" class="nav-btn locked" data-tab="home">
+                <span>🏠 Hari Ini</span>
+                <span class="lock-tag">🔒</span>
+            </button>
             <button type="button" class="nav-btn active" data-tab="biodata">
                 <span>1. Profil</span>
                 <span id="lock-icon-bio">✓</span>
@@ -577,6 +547,23 @@
             </div>
             <div class="user-badge" id="user-badge">Status: Terkunci 🔒</div>
         </header>
+
+        <section id="home" class="tab-content">
+            <div class="card" id="today-home-card">
+                <h3>Ringkasan Hari Ini</h3>
+                <p class="subtitle">Satu tempat untuk melanjutkan rutinitas tanpa mencari menu.</p>
+                <div id="today-home-content"></div>
+            </div>
+            <div class="card">
+                <h3>Data Saya</h3>
+                <p class="subtitle">Profil dapat diubah kapan saja. Cadangkan data sebelum pindah perangkat.</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button type="button" class="btn-secondary" onclick="switchTab('biodata')">✏️ Edit Profil</button>
+                    <button type="button" class="btn-secondary" onclick="exportAppData()">⬇️ Backup Data</button>
+                    <button type="button" class="btn-danger" onclick="resetAppData()">Reset Semua Data</button>
+                </div>
+            </div>
+        </section>
 
         <!-- TAB 1: BIODATA -->
         <section id="biodata" class="tab-content active">
@@ -645,46 +632,12 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn-primary" onclick="forceUnlockFromBio()">Simpan Data & Buka Akses
-                        🔑</button>
+                    <button type="button" class="btn-primary" onclick="forceUnlockFromBio()">Simpan Data & Buka Akses 🔑</button>
                 </form>
             </div>
         </section>
 
-        <!-- TAB 2: BERANDA HARI INI -->
-        <section id="beranda" class="tab-content active">
-            <div class="card" style="border-left: 4px solid var(--accent-primary);">
-                <h3>🔥 Latihan Hari Ini</h3>
-                <p class="subtitle" id="home-workout-title">Sesi: Memuat jadwal...</p>
-                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
-                    <button class="btn-primary" style="margin-top:0;" onclick="switchTab('workout-session')">🚀 Mulai
-                        Latihan Hari Ini</button>
-                </div>
-            </div>
-
-            <div class="grid-2-col">
-                <article class="card">
-                    <h3>💧 Target Air Minum</h3>
-                    <div id="home-water-box" style="margin-bottom: 12px;">
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Segarkan tubuh Anda hari ini!</p>
-                    </div>
-                    <button class="btn-secondary" onclick="switchTab('nutrition')">Atur Log Air & Makan ➔</button>
-                </article>
-
-                <article class="card">
-                    <h3>📊 Status Progress Hari Ini</h3>
-                    <div class="stat-card" style="margin-bottom: 12px; text-align: left; padding: 12px;">
-                        <span style="font-size: 0.78rem; color: var(--text-muted);">Status Latihan:</span>
-                        <h4 id="home-workout-status"
-                            style="font-size: 1rem; color: var(--accent-primary); margin-top: 4px;">Belum Selesai</h4>
-                    </div>
-                    <button class="btn-primary" style="margin-top:0;" onclick="switchTab('progress')">Lanjutkan
-                        Aktivitas / Progress ➔</button>
-                </article>
-            </div>
-        </section>
-
-        <!-- TAB 3: NUTRISI -->
+        <!-- TAB 2: NUTRISI -->
         <section id="nutrition" class="tab-content">
             <div class="grid-2-col">
                 <article class="card">
@@ -743,7 +696,7 @@
             </div>
         </section>
 
-        <!-- TAB 4: JADWAL LATIHAN -->
+        <!-- TAB 3: JADWAL LATIHAN -->
         <section id="schedule" class="tab-content">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -817,11 +770,16 @@
             </div>
         </section>
 
-        <!-- TAB 5: GERAKAN LATIHAN -->
+        <!-- TAB 4: GERAKAN LATIHAN -->
         <section id="database" class="tab-content">
             <div class="card">
                 <h3>Gerakan Latihan (Bergambar & Interaktif)</h3>
                 <p class="subtitle">Pilih kelompok otot untuk melihat gerakan, detail eksekusi, dan tips latihan.</p>
+
+                <div class="form-group" style="max-width:420px;margin-bottom:12px">
+                    <label for="exercise-search">Cari gerakan:</label>
+                    <input type="search" id="exercise-search" placeholder="Contoh: squat, dumbbell, plank" oninput="renderExerciseDatabase()">
+                </div>
 
                 <div class="form-group" style="max-width: 300px; margin-bottom: 16px;">
                     <label for="db-category-select">Pilih Kategori Otot / Folder:</label>
@@ -843,7 +801,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: PAKET PROGRAM PRESET & CUSTOM BUILDER -->
+        <!-- TAB 5: PAKET PROGRAM PRESET & CUSTOM BUILDER -->
         <section id="programs" class="tab-content">
             <div class="card">
                 <h3>Paket Program Latihan (Playable & Sesuai Level Biodata)</h3>
@@ -858,7 +816,7 @@
             </div>
         </section>
 
-        <!-- TAB 7: PROGRAM SESI LATIHAN INTERAKTIF HARIAN -->
+        <!-- TAB 6: PROGRAM SESI LATIHAN INTERAKTIF HARIAN -->
         <section id="workout-session" class="tab-content">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -875,7 +833,7 @@
             </div>
         </section>
 
-        <!-- TAB 8: DASHBOARD PROGRESS -->
+        <!-- TAB 7: MODERN DASHBOARD EVALUASI -->
         <section id="progress" class="tab-content">
             <div class="grid-4-col">
                 <div class="stat-card">
@@ -896,6 +854,7 @@
                 </div>
             </div>
 
+            <!-- Bagian Nutrisi Harian Terkoneksi & Terintegrasi -->
             <div class="card" style="margin-bottom: 20px; border-color: var(--accent-info);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                     <h3 style="color: var(--accent-info); font-size: 1rem;">📊 Integrasi Data Nutrisi & Kepatuhan Harian
@@ -908,6 +867,7 @@
                     ke progress Anda:</p>
                 <div id="progress-nutrition-sync-box"
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <!-- Data dari Daily Nutrition/Log akan di-inject via JS secara profesional -->
                 </div>
             </div>
 
@@ -960,26 +920,19 @@
                 </article>
 
                 <article class="card">
-                    <h3>Kelola Data Cadangan</h3>
-                    <p class="subtitle">Ekspor atau impor data profil & log latihan Anda.</p>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <button class="btn-secondary" onclick="exportDataJSON()">📥 Ekspor Backup (JSON)</button>
-                        <input type="file" id="import-file" style="display:none;" onchange="importDataJSON(event)"
-                            accept=".json">
-                        <button class="btn-secondary" onclick="document.getElementById('import-file').click()">📤 Impor
-                            Backup (JSON)</button>
-                        <button class="btn-danger" style="margin-top:10px;" onclick="resetAllData()">🗑️ Hapus Semua
-                            Data</button>
+                    <h3>Grafik Tren BB Dynamic</h3>
+                    <div style="position: relative; width: 100%; height: 200px; margin-bottom: 16px;">
+                        <canvas id="progressChart"></canvas>
                     </div>
+
+                    <h3>Analisis Evaluasi</h3>
+                    <div id="evaluation-analysis-box" style="margin-top:8px;"></div>
                 </article>
             </div>
         </section>
     </main>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast-container"></div>
-
-    <!-- MODAL DETAIL GERAKAN DATABASE -->
+    <!-- MODAL DETAIL GERAKAN ITEM DATABASE -->
     <div class="modal-overlay" id="item-detail-modal">
         <div class="modal-card">
             <h3 id="item-modal-title" style="color:var(--accent-primary);">Nama Gerakan</h3>
@@ -991,31 +944,22 @@
         </div>
     </div>
 
-    <!-- MODAL LIVE WORKOUT SESSION -->
+    <!-- MODAL LIVE WORKOUT / TUTORIAL REAL-TIME & AUTO-TRANSITION -->
     <div class="modal-overlay" id="live-workout-modal">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 id="live-ex-title" style="color:var(--accent-primary);">Mulai Latihan</h3>
                 <span class="timer-badge" id="rest-timer-display">Rest: 60s</span>
             </div>
-
-            <div style="margin-top: 10px;">
-                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
-                    <span id="live-ex-indicator">Gerakan 1 dari 5</span>
-                    <span id="live-set-indicator">Set 1 dari 3</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" id="live-workout-progressbar"></div>
-                </div>
-            </div>
-
             <div id="live-ex-visual"
                 style="height:140px; margin:12px 0; border-radius:8px; overflow:hidden; background:#1e293b;"></div>
+
             <p id="live-ex-desc" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;"></p>
 
             <div
                 style="background:var(--bg-main); padding:10px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:12px;">
-                <h4 style="font-size:0.82rem; color:var(--accent-primary); margin-bottom:6px;">Target & Beban</h4>
+                <h4 style="font-size:0.82rem; color:var(--accent-primary); margin-bottom:6px;">Target & Beban (Level Bio
+                    Adjust)</h4>
                 <div class="form-group-inline" style="margin-bottom:0;">
                     <div>
                         <label>Target Set x Reps:</label>
@@ -1023,27 +967,32 @@
                     </div>
                     <div>
                         <label>Target Beban (kg):</label>
-                        <input type="number" id="live-weight" placeholder="10">
+                        <input type="number" id="live-weight">
                     </div>
                 </div>
+                <p id="level-lock-notice" style="font-size:0.7rem; color:var(--accent-info); margin-top:4px;"></p>
             </div>
 
+            <div id="live-progress-info"
+                style="background:var(--bg-main);padding:10px;border-radius:8px;margin-bottom:10px;font-size:.78rem">
+            </div>
+            <div style="height:8px;background:var(--bg-main);border-radius:999px;overflow:hidden;margin:-2px 0 12px">
+                <div id="live-progress-bar" style="height:100%;width:0;background:var(--accent-success);transition:width .25s ease"></div>
+            </div>
             <div style="display:flex; gap:8px;">
-                <button type="button" class="btn-primary" style="flex:2; margin-top:0;" id="live-start-set-btn"
+                <button type="button" class="btn-primary" style="flex:1;" id="live-start-set-btn"
                     onclick="completeCurrentSetV9()">▶ Selesaikan Set</button>
-                <button type="button" class="btn-secondary" style="flex:1;" onclick="skipCurrentExercise()">⏭
-                    Lewati</button>
-                <button type="button" class="btn-secondary" style="flex:1;" onclick="closeLiveWorkoutModal()">⏸
-                    Jeda</button>
+                <button type="button" class="btn-secondary" style="flex:1;" onclick="closeLiveWorkoutModal()">⏸ Jeda
+                    Sesi</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CUSTOM PROGRAM BUILDER -->
+    <!-- MODAL CUSTOM PROGRAM BUILDER MULTI-SELECT -->
     <div class="modal-overlay" id="custom-prog-modal">
         <div class="modal-card">
-            <h3 style="color:var(--accent-primary);">Susun Paket Custom</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Pilih jenis latihan & gerakan
+            <h3 style="color:var(--accent-primary);">Susun Paket Custom Multi-Select</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Pilih >1 jenis latihan & gerakan
                 untuk paket kustom Anda.</p>
 
             <form id="custom-prog-form">
@@ -1058,7 +1007,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Pilih Kategori/Jenis Latihan:</label>
+                    <label>Pilih Kategori/Jenis Latihan (Bisa >1):</label>
                     <div class="checkbox-group" id="prog-cat-checkboxes">
                         <label class="checkbox-item"><input type="checkbox" value="chest"
                                 onchange="renderProgExerciseCheckboxes()"> Dada</label>
@@ -1076,14 +1025,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Pilih Gerakan Spesifik:</label>
+                    <label>Pilih Gerakan Spesifik (Bisa >1):</label>
                     <div class="checkbox-group" id="prog-ex-checkboxes" style="max-height: 160px;">
                         <span style="font-size:0.75rem; color:var(--text-muted);">Centang kategori di atas lebih
                             dulu.</span>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary">Simpan Paket Kustom</button>
+                <button type="submit" class="btn-primary">Simpan Paket Kustom Ini</button>
                 <button type="button" class="btn-secondary" onclick="closeCustomProgModal()"
                     style="width:100%; margin-top:6px;">Batal</button>
             </form>
@@ -1124,15 +1073,17 @@
             `;
         }
 
+        // Tampilkan foto/GIF bila sebuah latihan memiliki properti `src`.
+        // Bila belum ada gambar, gunakan ilustrasi SVG sebagai cadangan.
         function getExerciseVisual(ex) {
             if (ex && ex.src) {
                 const alt = ex.alt || ex.name || 'Ilustrasi gerakan latihan';
                 return `<img src="${ex.src}" alt="${alt}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
             }
-            return getSVGImage(ex ? ex.name : 'Latihan', ex ? ex.category : 'Umum');
+            return getSVGImage(ex.name, ex.category);
         }
 
-        const EXERCISE_DATABASE = {
+       const EXERCISE_DATABASE = {
             chest: [
                 { name: "Incline Barbell Bench Press", category: "Dada Atas", src: "GambarD6/dada/incline-barbell-press.gif", alt: "Incline Barbell Bench Press", description: "Bench miring 30-45 derajat melatih massa dada atas.", tips: "Turunkan barbell terkontrol menyentuh dada atas." },
                 { name: "Incline Dumbbell Press", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Press.gif", alt: "Incline Dumbbell Press", description: "Melatih keseimbangan dan rentang gerak dada atas.", tips: "Jaga telapak tangan semi-pronated." },
@@ -1236,7 +1187,7 @@
                 { name: "Banded Shoulder Dislocates", category: "Pemulihan", src: "GambarD6/recoverymobility/Banded Shoulder Dislocates.gif", alt: "Banded Shoulder Dislocates", description: "Putar karet dari depan ke belakang pinggul.", tips: "Gunakan pegangan lebar." },
                 { name: "Couch Stretch", category: "Pemulihan", src: "GambarD6/recoverymobility/Couch Stretch.gif", alt: "Couch Stretch", description: "Peregangan intensif quad & fleksor pinggul.", tips: "Kaki belakang bersandar dinding." },
                 { name: "Foam Roll Thoracic Spine", category: "Pemulihan", src: "GambarD6/recoverymobility/Foam Roll Thoracic Spine.gif", alt: "Foam Roll Thoracic Spine", description: "Menggulung busa di bawah punggung atas.", tips: "Silangkan tangan di dada." },
-                { name: "Scapular Wall Slides", category: "Pemulihan", src: "GambarD6/recoverymobility/Scapular Wall Slides.gif", alt: "Scapular Wall Slides", description: "Geser lengan di dinding melatih belikat.", tips: "Punggung menempel rapat." },
+                { name: "Scapular Wall Slides", category: "Pemulihan", src: "GambarD6/recoverymobility/Scapular Wall Slides.gif", alt: "Scapular Wall Slides", description: "Geser lengan di dinding melatih belikat.", tips: "Punggung menempel rapat." }
             ]
         };
 
@@ -1338,6 +1289,7 @@
             checkRegistrationGate(bio);
             setupNavigation();
             renderBioForm(bio);
+            renderTodayHome(bio);
             setupListeners(dailyLogs, weeklyLogs, customSchedule);
 
             // AUTO SINKRONISASI TANGGAL HARI INI
@@ -1360,143 +1312,7 @@
             }
         });
 
-        function showToast(msg) {
-            const container = document.getElementById("toast-container");
-            if (!container) return;
-            const toast = document.createElement("div");
-            toast.className = "toast-banner";
-            toast.innerHTML = `<span>${msg}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
-
-            if (undoCallback) {
-                const undoBtn = document.createElement("button");
-                undoBtn.className = "btn-secondary";
-                undoBtn.style.padding = "4px 8px";
-                undoBtn.style.fontSize = "0.75rem";
-                undoBtn.textContent = "Batalkan";
-                undoBtn.onclick = () => {
-                    undoCallback();
-                    toast.remove();
-                };
-                toast.appendChild(undoBtn);
-            }
-
-            container.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const bio = appRead("gym_bio_v7", null);
-            const dailyLogs = appRead("gym_daily_logs_v9", []);
-            const weeklyLogs = appRead("gym_weekly_logs_v8", []);
-            const customSchedule = appRead("gym_custom_sched_v7", {});
-
-            checkRegistrationGate(bio);
-            setupNavigation();
-            if (bio) renderBioForm(bio);
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById("daily-date");
-            if (dateInput) dateInput.value = todayStr;
-
-            try {
-                renderNutritionAndMeals(bio);
-                renderSchedule(bio, customSchedule);
-                renderExerciseDatabase();
-                renderPrograms(bio ? bio.level : "Beginner");
-                renderActiveWorkoutSession(bio, customSchedule);
-                renderDashboard(bio, weeklyLogs, dailyLogs);
-            } catch (error) {
-                console.error("Inisialisasi aplikasi:", error);
-            }
-
-            setupFormListeners();
-        });
-
-        function setupFormListeners() {
-            const manualForm = document.getElementById("manual-schedule-form");
-            if (manualForm) {
-                manualForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const day = document.getElementById("manual-day").value;
-                    const selectedEx = Array.from(document.querySelectorAll('input[name="manual_ex"]:checked')).map(cb => cb.value);
-                    const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
-
-                    if (selectedEx.length === 0) {
-                        showToast("Pilih minimal 1 gerakan latihan.");
-                        return;
-                    }
-
-                    const customSchedule = appRead("gym_custom_sched_v7", {});
-                    customSchedule[day] = {
-                        focus: selectedCats.join(" & ").toUpperCase() || "Custom Workout",
-                        exercises: selectedEx
-                    };
-
-                    appWrite("gym_custom_sched_v7", customSchedule);
-                    showToast(`Jadwal hari ${day} berhasil diperbarui!`);
-                    const bio = appRead("gym_bio_v7", null);
-                    renderSchedule(bio, customSchedule);
-                });
-            }
-
-            const customProgForm = document.getElementById("custom-prog-form");
-            if (customProgForm) {
-                customProgForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const title = document.getElementById("custom-prog-title").value.trim();
-                    const desc = document.getElementById("custom-prog-desc").value.trim();
-                    const selectedEx = Array.from(document.querySelectorAll('input[name="custom_prog_ex"]:checked')).map(cb => cb.value);
-
-                    if (!title || selectedEx.length === 0) {
-                        showToast("Sila isi nama paket dan pilih minimal 1 gerakan.");
-                        return;
-                    }
-
-                    const customProgs = appRead("gym_custom_programs_v1", []);
-                    customProgs.push({
-                        id: "custom-" + Date.now(),
-                        level: "Custom",
-                        title,
-                        desc,
-                        exercises: selectedEx
-                    });
-
-                    appWrite("gym_custom_programs_v1", customProgs);
-                    closeCustomProgModal();
-                    showToast("Paket program kustom berhasil disimpan!");
-                    const bio = appRead("gym_bio_v7", null);
-                    renderPrograms(bio ? bio.level : "Beginner");
-                });
-            }
-
-            const dailyLogForm = document.getElementById("daily-log-form");
-            if (dailyLogForm) {
-                dailyLogForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const date = document.getElementById("daily-date").value;
-                    const sleep = document.getElementById("daily-sleep").value;
-                    const workoutStatus = document.getElementById("daily-workout-status").value;
-
-                    const logs = appRead("gym_daily_logs_v9", []);
-                    const existingIdx = logs.findIndex(l => l.date === date);
-                    const newLog = { date, sleep: Number(sleep), workoutStatus, timestamp: Date.now() };
-
-                    if (existingIdx >= 0) {
-                        logs[existingIdx] = newLog;
-                    } else {
-                        logs.push(newLog);
-                    }
-
-                    appWrite("gym_daily_logs_v9", logs);
-                    showToast("Log harian berhasil disimpan!");
-                    const bio = appRead("gym_bio_v7", null);
-                    renderDashboard(bio, appRead("gym_weekly_logs_v8", []), logs);
-                });
-            }
-        }
-
+        // 1. GATEKEEPER & NAVIGASI
         function checkRegistrationGate(bio) {
             if (bio && typeof bio.name === 'string' && bio.name.trim()) {
                 isRegistered = true;
@@ -1519,6 +1335,85 @@
             }
         }
 
+        // Jalur pembuka akses yang berdiri sendiri. Dipanggil sebelum proses
+        // render lain, jadi kegagalan grafik atau data tambahan tidak dapat
+        // membuat pengguna kembali terkunci.
+        function unlockApp(bio) {
+            isRegistered = true;
+            const name = (bio?.name || 'Pengguna').trim() || 'Pengguna';
+            const level = bio?.level || 'Beginner';
+            document.getElementById('user-badge').textContent = `Profil: ${name} (${level})`;
+            document.getElementById('lock-icon-bio').textContent = '✓';
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('locked');
+                const lockTag = btn.querySelector('.lock-tag');
+                if (lockTag) lockTag.textContent = '';
+            });
+            switchTab('home');
+        }
+
+        function showAppError(message) {
+            let notice = document.getElementById('app-error-notice');
+            if (!notice) {
+                notice = document.createElement('div');
+                notice.id = 'app-error-notice';
+                notice.setAttribute('role', 'alert');
+                notice.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:2000;background:#7f1d1d;color:#fff;padding:12px;border-radius:8px;font-size:.82rem;box-shadow:0 4px 12px rgba(0,0,0,.35)';
+                document.body.appendChild(notice);
+            }
+            notice.textContent = message;
+        }
+
+        function renderTodayHome(bio = v9Read('gym_bio_v7', null)) {
+            const box = document.getElementById('today-home-content');
+            if (!box) return;
+            if (!bio?.name) {
+                box.innerHTML = '<p style="color:var(--text-muted)">Lengkapi profil terlebih dahulu untuk melihat rencana hari ini.</p>';
+                return;
+            }
+            const day = getCurrentDayV8(), program = getProgramV8(bio.level), plan = program.days[day];
+            const todayLog = v9GetDayRecord?.(v9Date()) || null;
+            const meals = todayLog?.mealPct || 0;
+            const water = todayLog?.water || 0;
+            box.innerHTML = `
+                <div class="grid-2-col" style="margin-bottom:14px">
+                    <div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:10px;padding:14px">
+                        <span style="font-size:.75rem;color:var(--text-muted)">LATIHAN HARI INI</span>
+                        <h4 style="color:var(--accent-primary);margin:5px 0">${plan.focus}</h4>
+                        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px">${plan.ex.length ? `${plan.ex.length} gerakan • ${getProgressiveSetsV8(program, getProgramWeekV8())}` : 'Hari pemulihan dan istirahat.'}</p>
+                        <button type="button" class="btn-primary" onclick="switchTab('workout-session')">${plan.ex.length ? '▶ Mulai Latihan' : 'Lihat Rencana Hari Ini'}</button>
+                    </div>
+                    <div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:10px;padding:14px">
+                        <span style="font-size:.75rem;color:var(--text-muted)">NUTRISI HARI INI</span>
+                        <p style="margin:6px 0;font-size:.85rem">💧 ${water.toFixed(1)} L tercatat</p>
+                        <p style="margin-bottom:10px;font-size:.85rem">🍽️ Makan: ${meals}% selesai</p>
+                        <button type="button" class="btn-secondary" onclick="switchTab('nutrition')">Isi Checklist</button>
+                    </div>
+                </div>
+                <p style="font-size:.78rem;color:var(--accent-info)">Tip: selesaikan checklist harian setelah makan atau latihan agar progress selalu akurat.</p>`;
+        }
+
+        function exportAppData() {
+            const keys = ['gym_bio_v7', 'gym_program_start_v8', 'gym_daily_logs_v9', 'gym_weekly_logs_v8', 'gym_workout_logs_v9'];
+            const data = Object.fromEntries(keys.map(key => [key, appRead(key, appGetText(key, null))]));
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+            link.download = `get-your-goals-backup-${v9Date()}.json`;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+
+        function resetAppData() {
+            if (!confirm('Hapus seluruh profil, log nutrisi, dan progress dari perangkat ini? Tindakan ini tidak dapat dibatalkan.')) return;
+            ['gym_bio_v7', 'gym_program_start_v8', 'gym_daily_logs_v9', 'gym_weekly_logs_v8', 'gym_workout_logs_v9'].forEach(key => {
+                delete volatileStorage[key];
+                try { localStorage.removeItem(key); } catch (error) { /* penyimpanan lokal tidak tersedia */ }
+            });
+            location.reload();
+        }
+
+        // Tombol menggunakan handler langsung agar tetap berfungsi walaupun
+        // Safari gagal menjalankan inisialisasi halaman yang lain.
         function forceUnlockFromBio() {
             const form = document.getElementById('bio-form');
             if (!form.checkValidity()) {
@@ -1526,7 +1421,7 @@
                 return;
             }
             const complaints = [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value);
-            const bio = {
+            saveBioAndUnlock({
                 name: document.getElementById('user-name').value.trim(),
                 age: Number(document.getElementById('user-age').value),
                 heightCm: Number(document.getElementById('user-height').value),
@@ -1535,19 +1430,25 @@
                 goal: document.getElementById('user-goal').value,
                 level: document.getElementById('user-level-target').value,
                 complaints
-            };
+            });
+        }
 
-            appWrite("gym_bio_v7", bio);
-            checkRegistrationGate(bio);
-
-            renderNutritionAndMeals(bio);
-            renderPrograms(bio.level);
-            renderSchedule(bio, appRead("gym_custom_sched_v7", {}));
-            renderActiveWorkoutSession(bio, appRead("gym_custom_sched_v7", {}));
-            renderDashboard(bio, appRead("gym_weekly_logs_v8", []), appRead("gym_daily_logs_v9", []));
-
-            showToast("Profil berhasil disimpan & akses dibuka!");
-            switchTab("nutrition");
+        function saveBioAndUnlock(bio) {
+            unlockApp(bio);
+            v9Write('gym_bio_v7', bio);
+            if (!appGetText('gym_program_start_v8')) appSetText('gym_program_start_v8', v9Date());
+            try {
+                renderNutritionAndMeals(bio);
+                renderPrograms(bio.level);
+                renderSchedule(bio, {});
+                renderActiveWorkoutSession(bio, {});
+                renderDashboard(bio, v9Read('gym_weekly_logs_v8', []), v9Read('gym_daily_logs_v9', []));
+                renderTodayHome(bio);
+                alert('Profil tersimpan. Semua menu telah dibuka.');
+            } catch (error) {
+                console.error('Fitur tambahan gagal dirender:', error);
+                showAppError('Profil dan menu sudah dibuka. Muat ulang halaman bila salah satu fitur belum tampil.');
+            }
         }
 
         function setupNavigation() {
@@ -1555,7 +1456,7 @@
                 btn.addEventListener("click", () => {
                     const targetTab = btn.getAttribute("data-tab");
                     if (!isRegistered && targetTab !== "biodata") {
-                        showToast("🔒 Harap isi dan simpan biodata terlebih dahulu!");
+                        alert("🔒 Harap isi dan simpan biodata terlebih dahulu untuk membuka akses!");
                         return;
                     }
                     switchTab(targetTab);
@@ -1571,6 +1472,21 @@
             const tab = document.getElementById(tabId);
             if (btn) btn.classList.add("active");
             if (tab) tab.classList.add("active");
+
+            const pageInfo = {
+                home: ['Hari Ini', 'Lanjutkan aktivitas yang paling penting untuk hari ini.'],
+                biodata: ['Profil Pengguna', 'Atur target dan kondisi latihan Anda.'],
+                nutrition: ['Nutrisi Harian', 'Catat makan, minum, tidur, dan latihan.'],
+                schedule: ['Jadwal Latihan', 'Lihat rencana latihan mingguan Anda.'],
+                database: ['Gerakan Latihan', 'Cari gerakan dan pelajari tekniknya.'],
+                programs: ['Paket Latihan', 'Pilih paket yang sesuai dengan level Anda.'],
+                'workout-session': ['Sesi Latihan', 'Selesaikan set satu per satu dengan aman.'],
+                progress: ['Progress', 'Pantau konsistensi dan perubahan berat badan.']
+            }[tabId];
+            if (pageInfo) {
+                document.getElementById('page-title').textContent = pageInfo[0];
+                document.getElementById('page-sub').textContent = pageInfo[1];
+            }
         }
 
         function renderBioForm(bio) {
@@ -1588,6 +1504,7 @@
             });
         }
 
+        // 2. NUTRISI
         function renderNutritionAndMeals(bio) {
             if (!bio) return;
             const container = document.getElementById("nutrition-target-box");
@@ -1629,10 +1546,11 @@
             });
         }
 
+        // 3. JADWAL LATIHAN
         function setScheduleMode(mode) {
             scheduleMode = mode;
-            const bio = appRead("gym_bio_v7", null);
-            const customSchedule = appRead("gym_custom_sched_v7", {});
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+            const customSchedule = JSON.parse(localStorage.getItem("gym_custom_sched_v7")) || {};
 
             document.getElementById("btn-mode-auto").style.borderColor = mode === "auto" ? "var(--accent-primary)" : "var(--border-color)";
             document.getElementById("btn-mode-manual").style.borderColor = mode === "manual" ? "var(--accent-primary)" : "var(--border-color)";
@@ -1680,19 +1598,19 @@
                 } else {
                     if (day === "Senin") {
                         focus = "Dada & Trisep Ultra";
-                        itemsList = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.triceps[0].name];
+                        itemsList = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.triceps[0].name, EXERCISE_DATABASE.triceps[1].name];
                     } else if (day === "Selasa") {
                         focus = "Punggung & Bisep Max";
-                        itemsList = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.biceps[0].name];
+                        itemsList = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.biceps[0].name, EXERCISE_DATABASE.biceps[1].name];
                     } else if (day === "Kamis") {
                         focus = "Leg Day Heavy";
-                        itemsList = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name];
+                        itemsList = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name, EXERCISE_DATABASE.legs[5].name, EXERCISE_DATABASE.legs[8].name];
                     } else if (day === "Jumat") {
                         focus = "Bahu & Perut Core";
-                        itemsList = [EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.abs_core[0].name];
+                        itemsList = [EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.shoulders[1].name, EXERCISE_DATABASE.shoulders[2].name, EXERCISE_DATABASE.abs_core[0].name, EXERCISE_DATABASE.abs_core[1].name];
                     } else if (day === "Sabtu") {
                         focus = "Full Body Conditioning";
-                        itemsList = [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.legs[7].name];
+                        itemsList = [EXERCISE_DATABASE.chest[11].name, EXERCISE_DATABASE.back[4].name, EXERCISE_DATABASE.legs[7].name, EXERCISE_DATABASE.abs_core[6].name];
                     }
                 }
 
@@ -1709,38 +1627,32 @@
             });
         }
 
+        // 4. DATABASE GERAKAN INTERAKTIF ITEM
         function renderExerciseDatabase() {
-            const queryInput = document.getElementById("db-search-input");
-            const query = queryInput ? queryInput.value.toLowerCase() : "";
-            const cat = document.getElementById("db-category-select").value;
+            const category = document.getElementById("db-category-select").value;
             const container = document.getElementById("exercise-db-container");
+            const query = (document.getElementById('exercise-search')?.value || '').trim().toLowerCase();
+            const exercises = (EXERCISE_DATABASE[category] || []).filter(ex =>
+                !query || `${ex.name} ${ex.description} ${ex.tips}`.toLowerCase().includes(query)
+            );
+
             container.innerHTML = "";
-
-            let exercises = [];
-            if (cat === "all") {
-                Object.keys(EXERCISE_DATABASE).forEach(k => {
-                    exercises = exercises.concat(EXERCISE_DATABASE[k]);
-                });
-            } else {
-                exercises = EXERCISE_DATABASE[cat] || [];
-            }
-
-            const filtered = exercises.filter(ex => ex.name.toLowerCase().includes(query));
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted); grid-column: 1/-1;">Tidak ada gerakan yang cocok.</p>`;
+            if (!exercises.length) {
+                container.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem">Tidak ada gerakan yang cocok. Coba kata kunci lain atau ganti kategori.</p>';
                 return;
             }
-
-            filtered.forEach(ex => {
+            exercises.forEach(ex => {
                 const card = document.createElement("div");
                 card.className = "exercise-card";
                 card.onclick = () => openItemModal(ex);
                 card.innerHTML = `
-                    <div class="exercise-img-box">${getExerciseVisual(ex)}</div>
+                    <div class="exercise-img-box">
+                        ${getExerciseVisual(ex)}
+                    </div>
                     <div class="exercise-body">
                         <h5>${ex.name}</h5>
                         <p>${ex.description}</p>
+                        <p style="font-size:0.72rem; color:var(--accent-info);">🔍 Klik item untuk detail</p>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1751,7 +1663,7 @@
             document.getElementById("item-modal-title").textContent = ex.name;
             document.getElementById("item-modal-img").innerHTML = getExerciseVisual(ex);
             document.getElementById("item-modal-desc").textContent = ex.description;
-            document.getElementById("item-modal-tips").textContent = `💡 Tips: ${ex.tips}`;
+            document.getElementById("item-modal-tips").textContent = `💡 Tips Eksekusi: ${ex.tips}`;
             document.getElementById("item-detail-modal").classList.add("active");
         }
 
@@ -1759,182 +1671,48 @@
             document.getElementById("item-detail-modal").classList.remove("active");
         }
 
+        // 5. PAKET PROGRAM DENGAN FITUR PLAYABLE LANGSUNG
         function renderPrograms(userLevel) {
             const container = document.getElementById("program-package-list");
-            if (!container) return;
             document.getElementById("program-level-tag").textContent = `Menampilkan rekomendasi untuk Level: ${userLevel}`;
             container.innerHTML = "";
 
             const defaultProgs = [
-                {
-                    id: "preset-beginner",
-                    level: "Beginner",
-                    title: "Beginner Full-Body Starter",
-                    desc: "Format 3x seminggu ramah pemula.",
-                    exercises: [
-                        EXERCISE_DATABASE.chest[10].name,
-                        EXERCISE_DATABASE.back[2].name,
-                        EXERCISE_DATABASE.legs[7].name,
-                        EXERCISE_DATABASE.abs_core[4].name,
-                        EXERCISE_DATABASE.shoulders[2].name
-                    ]
-                },
-                {
-                    id: "preset-intermediate",
-                    level: "Intermediate",
-                    title: "Intermediate Upper-Lower Split",
-                    desc: "Volume menengah 5-6 gerakan per sesi.",
-                    exercises: [
-                        EXERCISE_DATABASE.chest[0].name,
-                        EXERCISE_DATABASE.chest[1].name,
-                        EXERCISE_DATABASE.back[0].name,
-                        EXERCISE_DATABASE.back[1].name,
-                        EXERCISE_DATABASE.shoulders[0].name,
-                        EXERCISE_DATABASE.triceps[0].name
-                    ]
-                },
-                {
-                    id: "preset-advanced",
-                    level: "Advanced",
-                    title: "Advanced PPL High Volume",
-                    desc: "Intensitas tinggi untuk pembentukan massa otot maksimal.",
-                    exercises: [
-                        EXERCISE_DATABASE.chest[0].name,
-                        EXERCISE_DATABASE.chest[1].name,
-                        EXERCISE_DATABASE.shoulders[0].name,
-                        EXERCISE_DATABASE.triceps[0].name,
-                        EXERCISE_DATABASE.triceps[2].name
-                    ]
-                }
+                { id: "preset-beginner", level: "Beginner", title: "Beginner Full-Body Starter", desc: "Format 3x seminggu ramah pemula.", exercises: [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.legs[7].name, EXERCISE_DATABASE.abs_core[4].name, EXERCISE_DATABASE.shoulders[2].name] },
+                { id: "preset-intermediate", level: "Intermediate", title: "Intermediate Upper-Lower Split", desc: "Volume menengah 5-6 gerakan per sesi.", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[11].name, EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.triceps[0].name] },
+                { id: "preset-advanced", level: "Advanced", title: "Advanced Hypertrophy PPL", desc: "Intensitas tinggi 7-8 gerakan per sesi.", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[12].name, EXERCISE_DATABASE.shoulders[1].name, EXERCISE_DATABASE.triceps[1].name, EXERCISE_DATABASE.triceps[2].name, EXERCISE_DATABASE.abs_core[0].name] }
             ];
 
-            const customProgs = appRead("gym_custom_programs_v1", []);
-            const allProgs = [...defaultProgs, ...customProgs];
+            const customProgs = JSON.parse(localStorage.getItem("gym_custom_progs_v7")) || [];
+            const filteredProgs = defaultProgs.filter(p => p.level === userLevel || userLevel === "Advanced");
+            const allProgs = [...filteredProgs, ...customProgs];
 
             allProgs.forEach(prog => {
                 const card = document.createElement("div");
-                card.className = "card";
-                card.style.marginBottom = "12px";
+                card.style.background = "var(--bg-main)";
+                card.style.border = "1px solid var(--border-color)";
+                card.style.borderRadius = "8px";
+                card.style.padding = "14px";
+                card.style.marginBottom = "10px";
+                card.style.display = "flex";
+                card.style.justifyContent = "space-between";
+                card.style.alignItems = "center";
                 card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4>${prog.title}</h4>
-                        <span style="font-size:0.75rem; background:var(--bg-input); padding:4px 8px; border-radius:4px;">${prog.level || 'Custom'}</span>
+                    <div>
+                        <h4 style="color:var(--accent-primary); font-size:0.9rem;">${prog.title}</h4>
+                        <p style="font-size:0.78rem; color:var(--text-muted);">${prog.desc}</p>
                     </div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin:6px 0;">${prog.desc}</p>
-                    <p style="font-size:0.78rem; color:var(--accent-primary); font-weight:600;">${prog.exercises.length} Gerakan Terjadwal</p>
-                    <button class="btn-primary" style="margin-top:10px; width:auto; padding:6px 14px; font-size:0.8rem;" onclick='openProgramModal(${JSON.stringify(prog).replace(/'/g, "&apos;")})'>Lihat & Mainkan Paket</button>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="btn-primary" style="padding:6px 10px; font-size:0.75rem; width:auto;" onclick="playPackageDirectlyFromCard('${prog.id}')">▶ Play</button>
+                        <button type="button" class="btn-secondary" onclick="viewProgramDetail('${prog.id}')">Rincian ➔</button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function openProgramModal(prog) {
-            currentSelectedProg = prog;
-            document.getElementById("modal-prog-title").textContent = prog.title;
-            document.getElementById("modal-prog-desc").textContent = prog.desc;
-            const list = document.getElementById("modal-exercise-list");
-            list.innerHTML = "";
-            prog.exercises.forEach(exName => {
-                const item = document.createElement("div");
-                item.style.cssText = "background:var(--bg-main); padding:8px; border-radius:6px; font-size:0.8rem; border:1px solid var(--border-color);";
-                item.textContent = `• ${exName}`;
-                list.appendChild(item);
-            });
-            document.getElementById("program-modal").classList.add("active");
-        }
-
-        function closeProgramModal() {
-            document.getElementById("program-modal").classList.remove("active");
-        }
-
-        function playPackageDirectly() {
-            if (!currentSelectedProg) return;
-            closeProgramModal();
-            activePlaylist = [];
-
-            currentSelectedProg.exercises.forEach(exName => {
-                let found = null;
-                Object.keys(EXERCISE_DATABASE).forEach(cat => {
-                    const match = EXERCISE_DATABASE[cat].find(e => e.name === exName);
-                    if (match) found = match;
-                });
-                if (found) {
-                    activePlaylist.push(found);
-                } else {
-                    activePlaylist.push({ name: exName, category: "Latihan", description: "Lakukan gerakan dengan form yang tepat.", tips: "Atur napas dengan teratur." });
-                }
-            });
-
-            if (activePlaylist.length > 0) {
-                currentPlaylistIndex = 0;
-                currentSetIndex = 1;
-                totalSetsPerExercise = 3;
-                openLiveWorkoutModal();
-            } else {
-                showToast("Tidak ada gerakan yang dapat dimainkan.");
-            }
-        }
-
-        function openLiveWorkoutModal() {
-            if (activePlaylist.length === 0) return;
-            const currentEx = activePlaylist[currentPlaylistIndex];
-            document.getElementById("live-ex-title").textContent = currentEx.name;
-            document.getElementById("live-ex-visual").innerHTML = getExerciseVisual(currentEx);
-            document.getElementById("live-ex-desc").textContent = currentEx.description || "";
-            document.getElementById("live-set-reps").value = "3 Set x 10-12 Reps";
-
-            updateWorkoutProgressUI();
-            document.getElementById("live-workout-modal").classList.add("active");
-        }
-
-        function updateWorkoutProgressUI() {
-            document.getElementById("live-ex-indicator").textContent = `Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length}`;
-            document.getElementById("live-set-indicator").textContent = `Set ${currentSetIndex} dari ${totalSetsPerExercise}`;
-
-            const totalSteps = activePlaylist.length * totalSetsPerExercise;
-            const completedSteps = (currentPlaylistIndex * totalSetsPerExercise) + (currentSetIndex - 1);
-            const pct = Math.round((completedSteps / totalSteps) * 100);
-            document.getElementById("live-workout-progressbar").style.width = `${pct}%`;
-        }
-
-        function completeCurrentSetV9() {
-            if (currentSetIndex < totalSetsPerExercise) {
-                currentSetIndex++;
-                showToast(`Set ${currentSetIndex - 1} selesai! Istirahat sejenak.`);
-            } else {
-                currentSetIndex = 1;
-                currentPlaylistIndex++;
-                if (currentPlaylistIndex < activePlaylist.length) {
-                    showToast("Gerakan selesai! Lanjut ke gerakan berikutnya.");
-                    openLiveWorkoutModal();
-                } else {
-                    closeLiveWorkoutModal();
-                    showToast("🎉 Seluruh sesi latihan telah selesai!");
-                    return;
-                }
-            }
-            updateWorkoutProgressUI();
-        }
-
-        function skipCurrentExercise() {
-            if (confirm("Apakah Anda yakin ingin melewati gerakan ini?")) {
-                currentSetIndex = 1;
-                currentPlaylistIndex++;
-                if (currentPlaylistIndex < activePlaylist.length) {
-                    showToast("Gerakan dilewati.");
-                    openLiveWorkoutModal();
-                } else {
-                    closeLiveWorkoutModal();
-                    showToast("Sesi latihan selesai.");
-                }
-            }
-        }
-
-        function closeLiveWorkoutModal() {
-            document.getElementById("live-workout-modal").classList.remove("active");
-        }
-
         function openCustomProgramBuilder() {
+            renderProgExerciseCheckboxes();
             document.getElementById("custom-prog-modal").classList.add("active");
         }
 
@@ -1957,332 +1735,1219 @@
                 list.forEach(ex => {
                     const label = document.createElement("label");
                     label.className = "checkbox-item";
-                    label.innerHTML = `<input type="checkbox" name="custom_prog_ex" value="${ex.name}"> ${ex.name}`;
+                    label.innerHTML = `<input type="checkbox" name="prog_ex" value="${ex.name}"> ${ex.name}`;
                     container.appendChild(label);
                 });
             });
         }
 
-        function renderActiveWorkoutSession(bio, customSchedule) {
-            const container = document.getElementById("active-session-container");
-            if (!container) return;
+        let currentActiveProgramIdForPlay = null;
 
-            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const todayName = days[new Date().getDay()];
-            const todayStr = new Date().toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        function viewProgramDetail(id) {
+            const defaultProgs = [
+                { id: "preset-beginner", title: "Beginner Full-Body Starter", desc: "3x seminggu ramah pemula.", exercises: [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.legs[7].name, EXERCISE_DATABASE.abs_core[4].name, EXERCISE_DATABASE.shoulders[2].name] },
+                { id: "preset-intermediate", title: "Intermediate Upper-Lower Split", desc: "Volume menengah.", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[11].name, EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.triceps[0].name] },
+                { id: "preset-advanced", title: "Advanced Hypertrophy PPL", desc: "Intensitas tinggi.", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[12].name, EXERCISE_DATABASE.shoulders[1].name, EXERCISE_DATABASE.triceps[1].name, EXERCISE_DATABASE.triceps[2].name, EXERCISE_DATABASE.abs_core[0].name] }
+            ];
+            const customProgs = JSON.parse(localStorage.getItem("gym_custom_progs_v7")) || [];
+            const prog = [...defaultProgs, ...customProgs].find(p => p.id === id);
+            if (!prog) return;
 
-            document.getElementById("session-day-title").textContent = `Sesi Latihan Hari Ini (${todayName})`;
-            document.getElementById("session-date-subtitle").textContent = `Tanggal: ${todayStr}`;
+            currentActiveProgramIdForPlay = id;
+            document.getElementById("modal-prog-title").textContent = prog.title;
+            document.getElementById("modal-prog-desc").textContent = prog.desc;
 
-            let exercises = [];
-            if (scheduleMode === "manual" && customSchedule[todayName]) {
-                exercises = customSchedule[todayName].exercises || [];
-            } else {
-                if (todayName === "Senin") exercises = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.triceps[0].name];
-                else if (todayName === "Selasa") exercises = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.biceps[0].name];
-                else if (todayName === "Kamis") exercises = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name];
-                else if (todayName === "Jumat") exercises = [EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.abs_core[0].name];
-                else if (todayName === "Sabtu") exercises = [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name];
-            }
+            const listContainer = document.getElementById("modal-exercise-list");
+            listContainer.innerHTML = "";
+            prog.exercises.forEach(exName => {
+                const item = document.createElement("div");
+                item.style.background = "var(--bg-main)";
+                item.style.padding = "8px 10px";
+                item.style.borderRadius = "6px";
+                item.innerHTML = `<p style="font-weight:700; font-size:0.82rem; color:var(--accent-primary);">${exName}</p>`;
+                listContainer.appendChild(item);
+            });
 
-            container.innerHTML = "";
+            document.getElementById("program-modal").classList.add("active");
+        }
 
-            if (exercises.length === 0) {
-                container.innerHTML = `
-                    <div class="card" style="text-align:center;">
-                        <p style="color:var(--text-muted);">Hari ini adalah jadwal Rest Day / Pemulihan. Istirahatkan tubuh Anda dengan maksimal!</p>
-                    </div>
-                `;
+        function closeProgramModal() {
+            document.getElementById("program-modal").classList.remove("active");
+        }
+
+        function playPackageDirectlyFromCard(id) {
+            currentActiveProgramIdForPlay = id;
+            playPackageDirectly();
+        }
+
+        // FITUR UTAMA 2: PLAY PACKAGE LANGSUNG DI PEMUTAR LIVE WORKOUT
+        function playPackageDirectly() {
+            const defaultProgs = [
+                { id: "preset-beginner", exercises: [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.legs[7].name, EXERCISE_DATABASE.abs_core[4].name, EXERCISE_DATABASE.shoulders[2].name] },
+                { id: "preset-intermediate", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[11].name, EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.triceps[0].name] },
+                { id: "preset-advanced", exercises: [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[12].name, EXERCISE_DATABASE.shoulders[1].name, EXERCISE_DATABASE.triceps[1].name, EXERCISE_DATABASE.triceps[2].name, EXERCISE_DATABASE.abs_core[0].name] }
+            ];
+            const customProgs = JSON.parse(localStorage.getItem("gym_custom_progs_v7")) || [];
+            const prog = [...defaultProgs, ...customProgs].find(p => p.id === currentActiveProgramIdForPlay);
+
+            if (!prog || !prog.exercises || prog.exercises.length === 0) {
+                alert("Paket latihan kosong!");
                 return;
             }
 
+            activePlaylist = [];
+            const allExercises = Object.values(EXERCISE_DATABASE).flat();
+            currentPlaylistIndex = 0;
+            closeProgramModal();
+            switchTab("workout-session");
+            startLiveWorkoutFromPlaylist();
+        }
+
+        function openLiveWorkoutModal() {
+            if (!activePlaylist || activePlaylist.length === 0) return;
+            const currentEx = activePlaylist[currentPlaylistIndex];
+
+            document.getElementById("live-ex-title").textContent = `${currentEx.name} (${currentPlaylistIndex + 1}/${activePlaylist.length})`;
+            document.getElementById("live-ex-visual").innerHTML = getExerciseVisual(currentEx);
+            document.getElementById("live-ex-desc").textContent = currentEx.description || "";
+            document.getElementById("live-set-reps").value = `Set ${currentEx.currentSet} dari ${currentEx.totalSets} (${currentEx.targetReps} reps)`;
+            document.getElementById("live-weight").value = currentEx.targetWeight || 10;
+
+            const progressPct = Math.round(((currentPlaylistIndex) / activePlaylist.length) * 100);
+            document.getElementById("live-progress-bar").style.width = `${progressPct}%`;
+            document.getElementById("live-progress-info").textContent = `Progres Sesi: Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length} (${progressPct}%)`;
+
+            document.getElementById("live-workout-modal").classList.add("active");
+        }
+
+        // 6. PROGRAM SESI LATIHAN INTERAKTIF HARIAN & FITUR 1: OTOMATISASI GERAKAN & REST TIME BERKELANJUTAN
+        function renderActiveWorkoutSession(bio, customSchedule) {
+            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const now = new Date();
+            const currentDayName = days[now.getDay()];
+
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const dateFormatted = now.toLocaleDateString('id-ID', options);
+
+            document.getElementById("session-day-title").textContent = `Sesi Hari ${currentDayName} (Interactive Companion)`;
+            document.getElementById("session-date-subtitle").textContent = `Tanggal Hari Ini: ${dateFormatted} | Level: ${bio ? bio.level : 'Beginner'}`;
+
+            const container = document.getElementById("active-session-container");
+            container.innerHTML = "";
+
+            let exercises = [];
+            if (scheduleMode === "manual" && customSchedule[currentDayName]) {
+                exercises = customSchedule[currentDayName].exercises;
+            } else {
+                if (currentDayName === "Senin") exercises = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.triceps[0].name, EXERCISE_DATABASE.triceps[1].name];
+                else if (currentDayName === "Selasa") exercises = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.biceps[0].name, EXERCISE_DATABASE.biceps[1].name];
+                else if (currentDayName === "Kamis") exercises = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name, EXERCISE_DATABASE.legs[5].name, EXERCISE_DATABASE.legs[8].name];
+                else exercises = [EXERCISE_DATABASE.chest[18].name, EXERCISE_DATABASE.abs_core[4].name, EXERCISE_DATABASE.recovery_mobility[1].name];
+            }
+
             exercises.forEach((exName, idx) => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.style.marginBottom = "10px";
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4 style="color:var(--accent-primary);">${idx + 1}. ${exName}</h4>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">3 Set x 10-12 Reps</span>
+                const item = document.createElement("div");
+                item.style.background = "var(--bg-main)";
+                item.style.border = "1px solid var(--border-color)";
+                item.style.borderRadius = "8px";
+                item.style.padding = "12px";
+                item.style.display = "flex";
+                item.style.justifyContent = "space-between";
+                item.style.alignItems = "center";
+                item.innerHTML = `
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--accent-info); font-weight:bold;">Urutan #${idx + 1}</span>
+                        <h5 style="color:var(--text-main); font-size:0.88rem; margin:2px 0;">${exName}</h5>
+                        <p style="font-size:0.75rem; color:var(--text-muted);">Panduan Real-Time & Live Guide</p>
                     </div>
+                    <button class="btn-primary" style="width:auto; padding:6px 14px; font-size:0.8rem;" onclick="startPlaylistSession(${idx})">▶ Mulai Latihan</button>
                 `;
-                container.appendChild(card);
+                container.appendChild(item);
+            });
+        }
+
+        function startPlaylistSession(startIndex) {
+            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const currentDayName = days[new Date().getDay()];
+            const customSchedule = JSON.parse(localStorage.getItem("gym_custom_sched_v7")) || {};
+
+            let exercises = [];
+            if (scheduleMode === "manual" && customSchedule[currentDayName]) {
+                exercises = customSchedule[currentDayName].exercises;
+            } else {
+                if (currentDayName === "Senin") exercises = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.triceps[0].name, EXERCISE_DATABASE.triceps[1].name];
+                else if (currentDayName === "Selasa") exercises = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.biceps[0].name, EXERCISE_DATABASE.biceps[1].name];
+                else if (currentDayName === "Kamis") exercises = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name, EXERCISE_DATABASE.legs[5].name, EXERCISE_DATABASE.legs[8].name];
+                else exercises = [EXERCISE_DATABASE.chest[18].name, EXERCISE_DATABASE.abs_core[4].name, EXERCISE_DATABASE.recovery_mobility[1].name];
+            }
+
+            activePlaylist = exercises;
+            currentPlaylistIndex = startIndex;
+            startLiveWorkoutFromPlaylist();
+        }
+
+        function startLiveWorkoutFromPlaylist() {
+            if (currentPlaylistIndex >= activePlaylist.length) {
+                closeLiveWorkoutModal();
+                alert("🎉 Selamat! Seluruh rangkaian gerakan latihan sesi ini telah selesai dijalankan secara otomatis.");
+                completeCurrentWorkout();
+                return;
+            }
+
+            const exName = activePlaylist[currentPlaylistIndex];
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7")) || { level: "Beginner" };
+
+            let foundEx = null;
+            Object.keys(EXERCISE_DATABASE).forEach(cat => {
+                const match = EXERCISE_DATABASE[cat].find(e => e.name === exName);
+                if (match) foundEx = match;
             });
 
-            const playBtn = document.createElement("button");
-            playBtn.className = "btn-primary";
-            playBtn.textContent = "▶ Mulai Sesi Interaktif";
-            playBtn.onclick = () => {
-                activePlaylist = [];
-                exercises.forEach(exName => {
-                    let found = null;
-                    Object.keys(EXERCISE_DATABASE).forEach(cat => {
-                        const match = EXERCISE_DATABASE[cat].find(e => e.name === exName);
-                        if (match) found = match;
-                    });
-                    if (found) activePlaylist.push(found);
-                    else activePlaylist.push({ name: exName, category: "Latihan", description: "Lakukan gerakan secara terkontrol.", tips: "Atur napas." });
-                });
-                currentPlaylistIndex = 0;
-                currentSetIndex = 1;
-                totalSetsPerExercise = 3;
-                openLiveWorkoutModal();
-            };
-            container.appendChild(playBtn);
+            if (!foundEx) foundEx = { name: exName, category: "Latihan", description: "Panduan gerakan latihan aktif.", tips: "Fokus pada bentuk gerakan." };
+
+            document.getElementById("live-ex-title").textContent = `[Gerakan ${currentPlaylistIndex + 1}/${activePlaylist.length}] ${foundEx.name}`;
+            document.getElementById("live-ex-visual").innerHTML = getExerciseVisual(foundEx);
+            document.getElementById("live-ex-desc").textContent = `💡 ${foundEx.tips}`;
+
+            const setRepsInput = document.getElementById("live-set-reps");
+            const weightInput = document.getElementById("live-weight");
+            const notice = document.getElementById("level-lock-notice");
+
+            if (bio.level === "Beginner") {
+                setRepsInput.value = "3 Set x 10-12 Reps";
+                weightInput.value = 15;
+                weightInput.readOnly = true;
+                notice.textContent = "🔒 Beban & Set dikunci otomatis sesuai standar keamanan Beginner.";
+            } else if (bio.level === "Intermediate") {
+                setRepsInput.value = "4 Set x 8-10 Reps";
+                weightInput.value = 30;
+                weightInput.readOnly = false;
+                notice.textContent = "✏️ Custom Mode Aktif: Anda bebas mengubah target beban.";
+            } else {
+                setRepsInput.value = "4 Set x 6-8 Reps (Heavy)";
+                weightInput.value = 50;
+                weightInput.readOnly = false;
+                notice.textContent = "✏️ Custom Mode Advanced: Beban & Set dapat disesuaikan manual.";
+            }
+
+            document.getElementById("rest-timer-display").textContent = "Rest: 60s (Auto)";
+            document.getElementById("live-workout-modal").classList.add("active");
+        }
+
+        function nextExerciseOrFinish() {
+            if (restTimerInterval) clearInterval(restTimerInterval);
+            currentPlaylistIndex++;
+            startLiveWorkoutFromPlaylist();
+        }
+
+        function closeLiveWorkoutModal() {
+            clearInterval(restTimerInterval);
+            document.getElementById("live-workout-modal").classList.remove("active");
+        }
+
+       function startRestTimer(seconds, onComplete) {
+            clearInterval(restTimerInterval);
+            let timeLeft = seconds;
+            const timerDisplay = document.getElementById("rest-timer-display");
+
+            restTimerInterval = setInterval(() => {
+                timerDisplay.textContent = `Rest: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(restTimerInterval);
+                    timerDisplay.textContent = "Rest: Done!";
+                    if (onComplete) onComplete();
+                }
+                timeLeft--;
+            }, 1000);
         }
 
         function completeCurrentWorkout() {
-            showToast("🎉 Latihan hari ini telah ditandai selesai!");
-            const dailyLogs = appRead("gym_daily_logs_v9", []);
-            const todayStr = new Date().toISOString().split('T')[0];
-            const existing = dailyLogs.find(l => l.date === todayStr);
-            if (existing) {
-                existing.workoutStatus = "Tuntas Dipraktekkan";
+            let dLogs = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+            let wLogs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+            let bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+
+            const date = new Date().toISOString().split('T')[0];
+            dLogs.push({ date, water: 3, sleep: 8, meal: "Sesuai Target", workout: "Tuntas Dipraktekkan" });
+            localStorage.setItem("gym_daily_logs_v7", JSON.stringify(dLogs));
+
+            renderDashboard(bio, wLogs, dLogs);
+        }
+
+        // 7. DASHBOARD PROGRESS & FITUR 3: TAMPILAN NUTRISI HARIAN TERKONEKSI KE PROGRESS
+        function switchWeekView(weekNum) {
+            activeWeekView = weekNum;
+            document.getElementById("btn-week-1").classList.toggle("active", weekNum === 1);
+            document.getElementById("btn-week-2").classList.toggle("active", weekNum === 2);
+            document.getElementById("log-week").value = weekNum;
+
+            const weeklyLogs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+            const logForWeek = weeklyLogs.find(l => l.week === weekNum);
+
+            if (logForWeek) {
+                document.getElementById("log-weight").value = logForWeek.weightKg || "";
+                document.getElementById("log-note").value = logForWeek.note || "";
             } else {
-                dailyLogs.push({ date: todayStr, sleep: 8, workoutStatus: "Tuntas Dipraktekkan", timestamp: Date.now() });
+                document.getElementById("log-weight").value = "";
+                document.getElementById("log-note").value = "";
             }
-            appWrite("gym_daily_logs_v9", dailyLogs);
-            const bio = appRead("gym_bio_v7", null);
-            renderDashboard(bio, appRead("gym_weekly_logs_v8", []), dailyLogs);
+
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+            const dailyLogs = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+            renderDashboard(bio, weeklyLogs, dailyLogs);
+        }
+
+        function autoSaveNote() {
+            const week = parseInt(document.getElementById("log-week").value);
+            const noteText = document.getElementById("log-note").value;
+            let wLogs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+
+            let logIndex = wLogs.findIndex(l => l.week === week);
+            if (logIndex !== -1) {
+                wLogs[logIndex].note = noteText;
+            } else {
+                wLogs.push({ week: week, weightKg: 0, note: noteText });
+            }
+            localStorage.setItem("gym_weekly_logs_v7", JSON.stringify(wLogs));
         }
 
         function renderDashboard(bio, weeklyLogs, dailyLogs) {
             if (!bio) return;
 
-            document.getElementById("stat-current-weight").textContent = `${bio.weightKg} kg`;
+            const latestLog = weeklyLogs.length > 0 ? weeklyLogs[weeklyLogs.length - 1] : null;
+            const currentWeight = latestLog && latestLog.weightKg > 0 ? latestLog.weightKg : bio.weightKg;
+
+            document.getElementById("stat-current-weight").textContent = `${currentWeight} kg`;
             document.getElementById("stat-target-weight").textContent = `${bio.targetWeightKg} kg`;
-            document.getElementById("stat-total-logs").textContent = `${dailyLogs.length} Log`;
+            document.getElementById("stat-total-logs").textContent = `${weeklyLogs.length + dailyLogs.length} Log`;
 
-            const diff = Math.abs(bio.weightKg - bio.targetWeightKg);
-            const progressPct = diff === 0 ? 100 : Math.min(100, Math.round((dailyLogs.length / 30) * 100));
+            const progressPct = Math.min(100, Math.round((weeklyLogs.length / 2) * 100));
             document.getElementById("stat-progress-pct").textContent = `${progressPct}%`;
+            document.getElementById("streak-count").textContent = `${dailyLogs.length} Hari`;
 
-            const syncBox = document.getElementById("progress-nutrition-sync-box");
-            if (syncBox) {
-                const targetWater = Math.round(bio.weightKg * 35);
-                const targetProtein = Math.round(bio.weightKg * 1.8);
-                syncBox.innerHTML = `
-                    <div class="stat-card">
-                        <h4>TARGET AIR HARIAN</h4>
-                        <div class="val">${targetWater} ml</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>TARGET PROTEIN</h4>
-                        <div class="val">${targetProtein} g</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>KEPATUHAN LOG</h4>
-                        <div class="val">${dailyLogs.length > 0 ? 'Baik' : 'Belum Ada Data'}</div>
-                    </div>
+            // RENDER DATA NUTRISI HARIAN TERKONEKSI KE PROGRESS
+            renderConnectedNutritionProgress(bio, dailyLogs);
+
+            const tbody = document.getElementById("progress-table-body");
+            tbody.innerHTML = "";
+            const sorted = [...weeklyLogs].sort((a, b) => a.week - b.week);
+
+            sorted.forEach((log, index) => {
+                const tr = document.createElement("tr");
+                tr.style.borderBottom = "1px solid var(--border-color)";
+                tr.innerHTML = `
+                    <td style="padding:6px;">Pkn ${log.week}</td>
+                    <td style="padding:6px;"><strong>${log.weightKg > 0 ? log.weightKg + ' kg' : '-'}</strong></td>
+                    <td style="padding:6px; font-size:0.75rem; color:var(--text-muted);">${log.note || "-"}</td>
+                    <td style="padding:6px;"><button class="btn-danger" onclick="deleteWeeklyLog(${index})">Hapus</button></td>
                 `;
-            }
+                tbody.appendChild(tr);
+            });
 
-            renderChart(weeklyLogs, bio);
+            renderChart(sorted, bio);
+            renderAnalysis(currentWeight, bio);
         }
 
-        function renderChart(weeklyLogs, bio) {
-            const ctx = document.getElementById("progressChart");
-            if (!ctx) return;
+        function renderConnectedNutritionProgress(bio, dailyLogs) {
+            const syncBox = document.getElementById("progress-nutrition-sync-box");
+            if (!syncBox) return;
 
-            const labels = weeklyLogs.length > 0 ? weeklyLogs.map(w => `Pkn ${w.week}`) : ["Pekan 1", "Pekan 2", "Pekan 3", "Pekan 4"];
-            const data = weeklyLogs.length > 0 ? weeklyLogs.map(w => w.weight) : [bio.weightKg];
+            let totalWater = 0;
+            let avgSleep = 0;
+            let adherenceCount = 0;
 
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            if (typeof Chart !== 'undefined') {
-                chartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Berat Badan (kg)',
-                            data: data,
-                            borderColor: '#facc15',
-                            backgroundColor: 'rgba(250, 204, 21, 0.1)',
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                grid: { color: '#334155' },
-                                ticks: { color: '#94a3b8' }
-                            },
-                            x: {
-                                grid: { color: '#334155' },
-                                ticks: { color: '#94a3b8' }
-                            }
-                        },
-                        plugins: {
-                            legend: { labels: { color: '#f8fafc' } }
-                        }
-                    }
+            if (dailyLogs.length > 0) {
+                dailyLogs.forEach(d => {
+                    totalWater += parseFloat(d.water || 0);
+                    avgSleep += parseFloat(d.sleep || 0);
+                    if (d.meal === "Sesuai Target Nutrisi" || d.meal === "Sesuai Target") adherenceCount++;
                 });
+                avgSleep = (avgSleep / dailyLogs.length).toFixed(1);
             }
+
+            let bmr = Math.round((10 * bio.weightKg) + (6.25 * bio.heightCm) - (5 * bio.age) + 5);
+            let targetCal = Math.round(bmr * 1.35);
+            if (bio.goal === "Bulking") targetCal += 400;
+            if (bio.goal === "Fat Loss") targetCal -= 400;
+
+            syncBox.innerHTML = `
+                <div style="background:var(--bg-main); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Target Kalori Aktif</span>
+                    <p style="font-size:1rem; font-weight:800; color:var(--accent-primary);">${targetCal} Kcal</p>
+                    <span style="font-size:0.7rem; color:var(--accent-success);">● Sinkron Goal ${bio.goal}</span>
+                </div>
+                <div style="background:var(--bg-main); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Akumulasi Air Tercatat</span>
+                    <p style="font-size:1rem; font-weight:800; color:var(--accent-info);">${totalWater} Liter</p>
+                    <span style="font-size:0.7rem; color:var(--text-muted);">Dari ${dailyLogs.length} total log harian</span>
+                </div>
+                <div style="background:var(--bg-main); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Kepatuhan Nutrisi</span>
+                    <p style="font-size:1rem; font-weight:800; color:var(--accent-success);">${dailyLogs.length ? Math.round((adherenceCount / dailyLogs.length) * 100) : 0}%</p>
+                    <span style="font-size:0.7rem; color:var(--text-muted);">Sesuai target gizi</span>
+                </div>
+                <div style="background:var(--bg-main); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Rata-rata Istirahat Tidur</span>
+                    <p style="font-size:1rem; font-weight:800; color:var(--accent-primary);">${avgSleep} Jam</p>
+                    <span style="font-size:0.7rem; color:var(--text-muted);">Pemulihan otot optimal</span>
+                </div>
+            `;
         }
 
-        function exportDataJSON() {
-            const data = {
-                bio: appRead("gym_bio_v7", null),
-                logs: appRead("gym_daily_logs_v9", []),
-                weekly: appRead("gym_weekly_logs_v8", []),
-                customSchedule: appRead("gym_custom_sched_v7", {}),
-                customPrograms: appRead("gym_custom_programs_v1", [])
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `GetYourGoals_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            showToast("Data cadangan berhasil diunduh.");
-        }
+        function renderChart(sortedLogs, bio) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const filtered = sortedLogs.filter(l => l.weightKg > 0);
 
-        function importDataJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.bio) appWrite("gym_bio_v7", data.bio);
-                    if (data.logs) appWrite("gym_daily_logs_v9", data.logs);
-                    if (data.weekly) appWrite("gym_weekly_logs_v8", data.weekly);
-                    if (data.customSchedule) appWrite("gym_custom_sched_v7", data.customSchedule);
-                    if (data.customPrograms) appWrite("gym_custom_programs_v1", data.customPrograms);
-                    showToast("Data berhasil dipulihkan!");
-                    setTimeout(() => location.reload(), 1000);
-                } catch (err) {
-                    showToast("Gagal mengimpor file JSON.");
+            const labels = filtered.map(l => `Pkn ${l.week}`);
+            const data = filtered.map(l => l.weightKg);
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['Awal'],
+                    datasets: [{
+                        label: 'BB (kg)',
+                        data: data.length ? data : [bio ? bio.weightKg : 0],
+                        borderColor: '#facc15',
+                        backgroundColor: 'rgba(250, 204, 21, 0.15)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f8fafc' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
                 }
-            };
-            reader.readAsText(file);
+            });
         }
 
-        function resetAllData() {
-            if (confirm("Apakah Anda yakin ingin menghapus seluruh data aplikasi? Tindakan ini tidak dapat dibatalkan.")) {
-                localStorage.clear();
-                showToast("Seluruh data telah dihapus.");
-                setTimeout(() => location.reload(), 1000);
+        function renderAnalysis(currentWeight, bio) {
+            const container = document.getElementById("evaluation-analysis-box");
+            const diff = (bio.targetWeightKg - currentWeight).toFixed(1);
+
+            let message = "";
+            if (bio.goal === "Bulking") {
+                message = diff > 0 ? `Sisa <strong>${diff} kg</strong> lagi untuk target Bulking.` : `Target Bulking tercapai!`;
+            } else if (bio.goal === "Fat Loss") {
+                const lossNeeded = (currentWeight - bio.targetWeightKg).toFixed(1);
+                message = lossNeeded > 0 ? `Sisa <strong>${lossNeeded} kg</strong> lagi untuk target Fat Loss.` : `Target Fat Loss tercapai!`;
+            } else {
+                message = `Kondisi fisik stabil pada target Maintenance.`;
             }
+
+            container.innerHTML = `
+                <div style="background:var(--bg-main); border:1px solid var(--accent-primary); border-radius:8px; padding:10px; font-size:0.8rem;">
+                    <p><strong>Evaluasi:</strong> ${message}</p>
+                    <p style="color:var(--text-muted); font-size:0.75rem; margin-top:2px;">Kendala: ${bio.complaints && bio.complaints.length ? bio.complaints.join(', ') : 'Tidak ada'}</p>
+                </div>
+            `;
         }
 
-        // ==========================================
-        // KODE PENANGAN TRANSI SELERASAI SET / GERAKAN
-        // ==========================================
-        let activeSetIndex = 1;
-        const MAX_SETS_PER_EXERCISE = 3;
+        function deleteWeeklyLog(index) {
+            let logs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+            let daily = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+            let bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+            logs.splice(index, 1);
+            localStorage.setItem("gym_weekly_logs_v7", JSON.stringify(logs));
+            renderDashboard(bio, logs, daily);
+        }
 
-        function completeCurrentSetV9() {
-            if (!activePlaylist || activePlaylist.length === 0) {
-                showToast("Sesi latihan tidak ditemukan.");
-                closeLiveWorkoutModal();
+        // Implementasi lama dipertahankan sebagai referensi; tidak lagi dipasang.
+        function setupListenersV7Legacy(dailyLogs, weeklyLogs, customSchedule) {
+            document.getElementById("bio-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const selectedComplaints = Array.from(document.querySelectorAll('input[name="complaint"]:checked')).map(cb => cb.value);
+
+                const bioData = {
+                    name: document.getElementById("user-name").value,
+                    age: parseInt(document.getElementById("user-age").value),
+                    heightCm: parseInt(document.getElementById("user-height").value),
+                    weightKg: parseFloat(document.getElementById("user-weight-init").value),
+                    targetWeightKg: parseFloat(document.getElementById("user-target-weight").value),
+                    goal: document.getElementById("user-goal").value,
+                    level: document.getElementById("user-level-target").value,
+                    complaints: selectedComplaints
+                };
+
+                localStorage.setItem("gym_bio_v7", JSON.stringify(bioData));
+                checkRegistrationGate(bioData);
+                renderNutritionAndMeals(bioData);
+                renderSchedule(bioData, customSchedule);
+                renderPrograms(bioData.level);
+                renderActiveWorkoutSession(bioData, customSchedule);
+                renderDashboard(bioData, weeklyLogs, dailyLogs);
+
+                alert("🎉 Biodata berhasil disimpan! Semua fitur telah dibuka.");
+                switchTab("nutrition");
+            });
+
+            document.getElementById("daily-log-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const date = document.getElementById("daily-date").value;
+                const water = parseFloat(document.getElementById("daily-water").value);
+                const sleep = parseFloat(document.getElementById("daily-sleep").value);
+                const meal = document.getElementById("daily-meal-status").value;
+                const workout = document.getElementById("daily-workout-status").value;
+
+                let dLogs = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+                let wLogs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+                let bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+
+                dLogs.push({ date, water, sleep, meal, workout });
+                localStorage.setItem("gym_daily_logs_v7", JSON.stringify(dLogs));
+                renderDashboard(bio, wLogs, dLogs);
+                alert("Catatan harian berhasil disimpan & terhubung ke progress!");
+            });
+
+            document.getElementById("manual-schedule-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const day = document.getElementById("manual-day").value;
+                const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
+                const selectedEx = Array.from(document.querySelectorAll('#manual-ex-checkboxes input:checked')).map(cb => cb.value);
+
+                customSchedule[day] = {
+                    focus: selectedCats.length ? `Custom (${selectedCats.join(', ')})` : "Custom Workout",
+                    exercises: selectedEx.length ? selectedEx : ["Latihan Bebas Pilihan"]
+                };
+
+                localStorage.setItem("gym_custom_sched_v7", JSON.stringify(customSchedule));
+                const bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+                renderSchedule(bio, customSchedule);
+                renderActiveWorkoutSession(bio, customSchedule);
+                alert(`Jadwal manual multi-select hari ${day} disimpan!`);
+            });
+
+            document.getElementById("log-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const week = parseInt(document.getElementById("log-week").value);
+                const weightKg = parseFloat(document.getElementById("log-weight").value);
+                const note = document.getElementById("log-note").value;
+
+                let wLogs = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+                let dLogs = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+                let bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+
+                let logIndex = wLogs.findIndex(l => l.week === week);
+                if (logIndex !== -1) {
+                    wLogs[logIndex].weightKg = weightKg;
+                    wLogs[logIndex].note = note;
+                } else {
+                    wLogs.push({ week, weightKg, note });
+                }
+
+                localStorage.setItem("gym_weekly_logs_v7", JSON.stringify(wLogs));
+                renderDashboard(bio, wLogs, dLogs);
+                alert(`Evaluasi Pekan ${week} berhasil diperbarui!`);
+            });
+
+            document.getElementById("custom-prog-form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const title = document.getElementById("custom-prog-title").value;
+                const desc = document.getElementById("custom-prog-desc").value;
+                const selectedEx = Array.from(document.querySelectorAll('#prog-ex-checkboxes input:checked')).map(cb => cb.value);
+
+                let customProgs = JSON.parse(localStorage.getItem("gym_custom_progs_v7")) || [];
+                customProgs.push({
+                    id: "custom-" + Date.now(),
+                    title, desc,
+                    exercises: selectedEx.length ? selectedEx : ["Gerakan Custom Pilihan"]
+                });
+
+                localStorage.setItem("gym_custom_progs_v7", JSON.stringify(customProgs));
+                const bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+                renderPrograms(bio ? bio.level : "Beginner");
+                closeCustomProgModal();
+                alert("Paket program kustom multi-select berhasil disimpan!");
+            });
+        }
+
+
+        /* ================================================================
+           V8 REVISION - CONTINUOUS LEVEL PROGRAM, NUTRITION SCHEDULE,
+           ONE DAILY LOG / DAY, AUTO GUIDANCE & WEEK-END EVALUATION
+           ================================================================ */
+        const PROGRAM_V8 = {
+            Beginner: {
+                title: "Beginner Foundation 3x/Week",
+                desc: "Program pemula 3 hari latihan + recovery. Siklus otomatis berlanjut setiap pekan.",
+                days: {
+                    Senin: { focus: "Chest Day + Triceps", cats: ["chest", "triceps"], ex: ["Flat Dumbbell Press", "Push-Up Standar", "Incline Dumbbell Press", "Tricep Cable Pushdown", "Overhead Dumbbell Extension"] },
+                    Selasa: { focus: "Rest / Mobility", cats: ["recovery_mobility"], ex: ["World Greatest Stretch", "Cat-Cow Stretch"] },
+                    Rabu: { focus: "Back Day + Biceps", cats: ["back", "biceps"], ex: ["Lat Pulldown Wide Grip", "Seated Cable Row", "Single-Arm Dumbbell Row", "Dumbbell Hammer Curl", "Cable Bicep Curl"] },
+                    Kamis: { focus: "Rest / Mobility", cats: ["recovery_mobility"], ex: ["Scapular Wall Slides", "Child Pose"] },
+                    Jumat: { focus: "Leg Day + Core", cats: ["legs", "abs_core"], ex: ["Goblet Squat", "Leg Press Machine", "Leg Extension Machine", "Standing Calf Raise", "Plank Standar"] },
+                    Sabtu: { focus: "Active Recovery", cats: ["recovery_mobility"], ex: ["Foam Rolling Quads", "Legs-Up-The-Wall"] },
+                    Minggu: { focus: "Rest Day", cats: [], ex: [] }
+                }, sets: "3 Set x 10-12 Reps"
+            },
+            Intermediate: {
+                title: "Intermediate Upper/Lower 5x/Week",
+                desc: "Split 5 hari dengan volume menengah. Minggu berikutnya otomatis melanjutkan siklus.",
+                days: {
+                    Senin: { focus: "Chest Day + Triceps", cats: ["chest", "triceps"], ex: ["Flat Barbell Bench Press", "Incline Dumbbell Press", "Pec Deck Machine Fly", "Tricep Cable Pushdown", "Skull Crusher"] },
+                    Selasa: { focus: "Back Day + Biceps", cats: ["back", "biceps"], ex: ["Barbell Bent-Over Row", "Lat Pulldown Wide Grip", "Seated Cable Row", "Barbell Bicep Curl", "Dumbbell Hammer Curl"] },
+                    Rabu: { focus: "Leg Day", cats: ["legs"], ex: ["Barbell Back Squat", "Romanian Deadlift (RDL)", "Leg Press Machine", "Lying Leg Curl Machine", "Standing Calf Raise"] },
+                    Kamis: { focus: "Shoulder Day + Core", cats: ["shoulders", "abs_core"], ex: ["Overhead Barbell Press", "Seated Dumbbell Press", "Dumbbell Lateral Raise", "Reverse Pec Deck Fly", "Hanging Leg Raise"] },
+                    Jumat: { focus: "Upper Body Hypertrophy", cats: ["chest", "back", "triceps", "biceps"], ex: ["Incline Barbell Bench Press", "Pull-Up", "Standing Cable Crossover", "Face Pull", "Cable Bicep Curl", "Tricep Cable Pushdown"] },
+                    Sabtu: { focus: "Active Recovery", cats: ["recovery_mobility"], ex: ["World Greatest Stretch", "Foam Roll Thoracic Spine"] },
+                    Minggu: { focus: "Rest Day", cats: [], ex: [] }
+                }, sets: "4 Set x 8-10 Reps"
+            },
+            Advanced: {
+                title: "Advanced Hypertrophy PPL 6x/Week",
+                desc: "Push/Pull/Legs dua siklus per pekan. Intensitas tinggi dan berlanjut otomatis.",
+                days: {
+                    Senin: { focus: "Push A — Chest + Triceps", cats: ["chest", "triceps"], ex: ["Flat Barbell Bench Press", "Incline Barbell Bench Press", "Incline Dumbbell Press", "Tricep Cable Pushdown", "Close-Grip Bench Press"] },
+                    Selasa: { focus: "Pull A — Back + Biceps", cats: ["back", "biceps"], ex: ["Conventional Deadlift", "Barbell Bent-Over Row", "Pull-Up", "Barbell Bicep Curl", "Dumbbell Hammer Curl"] },
+                    Rabu: { focus: "Legs A", cats: ["legs", "abs_core"], ex: ["Barbell Back Squat", "Romanian Deadlift (RDL)", "Leg Press Machine", "Lying Leg Curl Machine", "Hanging Leg Raise"] },
+                    Kamis: { focus: "Push B — Shoulder + Chest", cats: ["shoulders", "chest", "triceps"], ex: ["Overhead Barbell Press", "Seated Dumbbell Press", "Dumbbell Lateral Raise", "Pec Deck Machine Fly", "Skull Crusher"] },
+                    Jumat: { focus: "Pull B — Back + Rear Delt", cats: ["back", "shoulders", "biceps"], ex: ["T-Bar Row", "Lat Pulldown Wide Grip", "Seated Cable Row", "Face Pull", "EZ-Bar Preacher Curl"] },
+                    Sabtu: { focus: "Legs B + Core", cats: ["legs", "abs_core"], ex: ["Bulgarian Split Squat", "Walking Dumbbell Lunges", "Barbell Hip Thrust", "Standing Calf Raise", "Ab Wheel Rollout"] },
+                    Minggu: { focus: "Rest Day", cats: [], ex: [] }
+                }, sets: "4 Set x 6-8 Reps (Heavy)"
+            }
+        };
+
+        const MEAL_TIMES_V8 = [
+            { time: "07:00", label: "Sarapan" }, { time: "10:00", label: "Snack Pagi" },
+            { time: "13:00", label: "Makan Siang" }, { time: "16:00", label: "Snack Sore" },
+            { time: "19:00", label: "Makan Malam" }, { time: "21:00", label: "Snack Malam" }
+        ];
+
+        function getNutritionTargetsV8(bio) {
+            const bmr = Math.round((10 * bio.weightKg) + (6.25 * bio.heightCm) - (5 * bio.age) + 5);
+            const tdee = Math.round(bmr * 1.35);
+            let calories = tdee;
+            if (bio.goal === "Bulking") calories += 400;
+            if (bio.goal === "Fat Loss") calories -= 400;
+            const protein = Math.round(bio.weightKg * (bio.goal === "Fat Loss" ? 2.0 : 1.8));
+            const water = Math.max(2, Math.round((bio.weightKg * 0.033) * 2) / 2);
+            const glassMl = 250;
+            const glasses = Math.max(8, Math.round((water * 1000) / glassMl));
+            return { bmr, tdee, calories, protein, water, glassMl, glasses };
+        }
+
+        function getProgramWeekV8() {
+            const start = appGetText("gym_program_start_v8");
+            if (!start) return 1;
+            const d0 = new Date(start + "T00:00:00");
+            const now = new Date();
+            const diff = Math.max(0, now - d0);
+            return Math.floor(diff / 604800000) + 1;
+        }
+
+        function getCurrentDayV8() {
+            return ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][new Date().getDay()];
+        }
+
+        function getProgramV8(level) { return { days: { Senin: { focus: "Dada", ex: [1,2] } } }; }
+
+        function getProgressiveSetsV8(program, week) {
+            const cycle = ((week - 1) % 4) + 1;
+            if (program === PROGRAM_V8.Beginner) return cycle >= 3 ? "3 Set x 12 Reps" : "3 Set x 10-12 Reps";
+            if (program === PROGRAM_V8.Intermediate) return cycle >= 3 ? "4 Set x 10-12 Reps" : "4 Set x 8-10 Reps";
+            return cycle >= 3 ? "4 Set x 8 Reps (Heavy)" : "4 Set x 6-8 Reps (Heavy)";
+        }
+
+        function getExerciseDetailV8(name) {
+            for (const cat of Object.keys(EXERCISE_DATABASE)) {
+                const ex = EXERCISE_DATABASE[cat].find(x => x.name === name);
+                if (ex) return ex;
+            }
+            return null;
+        }
+
+        function renderNutritionAndMeals(bio) {
+            if (!bio) return;
+            const t = getNutritionTargetsV8(bio);
+            const container = document.getElementById("nutrition-target-box");
+            const menuContainer = document.getElementById("daily-dynamic-menu");
+            container.innerHTML = `
+                <div style="background:var(--bg-main);padding:12px;border-radius:8px;border:1px solid var(--border-color);">
+                    <p style="font-size:.8rem">Target <strong>${bio.goal}</strong></p>
+                    <p style="font-size:1.15rem;font-weight:800;color:var(--accent-primary)">${t.calories} Kcal/hari | Protein ~${t.protein}g/hari</p>
+                    <p style="font-size:.78rem;color:var(--accent-info);margin-top:4px">💧 Target air: <strong>${t.water.toFixed(1)} L/hari</strong> = ${t.glasses} gelas × ${t.glassMl} ml</p>
+                </div>`;
+
+            const goalMenus = DYNAMIC_MEALS[bio.goal] || DYNAMIC_MEALS.Bulking;
+            const todayMenu = goalMenus[(getProgramWeekV8() - 1) % goalMenus.length] || goalMenus[0];
+            const mealFallback = [
+                { time: "Sarapan", name: "Menu sarapan sesuai target kalori & protein", detail: "Utamakan protein + karbohidrat sesuai target." },
+                { time: "Makan Siang", name: "Menu utama protein + karbohidrat + sayur", detail: "Porsi disesuaikan dengan target harian." },
+                { time: "Makan Malam", name: "Menu malam tinggi protein + sayur", detail: "Jaga total kalori tetap sesuai target." }
+            ];
+            const meals = todayMenu.length ? todayMenu : mealFallback;
+            const waterTimes = [];
+            for (let i = 0; i < t.glasses; i++) waterTimes.push({ time: `${String(Math.floor(6 + i * (15 / t.glasses))).padStart(2, '0')}:${(i % 2) * 30 === 0 ? '00' : '30'}`, amount: (t.glassMl / 1000).toFixed(2) });
+            menuContainer.innerHTML = `
+                <div style="display:grid;gap:8px">
+                    ${meals.map((m, i) => `<div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:9px 12px">
+                        <span style="font-weight:700;color:var(--accent-primary);font-size:.8rem">${MEAL_TIMES_V8[i]?.time || ''} • ${m.time}</span>
+                        <p style="font-size:.85rem;font-weight:600">${m.name}</p><p style="font-size:.75rem;color:var(--text-muted)">${m.detail}</p>
+                    </div>`).join('')}
+                    <div style="background:var(--bg-main);border:1px solid var(--accent-info);border-radius:8px;padding:10px 12px">
+                        <strong style="color:var(--accent-info);font-size:.82rem">💧 Jadwal Minum ${t.water.toFixed(1)} L/hari</strong>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:5px;margin-top:7px">
+                            ${waterTimes.map((w, i) => `<span style="font-size:.72rem;background:var(--bg-card);padding:6px;border-radius:5px">${w.time}<br><strong>${w.amount} L</strong></span>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderPrograms(userLevel) {
+            const container = document.getElementById("program-package-list");
+            const program = getProgramV8(userLevel);
+            const week = getProgramWeekV8();
+            const activeDay = getCurrentDayV8();
+            const active = program.days[activeDay];
+            document.getElementById("program-level-tag").textContent = `${program.title} • Pekan ${week} • Siklus otomatis berlanjut setiap pekan.`;
+            container.innerHTML = `
+                <div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:10px;padding:14px;margin-bottom:12px">
+                    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h4 style="color:var(--accent-primary)">${program.title}</h4><p style="font-size:.78rem;color:var(--text-muted)">${program.desc}</p></div><span style="background:var(--accent-info);padding:5px 8px;border-radius:5px;font-size:.72rem;font-weight:700">PEKAN ${week}</span></div>
+                    <p style="font-size:.78rem;margin-top:8px">Target sesi minggu ini: <strong>${getProgressiveSetsV8(program, week)}</strong>. Pekan berikutnya otomatis lanjut tanpa menyusun ulang jadwal.</p>
+                </div>
+                <div class="schedule-grid">
+                    ${Object.entries(program.days).map(([day, d]) => `<div class="schedule-day-card" style="${day === activeDay ? 'border-color:var(--accent-primary)' : ''}">
+                        <h4>${day} ${day === activeDay ? '• HARI INI' : ''}</h4><p style="font-weight:700;font-size:.82rem;color:var(--accent-primary);margin-bottom:6px">${d.focus}</p>
+                        ${d.ex.length ? `<ul style="padding-left:14px;font-size:.74rem;color:var(--text-muted)">${d.ex.map(x => `<li style="margin-bottom:2px">${x}</li>`).join('')}</ul><p style="font-size:.7rem;color:var(--accent-info);margin-top:7px">${getProgressiveSetsV8(program, week)}</p>` : `<p style="font-size:.74rem;color:var(--text-muted)">Pemulihan & istirahat.</p>`}
+                    </div>`).join('')}
+                </div>`;
+        }
+
+        function renderSchedule(bio, customSchedule) {
+            const container = document.getElementById("schedule-cards-container");
+            const program = getProgramV8(bio ? bio.level : "Beginner");
+            const week = getProgramWeekV8();
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+            container.innerHTML = days.map(day => {
+                const d = program.days[day];
+                return `<div class="schedule-day-card"><h4>${day}</h4><p style="font-weight:700;font-size:.82rem;color:var(--accent-primary);margin-bottom:6px">${d.focus}</p><ul style="padding-left:14px;font-size:.75rem;color:var(--text-muted)">${d.ex.length ? d.ex.map(x => `<li style="margin-bottom:2px">${x}</li>`).join('') : '<li>Rest & recovery</li>'}</ul><p style="font-size:.7rem;color:var(--accent-info);margin-top:6px">Pekan ${week} • ${getProgressiveSetsV8(program, week)}</p></div>`;
+            }).join('');
+        }
+
+        function renderActiveWorkoutSession(bio, customSchedule) {
+            const day = getCurrentDayV8();
+            const program = getProgramV8(bio ? bio.level : "Beginner");
+            const data = program.days[day] || program.days.Minggu;
+            const week = getProgramWeekV8();
+            const dateFormatted = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById("session-day-title").textContent = `Sesi ${data.focus} • Pekan ${week}`;
+            document.getElementById("session-date-subtitle").textContent = `Tanggal: ${dateFormatted} | Level: ${bio ? bio.level : 'Beginner'} | ${getProgressiveSetsV8(program, week)}`;
+            const container = document.getElementById("active-session-container");
+            container.innerHTML = data.ex.length ? data.ex.map((ex, idx) => `<div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent-info);font-weight:bold">Urutan #${idx + 1}</span><h5 style="font-size:.88rem;margin:2px 0">${ex}</h5><p style="font-size:.72rem;color:var(--text-muted)">${getProgressiveSetsV8(program, week)}</p></div><button class="btn-primary" style="width:auto;padding:6px 14px;font-size:.8rem" onclick="startPlaylistSession(${idx})">▶ Mulai</button></div>`).join('') : `<div style="padding:18px;text-align:center;color:var(--text-muted)">Hari ini adalah Rest Day. Fokus pemulihan, tidur, makan, dan hidrasi.</div>`;
+        }
+
+       function startPlaylistSession(startIndex) {
+            const bio = appRead("gym_bio_v7", { level: "Beginner" });
+            const program = getProgramV8(bio.level);
+            const day = getCurrentDayV8();
+            const dayData = program.days[day];
+
+            if (!dayData || !dayData.ex || dayData.ex.length === 0) {
+                alert("Hari ini adalah jadwal istirahat (Rest Day), tidak ada gerakan latihan.");
                 return;
             }
 
-            if (activeSetIndex < MAX_SETS_PER_EXERCISE) {
-                activeSetIndex++;
-                updateLiveWorkoutModalUI();
-                startRestTimer(60);
-                showToast(`Set ${activeSetIndex - 1} selesai! Lanjut Set ${activeSetIndex}.`);
-            } else {
-                activeSetIndex = 1;
-                currentPlaylistIndex++;
+            activePlaylist = dayData.ex;
+            currentPlaylistIndex = startIndex;
+            startLiveWorkoutFromPlaylist();
+        }
 
-                if (currentPlaylistIndex < activePlaylist.length) {
-                    updateLiveWorkoutModalUI();
-                    startRestTimer(90);
-                    showToast(`Gerakan selesai! Lanjut ke gerakan ke-${currentPlaylistIndex + 1}.`);
+        function completeCurrentWorkout() {
+            const date = new Date().toISOString().split('T')[0];
+            // Workout completion is recorded separately so the one-entry daily nutrition/sleep rule stays intact.
+            let workouts = JSON.parse(localStorage.getItem("gym_workout_logs_v8")) || [];
+            if (!workouts.some(x => x.date === date)) workouts.push({ date, status: "Tuntas Dipraktekkan" });
+            localStorage.setItem("gym_workout_logs_v8", JSON.stringify(workouts));
+            renderDashboard(JSON.parse(localStorage.getItem("gym_bio_v7")), JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || [], dLogs);
+        }
+
+        function isSundayV8() { return new Date().getDay() === 0; }
+        function getCurrentEvaluationWeekV8() {
+            const start = localStorage.getItem("gym_program_start_v8");
+            if (!start) return 1;
+            return getProgramWeekV8();
+        }
+
+        function getDailyStatsV8(bio) {
+            const logs = JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || [];
+            const week = getCurrentEvaluationWeekV8();
+            const start = new Date(localStorage.getItem("gym_program_start_v8") + "T00:00:00");
+            const end = new Date(start.getTime() + week * 604800000);
+            const startWeek = new Date(end.getTime() - 604800000);
+            const inWeek = logs.filter(x => { const d = new Date(x.date + "T00:00:00"); return d >= startWeek && d < end; });
+            const avgSleep = inWeek.length ? inWeek.reduce((a, x) => a + Number(x.sleep || 0), 0) / inWeek.length : 0;
+            const avgWater = inWeek.length ? inWeek.reduce((a, x) => a + Number(x.water || 0), 0) / inWeek.length : 0;
+            const mealOk = inWeek.filter(x => x.meal === "Sesuai Target Nutrisi" || x.meal === "Sesuai Target").length;
+            const workouts = (JSON.parse(localStorage.getItem("gym_workout_logs_v8")) || []).filter(x => { const d = new Date(x.date + "T00:00:00"); return d >= startWeek && d < end; }).length;
+            return { inWeek, avgSleep, avgWater, mealAdherence: inWeek.length ? mealOk / inWeek.length : 0, workouts };
+        }
+
+        function getAutoGuidanceV8(bio, currentWeight, weeklyLogs, dailyLogs) {
+            const t = getNutritionTargetsV8(bio); const stats = getDailyStatsV8(bio);
+            const last = weeklyLogs.filter(x => x.weightKg > 0).sort((a, b) => a.week - b.week);
+            const prev = last.length > 1 ? last[last.length - 2].weightKg : bio.weightKg;
+            const delta = currentWeight - prev;
+            const targetDelta = bio.goal === "Bulking" ? 0.25 : (bio.goal === "Fat Loss" ? -0.5 : 0);
+            const advice = [];
+            if (bio.goal === "Bulking" && delta < 0) advice.push(`Berat turun ${Math.abs(delta).toFixed(1)} kg. Naikkan asupan sekitar 150–250 Kcal/hari dan pertahankan protein ~${t.protein}g.`);
+            else if (bio.goal === "Bulking" && delta < targetDelta * 0.6) advice.push(`Kenaikan berat masih lambat. Tambahkan 150–250 Kcal/hari dan prioritaskan karbohidrat di sekitar latihan.`);
+            else if (bio.goal === "Fat Loss" && delta > -0.2) advice.push(`Penurunan berat belum terlihat optimal. Pastikan kepatuhan menu dan pertahankan defisit secara konsisten.`);
+            else if (bio.goal === "Maintenance" && Math.abs(delta) > 0.5) advice.push(`Berat berubah ${delta > 0 ? '+' : ''}${delta.toFixed(1)} kg. Kembalikan pola makan ke target maintenance.`);
+            else advice.push(`Tren berat sesuai arah target. Pertahankan pola latihan dan nutrisi.`);
+            if (stats.avgWater && stats.avgWater < t.water * 0.85) advice.push(`Hidrasi rata-rata ${stats.avgWater.toFixed(1)} L/hari masih di bawah target ${t.water.toFixed(1)} L. Ikuti jadwal ${t.glasses} gelas × ${(t.glassMl / 1000).toFixed(2)} L.`);
+            if (stats.avgSleep && stats.avgSleep < 7) advice.push(`Rata-rata tidur ${stats.avgSleep.toFixed(1)} jam. Prioritaskan waktu tidur yang lebih konsisten untuk pemulihan.`);
+            if (stats.inWeek.length && stats.mealAdherence < 0.7) advice.push(`Kepatuhan makan minggu ini ${Math.round(stats.mealAdherence * 100)}%. Tingkatkan konsistensi menu sesuai target.`);
+            if (stats.workouts < (bio.level === "Beginner" ? 3 : bio.level === "Intermediate" ? 5 : 6)) advice.push(`Latihan tercatat ${stats.workouts} sesi. Target level ${bio.level}: ${bio.level === "Beginner" ? 3 : bio.level === "Intermediate" ? 5 : 6} sesi/minggu.`);
+            if (bio.complaints?.length && !bio.complaints.includes("Tidak Ada")) advice.push(`Perhatikan kendala: ${bio.complaints.join(', ')}. Gunakan variasi gerakan yang tidak memperburuk keluhan.`);
+            return advice;
+        }
+
+        function renderAnalysis(currentWeight, bio, weeklyLogs, dailyLogs) {
+            const c = document.getElementById("evaluation-analysis-box");
+            const week = getCurrentEvaluationWeekV8();
+            const guidance = getAutoGuidanceV8(bio, currentWeight, weeklyLogs, dailyLogs);
+            const targetGap = Math.abs(bio.targetWeightKg - currentWeight).toFixed(1);
+            c.innerHTML = `<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:8px;padding:12px;font-size:.8rem">
+                <p><strong>Analisa Otomatis — Pekan ${week}</strong></p>
+                <p style="margin-top:5px;color:var(--text-muted)">Jarak dari target berat: <strong>${targetGap} kg</strong>.</p>
+                <h4 style="margin:10px 0 5px;color:var(--accent-info)">Arahan untuk pekan berikutnya:</h4>
+                <ul style="padding-left:18px;color:var(--text-muted)">${guidance.map(x => `<li style="margin-bottom:5px">${x}</li>`).join('')}</ul>
+                <p style="font-size:.7rem;color:var(--text-muted);margin-top:8px">Analisa diperbarui dari data profil, log harian, latihan, dan progress mingguan.</p>
+            </div>`;
+        }
+
+        function renderConnectedNutritionProgress(bio, dailyLogs) {
+            const box = document.getElementById("progress-nutrition-sync-box"); if (!box) return;
+            const t = getNutritionTargetsV8(bio), logs = dailyLogs || [];
+            const water = logs.length ? logs.reduce((a, x) => a + Number(x.water || 0), 0) / logs.length : 0;
+            const sleep = logs.length ? logs.reduce((a, x) => a + Number(x.sleep || 0), 0) / logs.length : 0;
+            const meal = logs.length ? logs.filter(x => x.meal === "Sesuai Target Nutrisi" || x.meal === "Sesuai Target").length / logs.length * 100 : 0;
+            box.innerHTML = `<div style="background:var(--bg-main);padding:10px;border-radius:8px;border:1px solid var(--border-color)"><span style="font-size:.75rem;color:var(--text-muted)">Target Air</span><p style="font-weight:800;color:var(--accent-info)">${t.water.toFixed(1)} L/hari</p><span style="font-size:.7rem">${t.glasses} gelas × ${t.glassMl} ml</span></div>
+            <div style="background:var(--bg-main);padding:10px;border-radius:8px;border:1px solid var(--border-color)"><span style="font-size:.75rem;color:var(--text-muted)">Rata-rata Air Tercatat</span><p style="font-weight:800;color:var(--accent-info)">${water.toFixed(1)} L</p></div>
+            <div style="background:var(--bg-main);padding:10px;border-radius:8px;border:1px solid var(--border-color)"><span style="font-size:.75rem;color:var(--text-muted)">Kepatuhan Makan</span><p style="font-weight:800;color:var(--accent-success)">${Math.round(meal)}%</p></div>
+            <div style="background:var(--bg-main);padding:10px;border-radius:8px;border:1px solid var(--border-color)"><span style="font-size:.75rem;color:var(--text-muted)">Rata-rata Tidur</span><p style="font-weight:800;color:var(--accent-primary)">${sleep.toFixed(1)} Jam</p></div>`;
+        }
+
+        function renderDashboard(bio, weeklyLogs, dailyLogs) {
+            if (!bio) return;
+            const wl = weeklyLogs || [], dl = dailyLogs || [];
+            const latest = wl.filter(x => x.weightKg > 0).sort((a, b) => a.week - b.week).at(-1);
+            const currentWeight = latest ? latest.weightKg : bio.weightKg;
+            document.getElementById("stat-current-weight").textContent = `${currentWeight} kg`;
+            document.getElementById("stat-target-weight").textContent = `${bio.targetWeightKg} kg`;
+            document.getElementById("stat-total-logs").textContent = `${wl.length + dl.length} Log`;
+            document.getElementById("stat-progress-pct").textContent = `${Math.min(100, Math.round((wl.length / Math.max(1, getCurrentEvaluationWeekV8())) * 100))}%`;
+            document.getElementById("streak-count").textContent = `${dl.length} Hari`;
+            renderConnectedNutritionProgress(bio, dl);
+            const tbody = document.getElementById("progress-table-body"); tbody.innerHTML = "";
+            [...wl].sort((a, b) => a.week - b.week).forEach((log, index) => tbody.insertAdjacentHTML('beforeend', `<tr style="border-bottom:1px solid var(--border-color)"><td style="padding:6px">Pkn ${log.week}</td><td style="padding:6px"><strong>${log.weightKg > 0 ? log.weightKg + ' kg' : '-'}</strong></td><td style="padding:6px;font-size:.75rem;color:var(--text-muted)">${log.note || '-'}</td><td style="padding:6px"><button class="btn-danger" onclick="deleteWeeklyLog(${index})">Hapus</button></td></tr>`));
+            renderChart([...wl].sort((a, b) => a.week - b.week), bio);
+            renderAnalysis(currentWeight, bio, wl, dl);
+            renderEvaluationControlsV8(bio, wl);
+        }
+
+        function renderEvaluationControlsV8(bio, logs) {
+            const card = document.getElementById("log-form"); if (!card) return;
+            let status = document.getElementById("evaluation-window-status");
+            if (!status) { status = document.createElement('div'); status.id = 'evaluation-window-status'; card.parentNode.insertBefore(status, card); }
+            const week = getCurrentEvaluationWeekV8();
+            document.getElementById("log-week").value = week;
+            const existing = (logs || []).find(x => x.week === week);
+            document.getElementById("log-weight").value = existing?.weightKg > 0 ? existing.weightKg : "";
+            document.getElementById("log-note").value = existing?.note || "";
+            const can = isSundayV8();
+            status.innerHTML = can ? `<div style="background:rgba(16,185,129,.12);border:1px solid var(--accent-success);padding:9px;border-radius:7px;margin-bottom:10px;font-size:.78rem">✅ Hari evaluasi. Anda dapat mengisi progress Pekan ${week}.</div>` : `<div style="background:var(--bg-main);border:1px solid var(--border-color);padding:9px;border-radius:7px;margin-bottom:10px;font-size:.78rem">🔒 Evaluasi Pekan ${week} hanya dapat diisi pada <strong>akhir pekan (Minggu)</strong>. Analisa tetap dapat dilihat otomatis.</div>`;
+            ["log-weight", "log-note"].forEach(id => document.getElementById(id).disabled = !can);
+            const btn = card.querySelector('button[type="submit"]'); if (btn) btn.disabled = !can;
+            const sel = document.querySelector('#progress .week-selector-btn');
+            const holder = sel?.parentElement;
+            if (holder) { holder.innerHTML = `<span class="week-selector-btn active">Pekan ${week}</span>`; }
+        }
+
+        function switchWeekView(weekNum) {
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7"));
+            const logs = JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || [];
+            renderDashboard(bio, logs, JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || []);
+        }
+
+        function autoSaveNote() { if (!isSundayV8()) return; }
+
+        function deleteWeeklyLog(index) {
+            let logs = JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || []; logs.splice(index, 1); localStorage.setItem("gym_weekly_logs_v8", JSON.stringify(logs));
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7")); renderDashboard(bio, logs, JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || []);
+        }
+
+        function setupListenersV8Legacy(dailyLogs, weeklyLogs, customSchedule) {
+            document.getElementById("bio-form").addEventListener("submit", e => {
+                e.preventDefault();
+                const complaints = Array.from(document.querySelectorAll('input[name="complaint"]:checked')).map(x => x.value);
+                const bio = { name: document.getElementById("user-name").value, age: parseInt(document.getElementById("user-age").value), heightCm: parseInt(document.getElementById("user-height").value), weightKg: parseFloat(document.getElementById("user-weight-init").value), targetWeightKg: parseFloat(document.getElementById("user-target-weight").value), goal: document.getElementById("user-goal").value, level: document.getElementById("user-level-target").value, complaints };
+                localStorage.setItem("gym_bio_v7", JSON.stringify(bio));
+                if (!localStorage.getItem("gym_program_start_v8")) localStorage.setItem("gym_program_start_v8", new Date().toISOString().split('T')[0]);
+                checkRegistrationGate(bio); renderNutritionAndMeals(bio); renderPrograms(bio.level); renderSchedule(bio, {}); renderActiveWorkoutSession(bio, {}); renderDashboard(bio, JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || [], JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || []); alert("🎉 Biodata tersimpan. Paket latihan, nutrisi, hidrasi, dan evaluasi otomatis telah disesuaikan dengan level dan target Anda."); switchTab("nutrition");
+            });
+
+            const refreshDailyFormLockV8 = () => {
+                const date = document.getElementById("daily-date").value;
+                const logs = JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || [];
+                const exists = logs.some(x => x.date === date);
+                document.getElementById("daily-log-form").querySelectorAll('input:not(#daily-date),select,button').forEach(x => x.disabled = exists);
+                let note = document.getElementById("daily-log-status-v8");
+                if (!note) { note = document.createElement('div'); note.id = 'daily-log-status-v8'; document.getElementById("daily-log-form").prepend(note); }
+                note.innerHTML = exists ? `<div style="background:rgba(239,68,68,.12);border:1px solid var(--accent-danger);padding:8px;border-radius:7px;font-size:.75rem;margin-bottom:8px">🔒 Data tanggal ${date} sudah tercatat. Makan, minum, dan tidur hanya dapat diisi sekali pada tanggal tersebut.</div>` : '';
+            };
+            document.getElementById("daily-date").addEventListener('change', refreshDailyFormLockV8);
+            refreshDailyFormLockV8();
+
+            document.getElementById("daily-log-form").addEventListener("submit", e => {
+                e.preventDefault();
+                const date = document.getElementById("daily-date").value;
+                let logs = JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || [];
+                if (logs.some(x => x.date === date)) { refreshDailyFormLockV8(); alert(`⚠️ Log tanggal ${date} sudah diisi. Makan, minum, dan tidur hanya dapat dicatat sekali per hari.`); return; }
+                const water = parseFloat(document.getElementById("daily-water").value), sleep = parseFloat(document.getElementById("daily-sleep").value);
+                logs.push({ date, water, sleep, meal: document.getElementById("daily-meal-status").value, workout: document.getElementById("daily-workout-status").value });
+                localStorage.setItem("gym_daily_logs_v8", JSON.stringify(logs));
+                const bio = JSON.parse(localStorage.getItem("gym_bio_v7")); renderDashboard(bio, JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || [], logs); alert("✅ Log harian tersimpan. Data tanggal tersebut tidak dapat diisi ulang.");
+                document.getElementById("daily-log-form").querySelectorAll('input,select,button').forEach(x => x.disabled = true);
+            });
+
+            document.getElementById("log-form").addEventListener("submit", e => {
+                e.preventDefault(); if (!isSundayV8()) { alert("🔒 Evaluasi hanya dapat diisi pada akhir pekan (Minggu)."); return; }
+                const week = getCurrentEvaluationWeekV8(), weightKg = parseFloat(document.getElementById("log-weight").value), note = document.getElementById("log-note").value;
+                if (!weightKg) { alert("Masukkan berat badan untuk evaluasi."); return; }
+                let logs = JSON.parse(localStorage.getItem("gym_weekly_logs_v8")) || []; const idx = logs.findIndex(x => x.week === week);
+                if (idx >= 0) logs[idx] = { ...logs[idx], week, weightKg, note }; else logs.push({ week, weightKg, note });
+                localStorage.setItem("gym_weekly_logs_v8", JSON.stringify(logs));
+                const bio = JSON.parse(localStorage.getItem("gym_bio_v7")); renderDashboard(bio, logs, JSON.parse(localStorage.getItem("gym_daily_logs_v8")) || []); alert(`✅ Evaluasi Pekan ${week} berhasil disimpan.`);
+            });
+
+            document.getElementById("manual-schedule-form").addEventListener("submit", e => { e.preventDefault(); alert("Paket otomatis berdasarkan level sedang aktif. Gunakan menu Paket untuk mengikuti siklus latihan mingguan."); });
+            document.getElementById("custom-prog-form").addEventListener("submit", e => {
+                e.preventDefault();
+                const title = document.getElementById("custom-prog-title").value.trim();
+                const desc = document.getElementById("custom-prog-desc").value.trim();
+                const selectedEx = Array.from(document.querySelectorAll('#prog-ex-checkboxes input:checked')).map(cb => cb.value);
+                if (!title || !desc || !selectedEx.length) { alert("Lengkapi nama, deskripsi, dan minimal satu gerakan."); return; }
+                const list = JSON.parse(localStorage.getItem("gym_custom_progs_v8")) || [];
+                list.push({ id: "custom-v8-" + Date.now(), title, desc, exercises: selectedEx });
+                localStorage.setItem("gym_custom_progs_v8", JSON.stringify(list));
+                closeCustomProgModal(); alert("✅ Paket custom tersimpan sebagai paket tambahan. Paket utama tetap mengikuti level dan siklus pekanan otomatis.");
+            });
+        }
+
+        // Migrate existing v7 daily/weekly records once, de-duplicate by date, and initialize the continuous program clock.
+        (function migrateV8() {
+            const oldD = JSON.parse(localStorage.getItem("gym_daily_logs_v7")) || [];
+            if (!localStorage.getItem("gym_daily_logs_v8")) {
+                const unique = []; oldD.forEach(x => { if (!unique.some(y => y.date === x.date)) unique.push(x) }); localStorage.setItem("gym_daily_logs_v8", JSON.stringify(unique));
+            }
+            const oldW = JSON.parse(localStorage.getItem("gym_weekly_logs_v7")) || [];
+            if (!localStorage.getItem("gym_weekly_logs_v8")) localStorage.setItem("gym_weekly_logs_v8", JSON.stringify(oldW));
+        })();
+
+
+        /* ================================================================
+           V9 REVISION - CHECKLIST HYDRATION/MEALS, PLAYABLE PACKAGES,
+           SET-BY-SET WORKOUT FLOW, WEEKLY AGGREGATION
+           ================================================================ */
+        let v9Session = { exerciseIndex: 0, setIndex: 1, sets: 3, repsMin: 10, repsMax: 12, rest: 60, running: false };
+        let v9RestInterval = null;
+
+        function v9Read(key, fallback) {
+            return appRead(key, fallback); 
+        }
+        function v9Write(key, value) { 
+            return appWrite(key, value); 
+        }
+        function v9Date() { 
+            return new Date().toISOString().split('T')[0];
+        }
+        function v9WeekForDate(date) {
+            const start = appGetText('gym_program_start_v8');
+            if (!start) return 1;
+            const a = new Date(start + 'T00:00:00'), b = new Date(date + 'T00:00:00');
+            return Math.max(1, Math.floor((b - a) / 604800000) + 1);
+        }
+        function v9WorkoutPrescription(level, week) {
+            const p = getProgramV8(level);
+            const text = getProgressiveSetsV8(p, week);
+            const m = text.match(/(\d+) Set x (\d+)(?:-(\d+))?/i);
+            return { sets: m ? parseInt(m[1]) : 3, repsMin: m ? parseInt(m[2]) : 10, repsMax: m && m[3] ? parseInt(m[3]) : (m ? parseInt(m[2]) : 12), rest: level === 'Advanced' ? 120 : 90 };
+        }
+        function v9WaterSchedule(t) {
+            const arr = []; const n = t.glasses;
+            for (let i = 0; i < n; i++) {
+                const minutes = Math.round((6 * 60 + i * ((22 * 60 - 6 * 60) / (Math.max(1, n - 1)))) / 30) * 30;
+                const h = String(Math.floor(minutes / 60) % 24).padStart(2, '0'), m = String(minutes % 60).padStart(2, '0');
+                arr.push({ id: 'w' + i, time: `${h}:${m}`, ml: t.glassMl });
+            } return arr;
+        }
+        function v9Meals(bio, week) {
+            const menus = DYNAMIC_MEALS[bio.goal] || DYNAMIC_MEALS.Bulking; const base = menus[(week - 1) % menus.length] || menus[0];
+            return MEAL_TIMES_V8.map((slot, i) => ({ id: 'm' + i, time: slot.time, label: slot.label, name: base[i % base.length]?.name || slot.label, detail: base[i % base.length]?.detail || 'Sesuai target nutrisi.' }));
+        }
+        function v9GetDayRecord(dateStr) {
+            const logs = appRead("gym_daily_logs_v9", []);
+            return logs.find(log => log.date === dateStr) || null;
+        }
+        function renderNutritionAndMeals(bio) {
+            if (!bio) return;
+            const t = getNutritionTargetsV8(bio), week = getProgramWeekV8();
+            document.getElementById('nutrition-target-box').innerHTML = `<div style="background:var(--bg-main);padding:12px;border-radius:8px;border:1px solid var(--border-color)"><p style="font-size:.8rem">Target <strong>${bio.goal}</strong></p><p style="font-size:1.15rem;font-weight:800;color:var(--accent-primary)">${t.calories} Kcal/hari | Protein ~${t.protein}g/hari</p><p style="font-size:.78rem;color:var(--accent-info);margin-top:4px">💧 Target air: <strong>${t.water.toFixed(1)} L/hari</strong> = ${t.glasses} gelas × ${t.glassMl} ml</p></div>`;
+            const meals = v9Meals(bio, week), waters = v9WaterSchedule(t);
+            document.getElementById('daily-dynamic-menu').innerHTML = `
+              <div style="display:grid;gap:8px">
+                <div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:10px"><strong>🍽️ Jadwal Makan</strong><div style="display:grid;gap:6px;margin-top:8px">${meals.map(m => `<div style="padding:8px;border:1px solid var(--border-color);border-radius:6px"><strong>${m.time} • ${m.label}</strong><div style="font-size:.8rem;margin-top:2px">${m.name}</div><div style="font-size:.7rem;color:var(--text-muted)">${m.detail}</div></div>`).join('')}</div></div>
+                <div style="background:var(--bg-main);border:1px solid var(--accent-info);border-radius:8px;padding:10px"><strong style="color:var(--accent-info)">💧 Jadwal Minum ${t.water.toFixed(1)} L/hari</strong><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:5px;margin-top:7px">${waters.map(w => `<span style="font-size:.72rem;background:var(--bg-card);padding:6px;border-radius:5px">${w.time}<br><strong>${(w.ml / 1000).toFixed(2)} L</strong></span>`).join('')}</div></div>
+              </div>`;
+            renderDailyChecklistV9();
+        }
+        function renderDailyChecklistV9() {
+            const bio = v9Read('gym_bio_v7', null); if (!bio) return; const date = document.getElementById('daily-date')?.value || v9Date();
+            const rec = v9GetDayRecord(date); const t = getNutritionTargetsV8(bio), waters = v9WaterSchedule(t), meals = v9Meals(bio, v9WeekForDate(date));
+            const wc = document.getElementById('water-checklist'), mc = document.getElementById('meal-checklist'); if (!wc || !mc) return;
+            const waterDone = new Set(rec?.waterChecks || []), mealDone = new Set(rec?.mealChecks || []);
+            wc.innerHTML = waters.map((w, i) => `<label class="checkbox-item" style="padding:7px"><input type="checkbox" class="v9-water" value="${w.id}" ${waterDone.has(w.id) ? 'checked' : ''}> ${w.time} — ${(w.ml / 1000).toFixed(2)} L</label>`).join('');
+            mc.innerHTML = meals.map(m => `<label class="checkbox-item" style="padding:7px"><input type="checkbox" class="v9-meal" value="${m.id}" ${mealDone.has(m.id) ? 'checked' : ''}> ${m.time} — ${m.label}</label>`).join('');
+            const sleep = document.getElementById('daily-sleep'); if (sleep) sleep.value = rec?.sleep ?? '';
+            const ws = document.getElementById('daily-workout-status'); if (ws) ws.value = rec?.workout || 'Mengikuti Paket';
+            const form = document.getElementById('daily-log-form'); const status = document.getElementById('daily-log-status-v8');
+            if (rec) { status.innerHTML = `<div style="background:rgba(239,68,68,.12);border:1px solid var(--accent-danger);padding:8px;border-radius:7px;font-size:.75rem;margin-bottom:8px">🔒 Data tanggal <strong>${date}</strong> sudah tersimpan. Makan, minum, tidur dan status latihan untuk tanggal ini tidak dapat dibuat ulang.</div>`; form.querySelectorAll('input:not(#daily-date),select,button').forEach(x => x.disabled = true); }
+            else { status.innerHTML = ''; form.querySelectorAll('input,select,button').forEach(x => x.disabled = false); }
+        }
+        function renderPrograms(userLevel) {
+            const c = document.getElementById('program-package-list'); const p = getProgramV8(userLevel), week = getProgramWeekV8(), today = getCurrentDayV8();
+            document.getElementById('program-level-tag').textContent = `${p.title} • Pekan ${week} • Paket berlanjut otomatis setiap pekan.`;
+            c.innerHTML = `<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:10px;padding:14px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><div><h4 style="color:var(--accent-primary)">${p.title}</h4><p style="font-size:.78rem;color:var(--text-muted)">${p.desc}</p></div><button class="btn-primary" style="width:auto" onclick="playSelectedPackageV9()">▶ PLAY PAKET</button></div><p style="font-size:.78rem;margin-top:8px">Pekan ${week}: ${getProgressiveSetsV8(p, week)} • Rest otomatis: ${v9WorkoutPrescription(userLevel, week).rest} detik antar-set.</p></div><div class="schedule-grid">${Object.entries(p.days).map(([day, d]) => `<div class="schedule-day-card" style="${day === today ? 'border-color:var(--accent-primary)' : ''}"><h4>${day}${day === today ? ' • HARI INI' : ''}</h4><p style="font-weight:700;font-size:.82rem;color:var(--accent-primary)">${d.focus}</p>${d.ex.length ? `<ol style="padding-left:18px;font-size:.74rem;color:var(--text-muted)">${d.ex.map(x => `<li>${x}</li>`).join('')}</ol><button class="btn-secondary" style="width:100%;margin-top:7px" onclick="playDayPackageV9('${day}')">▶ Play ${day}</button>` : '<p style="font-size:.74rem;color:var(--text-muted)">Rest & recovery.</p>'}</div>`).join('')}</div>`;
+        }
+        function playSelectedPackageV9() { playDayPackageV9(getCurrentDayV8()); }
+        function playDayPackageV9(day) {
+            const bio = v9Read('gym_bio_v7', { level: 'Beginner' }), p = getProgramV8(bio.level), d = p.days[day];
+            if (!d || !d.ex.length) { alert('Hari ini adalah Rest Day.'); return; }
+            activePlaylist = d.ex; currentPlaylistIndex = 0; v9Session = { exerciseIndex: 0, setIndex: 1, ...v9WorkoutPrescription(bio.level, getProgramWeekV8()), running: true };
+            renderLiveWorkoutV9();
+            document.getElementById('workout-session')?.scrollIntoView({ behavior: 'smooth' });
+        }
+        function renderActiveWorkoutSession(bio) {
+            const b = bio || v9Read('gym_bio_v7', null); if (!b) return; const day = getCurrentDayV8(), p = getProgramV8(b.level), d = p.days[day], w = getProgramWeekV8();
+            document.getElementById('session-day-title').textContent = `Sesi ${d.focus} • Pekan ${w}`;
+            document.getElementById('session-date-subtitle').textContent = `${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })} | Level ${b.level} | ${getProgressiveSetsV8(p, w)}`;
+            const c = document.getElementById('active-session-container');
+            c.innerHTML = d.ex.length ? `<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:8px;padding:12px"><strong>▶ Mulai sesi dari Gerakan #1</strong><p style="font-size:.75rem;color:var(--text-muted);margin:5px 0 10px">Setiap gerakan harus menyelesaikan seluruh set & reps sebelum lanjut ke gerakan berikutnya.</p><button class="btn-primary" onclick="playDayPackageV9('${day}')">▶ START SESI LATIHAN</button></div>${d.ex.map((x, i) => `<div class="schedule-day-card"><span style="font-size:.7rem;color:var(--accent-info)">Gerakan #${i + 1}</span><h5>${x}</h5><p style="font-size:.72rem;color:var(--text-muted)">${getProgressiveSetsV8(p, w)} • rest ${v9WorkoutPrescription(b.level, w).rest}s/set</p></div>`).join('')}` : '<div style="padding:18px;text-align:center;color:var(--text-muted)">Hari ini Rest Day.</div>';
+        }
+        function renderLiveWorkoutV9() {
+            if (!activePlaylist.length || v9Session.exerciseIndex >= activePlaylist.length) { closeLiveWorkoutModal(); completeCurrentWorkout(); alert('🎉 Seluruh gerakan dan set dalam paket hari ini selesai.'); return; }
+            const name = activePlaylist[v9Session.exerciseIndex], ex = getExerciseDetailV8(name) || { name, category: 'Latihan', tips: 'Fokus pada teknik yang benar.' };
+            document.getElementById('live-ex-title').textContent = `Gerakan ${v9Session.exerciseIndex + 1}/${activePlaylist.length} — ${ex.name}`;
+            document.getElementById('live-ex-visual').innerHTML = getExerciseVisual(ex);
+            document.getElementById('live-ex-desc').textContent = `💡 ${ex.tips}`;
+            document.getElementById('live-set-reps').value = `${v9Session.sets} Set × ${v9Session.repsMin}-${v9Session.repsMax} Reps`;
+            document.getElementById('live-weight').value = document.getElementById('live-weight').value || 15;
+            document.getElementById('level-lock-notice').textContent = `Level: ${v9Read('gym_bio_v7', { level: 'Beginner' }).level}. Selesaikan Set ${v9Session.setIndex}/${v9Session.sets} sebelum lanjut.`;
+            document.getElementById('live-progress-info').innerHTML = `<strong>Set ${v9Session.setIndex} dari ${v9Session.sets}</strong> • Target ${v9Session.repsMin}-${v9Session.repsMax} reps • Rest ${v9Session.rest} detik setelah set. <span style="color:var(--accent-info)">Gerakan berikutnya terkunci sampai semua set selesai.</span>`;
+            const completed = (v9Session.exerciseIndex * v9Session.sets) + (v9Session.setIndex - 1);
+            const total = activePlaylist.length * v9Session.sets;
+            document.getElementById('live-progress-bar').style.width = `${Math.round((completed / total) * 100)}%`;
+            const btn = document.getElementById('live-start-set-btn'); btn.disabled = false; btn.textContent = `✓ Selesaikan Set ${v9Session.setIndex}`;
+            document.getElementById('rest-timer-display').textContent = `Rest: ${v9Session.rest}s`;
+            document.getElementById('live-workout-modal').classList.add('active');
+        }
+        function startPlaylistSession(i) { const b = v9Read('gym_bio_v7', { level: 'Beginner' }); const p = getProgramV8(b.level), d = p.days[getCurrentDayV8()]; if (!d?.ex?.length) { alert('Rest Day.'); return; } activePlaylist = d.ex; currentPlaylistIndex = 0; v9Session = { exerciseIndex: 0, setIndex: 1, ...v9WorkoutPrescription(b.level, getProgramWeekV8()), running: true }; renderLiveWorkoutV9(); }
+        function completeCurrentSetV9() {
+            if (!activePlaylist || activePlaylist.length === 0) return;
+            const currentEx = activePlaylist[currentPlaylistIndex];
+
+            if (currentEx.currentSet < currentEx.totalSets) {
+                currentEx.currentSet++;
+                startRestTimer(60, () => {
+                    openLiveWorkoutModal();
+                });
+            } else {
+                if (currentPlaylistIndex < activePlaylist.length - 1) {
+                    currentPlaylistIndex++;
+                    startRestTimer(60, () => {
+                        openLiveWorkoutModal();
+                    });
                 } else {
+                    alert("🎉 Selamat! Seluruh rangkaian paket latihan telah selesai!");
                     closeLiveWorkoutModal();
-                    if (typeof completeCurrentWorkout === "function") {
-                        completeCurrentWorkout();
-                    }
-                    showToast("🎉 Selamat! Seluruh sesi latihan hari ini telah selesai!");
                 }
             }
         }
-
-        function updateLiveWorkoutModalUI() {
-            const currentExercise = activePlaylist[currentPlaylistIndex];
-            if (!currentExercise) return;
-
-            let exDetail = null;
-            if (typeof EXERCISE_DATABASE !== "undefined") {
-                Object.keys(EXERCISE_DATABASE).forEach(cat => {
-                    const found = EXERCISE_DATABASE[cat].find(ex => ex.name === currentExercise || ex.name === currentExercise.name);
-                    if (found) exDetail = found;
+        function startRestTimer() { completeCurrentSetV9(); }
+        function nextExerciseOrFinish() { alert('Gerakan berikutnya terkunci. Selesaikan seluruh set gerakan ini terlebih dahulu.'); }
+        function closeLiveWorkoutModal() { if (v9RestInterval) { clearInterval(v9RestInterval); v9RestInterval = null; } document.getElementById('live-workout-modal').classList.remove('active'); }
+        function completeCurrentWorkout() {
+            const date = v9Date(); let logs = v9Read('gym_workout_logs_v9', []); if (!logs.some(x => x.date === date)) logs.push({ date, status: 'Tuntas Dipraktekkan', week: v9WeekForDate(date) }); v9Write('gym_workout_logs_v9', logs);
+            renderDashboard(v9Read('gym_bio_v7', null), v9Read('gym_weekly_logs_v8', []), v9Read('gym_daily_logs_v9', []));
+        }
+        function renderConnectedNutritionProgress(bio, dailyLogs) {
+            const box = document.getElementById('progress-nutrition-sync-box'); if (!box || !bio) return; const week = getCurrentEvaluationWeekV8(), start = appGetText('gym_program_start_v8') || v9Date();
+            const end = new Date(start + 'T00:00:00'); end.setDate(end.getDate() + week * 7); const ws = new Date(start + 'T00:00:00'); ws.setDate(ws.getDate() + (week - 1) * 7);
+            const d = (dailyLogs || []).filter(x => { const z = new Date(x.date + 'T00:00:00'); return z >= ws && z < end }), workouts = v9Read('gym_workout_logs_v9', []).filter(x => { const z = new Date(x.date + 'T00:00:00'); return z >= ws && z < end });
+            const target = getNutritionTargetsV8(bio), water = d.reduce((a, x) => a + (x.water || 0), 0), mealPct = d.length ? Math.round(d.reduce((a, x) => a + (x.mealPct || 0), 0) / d.length) : 0;
+            box.innerHTML = [['Minggu aktif', `Pekan ${week}`, 'Sesuai rencana program'], ['Air', `${water.toFixed(2)} L`, `Target ${d.length ? (target.water * d.length).toFixed(2) : target.water.toFixed(2)} L`], ['Makan', `${mealPct}%`, `Kepatuhan jadwal makan`], ['Latihan', `${workouts.length} sesi`, `Target sesuai level`], ['Hari tercatat', `${d.length}/7`, 'Data harian']].map(x => `<div style="background:var(--bg-main);padding:10px 12px;border-radius:8px;border:1px solid var(--border-color)"><span style="font-size:.75rem;color:var(--text-muted)">${x[0]}</span><p style="font-size:1rem;font-weight:800;color:var(--accent-primary)">${x[1]}</p><span style="font-size:.7rem;color:var(--text-muted)">${x[2]}</span></div>`).join('');
+        }
+        function renderAnalysis(currentWeight, bio, weeklyLogs, dailyLogs) {
+            const c = document.getElementById('evaluation-analysis-box'); if (!c || !bio) return; const week = getCurrentEvaluationWeekV8(); const p = getProgramV8(bio.level); const target = getNutritionTargetsV8(bio);
+            const start = new Date((appGetText('gym_program_start_v8') || v9Date()) + 'T00:00:00'); start.setDate(start.getDate() + (week - 1) * 7); const end = new Date(start); end.setDate(end.getDate() + 7);
+            const ds = (dailyLogs || []).filter(x => { const d = new Date(x.date + 'T00:00:00'); return d >= start && d < end }), ws = v9Read('gym_workout_logs_v9', []).filter(x => { const d = new Date(x.date + 'T00:00:00'); return d >= start && d < end });
+            const waterAvg = ds.length ? ds.reduce((a, x) => a + (x.water || 0), 0) / ds.length : 0, mealAvg = ds.length ? ds.reduce((a, x) => a + (x.mealPct || 0), 0) / ds.length : 0;
+            const waterAdvice = waterAvg < target.water ? `Naikkan hidrasi menuju ${target.water.toFixed(1)} L/hari.` : 'Hidrasi sudah sesuai target.';
+            const mealAdvice = mealAvg < 80 ? 'Kepatuhan makan masih rendah; prioritaskan jadwal makan yang belum tercapai.' : 'Kepatuhan makan sudah baik; pertahankan konsistensi.';
+            const workoutAdvice = ws.length < Math.max(1, ({ Beginner: 3, Intermediate: 5, Advanced: 6 }[bio.level] || 3)) ? `Sesi latihan minggu ini masih kurang (${ws.length}). Ikuti paket ${p.title}.` : 'Frekuensi latihan sesuai level.';
+            const weightAdvice = bio.goal === 'Bulking' ? (currentWeight < bio.targetWeightKg ? 'Berat masih di bawah target; pertahankan surplus kalori dan progresi beban.' : 'Target berat bulking sudah tercapai/terlampaui.') : (bio.goal === 'Fat Loss' ? (currentWeight > bio.targetWeightKg ? 'Berat masih di atas target; pertahankan defisit terkontrol dan konsistensi latihan.' : 'Target fat loss sudah tercapai.') : 'Fokus mempertahankan berat dan performa.');
+            c.innerHTML = `<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:8px;padding:12px;font-size:.8rem"><p><strong>Analisis Pekan ${week}</strong></p><ul style="padding-left:18px;margin-top:7px"><li>${weightAdvice}</li><li>${waterAdvice}</li><li>${mealAdvice}</li><li>${workoutAdvice}</li><li>Data tercatat: ${ds.length}/7 hari • ${ws.length} sesi latihan.</li></ul><p style="color:var(--accent-info);margin-top:8px">Arahan pekan berikutnya: lanjutkan paket level ${bio.level}, prioritaskan kekurangan di atas, dan evaluasi kembali pada akhir pekan.</p></div>`;
+        }
+        function renderDashboard(bio, weeklyLogs, dailyLogs) {
+            if (!bio) return; const wl = weeklyLogs || [], dl = dailyLogs || [], latest = [...wl].sort((a, b) => b.week - a.week)[0], current = latest?.weightKg > 0 ? latest.weightKg : bio.weightKg;
+            document.getElementById('stat-current-weight').textContent = `${current} kg`; document.getElementById('stat-target-weight').textContent = `${bio.targetWeightKg} kg`; document.getElementById('stat-total-logs').textContent = `${dl.length + wl.length} Log`; document.getElementById('stat-progress-pct').textContent = `${Math.min(100, Math.round((getCurrentEvaluationWeekV8() - 1) / Math.max(1, getCurrentEvaluationWeekV8()) * 100))}%`; document.getElementById('streak-count').textContent = `${dl.length} Hari`;
+            renderConnectedNutritionProgress(bio, dl);
+            // Chart.js dimuat dari CDN; bila tidak tersedia, profil tetap dapat disimpan di iPhone.
+            if (typeof Chart !== 'undefined') renderChart([...wl].sort((a, b) => a.week - b.week), bio);
+            renderAnalysis(current, bio, wl, dl); renderEvaluationControlsV8(bio, wl);
+            const tbody = document.getElementById('progress-table-body'); tbody.innerHTML = '';[...wl].sort((a, b) => a.week - b.week).forEach((x, i) => tbody.insertAdjacentHTML('beforeend', `<tr><td style="padding:6px">Pkn ${x.week}</td><td style="padding:6px">${x.weightKg || '-'} kg</td><td style="padding:6px;font-size:.75rem">${x.note || '-'}</td><td style="padding:6px"><button class="btn-danger" onclick="deleteWeeklyLog(${i})">Hapus</button></td></tr>`));
+        }
+        function setupListenersV9Draft(dailyLogs, weeklyLogs, customSchedule) {
+            document.getElementById('bio-form').addEventListener('submit', e => { e.preventDefault(); const complaints = [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value); const b = { name: document.getElementById('user-name').value, age: +document.getElementById('user-age').value, heightCm: +document.getElementById('user-height').value, weightKg: +document.getElementById('user-weight-init').value, targetWeightKg: +document.getElementById('user-target-weight').value, goal: document.getElementById('user-goal').value, level: document.getElementById('user-level-target').value, complaints }; v9Write('gym_bio_v7', b); if (!localStorage.getItem('gym_program_start_v8')) localStorage.setItem('gym_program_start_v8', v9Date()); checkRegistrationGate(b); renderNutritionAndMeals(b); renderPrograms(b.level); renderSchedule(b, {}); renderActiveWorkoutSession(b, {}); renderDashboard(b, v9Read('gym_weekly_logs_v8', []), v9Read('gym_daily_logs_v9', [])); switchTab('nutrition'); alert('🎉 Profil tersimpan. Paket, sesi latihan, checklist nutrisi, dan progress telah disesuaikan dengan level dan target.'); });
+            const df = document.getElementById('daily-log-form'); document.getElementById('daily-date').addEventListener('change', renderDailyChecklistV9); renderDailyChecklistV9();
+            df.addEventListener('submit', e => { e.preventDefault(); const date = document.getElementById('daily-date').value, logs = v9Read('gym_daily_logs_v9', []); if (logs.some(x => x.date === date)) { renderDailyChecklistV9(); alert('⚠️ Data tanggal tersebut sudah tersimpan. Hanya satu log harian yang diperbolehkan.'); return; } const bio = v9Read('gym_bio_v7', null), target = getNutritionTargetsV8(bio), waterIds = [...document.querySelectorAll('.v9-water:checked')].map(x => x.value), mealIds = [...document.querySelectorAll('.v9-meal:checked')].map(x => x.value), water = waterIds.length * target.glassMl / 1000, mealPct = Math.round((mealIds.length / MEAL_TIMES_V8.length) * 100); logs.push({ date, water, sleep: +document.getElementById('daily-sleep').value, waterChecks: waterIds, mealChecks: mealIds, mealPct, meal: mealPct >= 80 ? 'Sesuai Target Nutrisi' : mealPct >= 50 ? 'Sebagian Terpenuhi' : 'Kurang Terpenuhi', workout: document.getElementById('daily-workout-status').value, week: v9WeekForDate(date) }); v9Write('gym_daily_logs_v9', logs); renderDashboard(bio, v9Read('gym_weekly_logs_v8', []), logs); renderDailyChecklistV9(); alert('✅ Log harian tersimpan: air, makan, tidur, dan latihan sudah masuk ke akumulasi progress.'); });
+            document.getElementById('log-form').addEventListener('submit', e => { e.preventDefault(); if (!isSundayV8()) { alert('🔒 Evaluasi hanya dapat diisi pada akhir pekan (Minggu).'); return; } const week = getCurrentEvaluationWeekV8(), weightKg = +document.getElementById('log-weight').value, note = document.getElementById('log-note').value; if (!weightKg) return; let logs = v9Read('gym_weekly_logs_v8', []), idx = logs.findIndex(x => x.week === week); if (idx >= 0) logs[idx] = { ...logs[idx], week, weightKg, note }; else logs.push({ week, weightKg, note }); v9Write('gym_weekly_logs_v8', logs); renderDashboard(v9Read('gym_bio_v7'), logs, v9Read('gym_daily_logs_v9', [])); alert(`✅ Analisis Pekan ${week} diperbarui.`); });
+            document.getElementById('manual-schedule-form')?.addEventListener('submit', e => { e.preventDefault(); alert('Gunakan Paket untuk mengikuti program latihan otomatis berdasarkan level.'); });
+            document.getElementById('custom-prog-form')?.addEventListener('submit', e => { e.preventDefault(); alert('Paket custom tetap tersedia, sedangkan paket utama otomatis mengikuti level pengguna.'); });
+        }
+        // Versi listener terakhir: pindah tab sebelum proses render tambahan.
+        function setupListeners(dailyLogs, weeklyLogs, customSchedule) {
+            const bioForm = document.getElementById('bio-form');
+            (bioForm) {
+                bioForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    forceUnlockFromBio();
                 });
             }
 
-            const exName = exDetail ? exDetail.name : (currentExercise.name || currentExercise);
-            const exDesc = exDetail ? exDetail.description : "Lakukan gerakan sesuai arahan.";
+            const dailyForm = document.getElementById("daily-log-form");
+            if (dailyForm) {
+                dailyForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const date = document.getElementById("daily-date").value || v9Date();
+                    const water = parseFloat(document.getElementById("daily-water")?.value || 0);
+                    const sleep = parseFloat(document.getElementById("daily-sleep")?.value || 0);
+                    const mealPct = parseInt(document.getElementById("daily-meal-status")?.value || 0);
+                    const workout = document.getElementById("daily-workout-status")?.value || "Selesai";
 
-            const titleEl = document.getElementById("live-ex-title");
-            const indEl = document.getElementById("live-ex-indicator");
-            const setIndEl = document.getElementById("live-set-indicator");
-            const descEl = document.getElementById("live-ex-desc");
-            const repsEl = document.getElementById("live-set-reps");
-            const visualEl = document.getElementById("live-ex-visual");
+                    let dLogs = appRead("gym_daily_logs_v9", []);
+                    const existingIndex = dLogs.findIndex(l => l.date === date);
+                    const newLog = { date, water, sleep, mealPct, workout };
 
-            if (titleEl) titleEl.textContent = exName;
-            if (indEl) indEl.textContent = `Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length}`;
-            if (setIndEl) setIndEl.textContent = `Set ${activeSetIndex} dari ${MAX_SETS_PER_EXERCISE}`;
-            if (descEl) descEl.textContent = exDesc;
-            if (repsEl) repsEl.value = `${activeSetIndex} Set x 10-12 Reps`;
-            if (visualEl && typeof getExerciseVisual === "function") {
-                visualEl.innerHTML = getExerciseVisual(exDetail || { name: exName, category: "Latihan" });
+                    if (existingIndex !== -1) {
+                        dLogs[existingIndex] = newLog;
+                    } else {
+                        dLogs.push(newLog);
+                    }
+
+                    appWrite("gym_daily_logs_v9", dLogs);
+                    const bio = appRead("gym_bio_v7", null);
+                    const wLogs = appRead("gym_weekly_logs_v8", []);
+                    
+                    renderDashboard(bio, wLogs, dLogs);
+                    renderTodayHome(bio);
+                    alert("Catatan harian berhasil diperbarui!");
+                });
             }
 
-            const totalSteps = activePlaylist.length * MAX_SETS_PER_EXERCISE;
-            const currentStep = (currentPlaylistIndex * MAX_SETS_PER_EXERCISE) + activeSetIndex;
-            const pct = Math.round((currentStep / totalSteps) * 100);
-            const progressBar = document.getElementById("live-workout-progressbar");
-            if (progressBar) progressBar.style.width = `${pct}%`;
-        }
+            const manualSchedForm = document.getElementById("manual-schedule-form");
+            if (manualSchedForm) {
+                manualSchedForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const day = document.getElementById("manual-day").value;
+                    const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
+                    const selectedEx = Array.from(document.querySelectorAll('#manual-ex-checkboxes input:checked')).map(cb => cb.value);
 
-        function skipCurrentExercise() {
-            if (currentPlaylistIndex < activePlaylist.length - 1) {
-                currentPlaylistIndex++;
-                activeSetIndex = 1;
-                updateLiveWorkoutModalUI();
-                showToast("Gerakan dilewati.");
-            } else {
-                closeLiveWorkoutModal();
-                showToast("Sesi latihan selesai.");
+                    customSchedule[day] = {
+                        focus: selectedCats.length ? `Custom (${selectedCats.join(', ')})` : "Custom Workout",
+                        exercises: selectedEx.length ? selectedEx : ["Latihan Bebas"]
+                    };
+
+                    appWrite("gym_custom_sched_v7", customSchedule);
+                    const bio = appRead("gym_bio_v7", null);
+                    renderSchedule(bio, customSchedule);
+                    renderActiveWorkoutSession(bio, customSchedule);
+                    alert(`Jadwal kustom hari ${day} berhasil disimpan!`);
+                });
             }
-        }
 
-        function startRestTimer(seconds) {
-            if (typeof restTimerInterval !== "undefined" && restTimerInterval) {
-                clearInterval(restTimerInterval);
+            const weeklyLogForm = document.getElementById("log-form");
+            if (weeklyLogForm) {
+                weeklyLogForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const week = parseInt(document.getElementById("log-week").value);
+                    const weightKg = parseFloat(document.getElementById("log-weight").value);
+                    const note = document.getElementById("log-note").value;
+
+                    let wLogs = appRead("gym_weekly_logs_v8", []);
+                    let dLogs = appRead("gym_daily_logs_v9", []);
+                    let bio = appRead("gym_bio_v7", null);
+
+                    const logIndex = wLogs.findIndex(l => l.week === week);
+                    if (logIndex !== -1) {
+                        wLogs[logIndex].weightKg = weightKg;
+                        wLogs[logIndex].note = note;
+                    } else {
+                        wLogs.push({ week, weightKg, note });
+                    }
+
+                    appWrite("gym_weekly_logs_v8", wLogs);
+                    renderDashboard(bio, wLogs, dLogs);
+                    alert(`Evaluasi Pekan ${week} berhasil disimpan!`);
+                });
             }
-            let timeLeft = seconds;
-            const timerDisplay = document.getElementById("rest-timer-display");
+        
+            bioForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const complaints = [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value);
+                const b = {
+                    name: document.getElementById('user-name').value.trim(),
+                    age: Number(document.getElementById('user-age').value),
+                    heightCm: Number(document.getElementById('user-height').value),
+                    weightKg: Number(document.getElementById('user-weight-init').value),
+                    targetWeightKg: Number(document.getElementById('user-target-weight').value),
+                    goal: document.getElementById('user-goal').value,
+                    level: document.getElementById('user-level-target').value,
+                    complaints
+                };
+                saveBioAndUnlock(b);
+            });
 
-            restTimerInterval = setInterval(() => {
-                if (timeLeft <= 0) {
-                    clearInterval(restTimerInterval);
-                    if (timerDisplay) timerDisplay.textContent = "Rest: 0s";
-                } else {
-                    if (timerDisplay) timerDisplay.textContent = `Rest: ${timeLeft}s`;
-                    timeLeft--;
-                }
-            }, 1000);
+            const df = document.getElementById('daily-log-form');
+            document.getElementById('daily-date').addEventListener('change', renderDailyChecklistV9);
+            renderDailyChecklistV9();
+            df.addEventListener('submit', e => {
+                e.preventDefault();
+                const date = document.getElementById('daily-date').value, logs = v9Read('gym_daily_logs_v9', []);
+                if (logs.some(x => x.date === date)) { renderDailyChecklistV9(); alert('Data untuk tanggal ini sudah tersimpan.'); return; }
+                const bio = v9Read('gym_bio_v7', null), target = getNutritionTargetsV8(bio);
+                const waterIds = [...document.querySelectorAll('.v9-water:checked')].map(x => x.value);
+                const mealIds = [...document.querySelectorAll('.v9-meal:checked')].map(x => x.value);
+                const water = waterIds.length * target.glassMl / 1000, mealPct = Math.round((mealIds.length / MEAL_TIMES_V8.length) * 100);
+                logs.push({ date, water, sleep: Number(document.getElementById('daily-sleep').value), waterChecks: waterIds, mealChecks: mealIds, mealPct, meal: mealPct >= 80 ? 'Sesuai Target Nutrisi' : mealPct >= 50 ? 'Sebagian Terpenuhi' : 'Kurang Terpenuhi', workout: document.getElementById('daily-workout-status').value, week: v9WeekForDate(date) });
+                v9Write('gym_daily_logs_v9', logs); renderDashboard(bio, v9Read('gym_weekly_logs_v8', []), logs); renderTodayHome(bio); renderDailyChecklistV9(); alert('Log harian tersimpan.');
+            });
+            document.getElementById('log-form').addEventListener('submit', e => { e.preventDefault(); if (!isSundayV8()) { alert('Evaluasi hanya dapat diisi pada hari Minggu.'); return; } const week = getCurrentEvaluationWeekV8(), weightKg = Number(document.getElementById('log-weight').value), note = document.getElementById('log-note').value; if (!weightKg) return; const logs = v9Read('gym_weekly_logs_v8', []), idx = logs.findIndex(x => x.week === week); if (idx >= 0) logs[idx] = { ...logs[idx], week, weightKg, note }; else logs.push({ week, weightKg, note }); v9Write('gym_weekly_logs_v8', logs); renderDashboard(v9Read('gym_bio_v7'), logs, v9Read('gym_daily_logs_v9', [])); });
+            document.getElementById('manual-schedule-form')?.addEventListener('submit', e => { e.preventDefault(); alert('Gunakan Paket untuk mengikuti program latihan otomatis berdasarkan level.'); });
+            document.getElementById('custom-prog-form')?.addEventListener('submit', e => { e.preventDefault(); alert('Paket custom tetap tersedia, sedangkan paket utama otomatis mengikuti level pengguna.'); });
         }
 
-        function closeLiveWorkoutModal() {
-            if (typeof restTimerInterval !== "undefined" && restTimerInterval) {
-                clearInterval(restTimerInterval);
-            }
-            const modal = document.getElementById("live-workout-modal");
-            if (modal) modal.classList.remove("active");
-        }
+        // Backward-compatible migration: keep existing records but make V9 the authoritative daily/workout store.
+        (function () { const old = v9Read('gym_daily_logs_v8', []); if (!appGetText('gym_daily_logs_v9')) { const unique = []; old.forEach(x => { if (!unique.some(y => y.date === x.date)) unique.push({ ...x, waterChecks: [], mealChecks: [], mealPct: x.meal?.includes('Sesuai') ? 100 : 0 }) }); v9Write('gym_daily_logs_v9', unique); } })();
+
     </script>
 </body>
 
