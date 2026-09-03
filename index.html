@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Get Your Goals - Pro Fitness & Gym Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --bg-sidebar: #0b1120;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #facc15;
+            --accent-hover: #eab308;
+            --accent-danger: #ef4444;
+            --accent-success: #10b981;
+            --accent-info: #3b82f6;
+            --border-color: #334155;
+            --border-radius: 12px;
+            --transition-fast: 0.2s ease;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            width: 100vw;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .brand h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+        }
+
+        .gamify-badge {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover:not(.locked) {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background-color: var(--accent-primary);
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .nav-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            max-width: 100%;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .user-badge {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-card .val {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group-inline {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input,
+        select,
+        textarea {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            outline: none;
+            width: 100%;
+            transition: border-color var(--transition-fast);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: var(--bg-main);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            accent-color: var(--accent-primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--accent-primary);
+            color: #0f172a;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color var(--transition-fast);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-danger);
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .exercise-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+        }
+
+        .exercise-img-box {
+            height: 130px;
+            background: #111827;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .exercise-body {
+            padding: 12px;
+        }
+
+        .exercise-body h5 {
+            color: var(--accent-primary);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .exercise-body p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+
+        .schedule-day-card {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .schedule-day-card h4 {
+            color: var(--accent-primary);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--border-radius);
+            max-width: 550px;
+            width: 100%;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .week-selector-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .week-selector-btn.active {
+            background: var(--accent-primary);
+            color: #0f172a;
+            border-color: var(--accent-primary);
+        }
+
+        .timer-badge {
+            background: #0284c7;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .toast-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            color: var(--text-main);
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-in-out;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--accent-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 14px;
+            }
+
+            .nav-menu {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.78rem;
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 14px;
+            }
+
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group-inline {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .top-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <h2>Get Your Goals</h2>
+        </div>
+
+        <div class="gamify-badge">
+            <span>🔥 Streak: <strong id="streak-count">0 Hari</strong></span>
+            <span>⭐ Pro Level</span>
+        </div>
+
+        <nav class="nav-menu">
+            <button type="button" class="nav-btn active" data-tab="biodata">
+                <span>1. Profil</span>
+                <span id="lock-icon-bio">✓</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="nutrition">
+                <span>2. Nutrisi</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="schedule">
+                <span>3. Jadwal</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="database">
+                <span>4. Gerakan Latihan</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="programs">
+                <span>5. Paket</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="workout-session">
+                <span>6. Sesi Latihan</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+            <button type="button" class="nav-btn locked" data-tab="progress">
+                <span>7. Progress</span>
+                <span class="lock-tag">🔒</span>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1 id="page-title" style="font-size: 1.3rem;">Aktivasi Profil Pengguna</h1>
+                <p style="color: var(--text-muted); font-size: 0.8rem;" id="page-sub">Lengkapi data diri untuk membuka
+                    semua fitur.</p>
+            </div>
+            <div class="user-badge" id="user-badge">Status: Terkunci 🔒</div>
+        </header>
+
+        <!-- TAB 1: BIODATA -->
+        <section id="biodata" class="tab-content active">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3>Form Registrasi & Kendala Fisik</h3>
+                <p class="subtitle">Data ini mengunci & menyesuaikan seluruh program secara otomatis.</p>
+
+                <form id="bio-form">
+                    <div class="form-group">
+                        <label for="user-name">Nama Lengkap / Panggilan:</label>
+                        <input type="text" id="user-name" placeholder="Contoh: Alex Rian" required>
+                    </div>
+
+                    <div class="form-group-inline">
+                        <div>
+                            <label for="user-age">Usia (Tahun):</label>
+                            <input type="number" id="user-age" placeholder="25" required>
+                        </div>
+                        <div>
+                            <label for="user-height">Tinggi Badan (cm):</label>
+                            <input type="number" id="user-height" placeholder="170" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-inline">
+                        <div>
+                            <label for="user-weight-init">Berat Badan Saat Ini (kg):</label>
+                            <input type="number" step="0.1" id="user-weight-init" placeholder="65" required>
+                        </div>
+                        <div>
+                            <label for="user-target-weight">Target Berat Badan (kg):</label>
+                            <input type="number" step="0.1" id="user-target-weight" placeholder="72" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-inline">
+                        <div>
+                            <label for="user-goal">Target Utama:</label>
+                            <select id="user-goal">
+                                <option value="Bulking">Bulking (Menambah Otot)</option>
+                                <option value="Fat Loss">Fat Loss (Membakar Lemak)</option>
+                                <option value="Maintenance">Maintenance (Kebugaran)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="user-level-target">Level Fitness Pengguna:</label>
+                            <select id="user-level-target">
+                                <option value="Beginner">Beginner (1-3x latihan/minggu)</option>
+                                <option value="Intermediate">Intermediate (4-5x latihan/minggu)</option>
+                                <option value="Advanced">Advanced (6x latihan/minggu)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kendala / Keluhan Fisik:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item"><input type="checkbox" name="complaint" value="Tidak Ada">
+                                Tidak Ada</label>
+                            <label class="checkbox-item"><input type="checkbox" name="complaint" value="Nyeri Lutut">
+                                Nyeri Lutut</label>
+                            <label class="checkbox-item"><input type="checkbox" name="complaint" value="Cedera Bahu">
+                                Cedera Bahu</label>
+                            <label class="checkbox-item"><input type="checkbox" name="complaint"
+                                    value="Nyeri Punggung Bawah"> Nyeri Punggung</label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="forceUnlockFromBio()">Simpan Data & Buka Akses
+                        🔑</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 2: BERANDA HARI INI -->
+        <section id="beranda" class="tab-content active">
+            <div class="card" style="border-left: 4px solid var(--accent-primary);">
+                <h3>🔥 Latihan Hari Ini</h3>
+                <p class="subtitle" id="home-workout-title">Sesi: Memuat jadwal...</p>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                    <button class="btn-primary" style="margin-top:0;" onclick="switchTab('workout-session')">🚀 Mulai
+                        Latihan Hari Ini</button>
+                </div>
+            </div>
+
+            <div class="grid-2-col">
+                <article class="card">
+                    <h3>💧 Target Air Minum</h3>
+                    <div id="home-water-box" style="margin-bottom: 12px;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Segarkan tubuh Anda hari ini!</p>
+                    </div>
+                    <button class="btn-secondary" onclick="switchTab('nutrition')">Atur Log Air & Makan ➔</button>
+                </article>
+
+                <article class="card">
+                    <h3>📊 Status Progress Hari Ini</h3>
+                    <div class="stat-card" style="margin-bottom: 12px; text-align: left; padding: 12px;">
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">Status Latihan:</span>
+                        <h4 id="home-workout-status"
+                            style="font-size: 1rem; color: var(--accent-primary); margin-top: 4px;">Belum Selesai</h4>
+                    </div>
+                    <button class="btn-primary" style="margin-top:0;" onclick="switchTab('progress')">Lanjutkan
+                        Aktivitas / Progress ➔</button>
+                </article>
+            </div>
+        </section>
+
+        <!-- TAB 3: NUTRISI -->
+        <section id="nutrition" class="tab-content">
+            <div class="grid-2-col">
+                <article class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>Nutrisi Harian (Continue)</h3>
+                        <span
+                            style="font-size:0.75rem; background:var(--accent-info); padding:4px 8px; border-radius:4px; font-weight:bold;">Hari
+                            Berantai</span>
+                    </div>
+                    <p class="subtitle">Menu makanan berganti otomatis setiap hari agar tidak bosan.</p>
+                    <div id="nutrition-target-box"></div>
+                    <h4 style="margin-top:16px; color:var(--accent-primary); font-size:0.9rem;">Rekomendasi Hari Ini:
+                    </h4>
+                    <div id="daily-dynamic-menu" style="margin-top:8px;"></div>
+                </article>
+
+                <article class="card">
+                    <h3>Daily Health Log</h3>
+                    <p class="subtitle">Simpan catatan aktivitas harian untuk tracking progress:</p>
+                    <form id="daily-log-form">
+                        <div class="form-group">
+                            <label for="daily-date">Tanggal Log:</label>
+                            <input type="date" id="daily-date" required>
+                        </div>
+                        <div id="daily-log-status-v8"></div>
+                        <div class="form-group">
+                            <label>💧 Checklist Air Minum Harian</label>
+                            <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:8px">Centang setiap gelas
+                                yang benar-benar diminum. Total otomatis dihitung sesuai target.</p>
+                            <div id="water-checklist" class="checkbox-group"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>🍽️ Checklist Makan Harian</label>
+                            <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:8px">Centang setiap jadwal
+                                makan setelah selesai. Status kepatuhan dihitung otomatis.</p>
+                            <div id="meal-checklist" class="checkbox-group"></div>
+                        </div>
+                        <div class="form-group-inline">
+                            <div>
+                                <label for="daily-sleep">Tidur (Jam):</label>
+                                <input type="number" step="0.5" id="daily-sleep" placeholder="8" required>
+                            </div>
+                            <div>
+                                <label for="daily-workout-status">Latihan Harian:</label>
+                                <select id="daily-workout-status">
+                                    <option value="Mengikuti Paket">Mengikuti Paket</option>
+                                    <option value="Tuntas Dipraktekkan">Tuntas Dipraktekkan</option>
+                                    <option value="Latihan Ringan">Latihan Ringan</option>
+                                    <option value="Rest Day">Rest Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Simpan Log Harian</button>
+                    </form>
+                </article>
+            </div>
+        </section>
+
+        <!-- TAB 4: JADWAL LATIHAN -->
+        <section id="schedule" class="tab-content">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h3>Jadwal Latihan Mingguan</h3>
+                        <p class="subtitle" id="schedule-mode-subtitle">Mode Otomatis (Sinkron dengan tanggal & paket
+                            Anda).</p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn-secondary" id="btn-mode-auto"
+                            onclick="setScheduleMode('auto')">⚡ Otomatis</button>
+                        <button type="button" class="btn-secondary" id="btn-mode-manual"
+                            onclick="setScheduleMode('manual')">✏️ Edit Manual Multi-Select</button>
+                    </div>
+                </div>
+
+                <div id="manual-edit-box"
+                    style="display:none; background:var(--bg-main); padding:14px; border-radius:8px; border:1px solid var(--border-color); margin:14px 0;">
+                    <h4 style="color:var(--accent-primary); margin-bottom:10px; font-size:0.9rem;">Form Custom
+                        Multi-Select</h4>
+                    <form id="manual-schedule-form">
+                        <div class="form-group">
+                            <label for="manual-day">Pilih Hari:</label>
+                            <select id="manual-day">
+                                <option value="Senin">Senin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Kamis">Kamis</option>
+                                <option value="Jumat">Jumat</option>
+                                <option value="Sabtu">Sabtu</option>
+                                <option value="Minggu">Minggu</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pilih Jenis/Kategori Latihan (Bisa Klik >1):</label>
+                            <div class="checkbox-group" id="manual-cat-checkboxes">
+                                <label class="checkbox-item"><input type="checkbox" value="chest"
+                                        onchange="renderManualExerciseCheckboxes()"> Dada (Chest)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="back"
+                                        onchange="renderManualExerciseCheckboxes()"> Punggung (Back)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="shoulders"
+                                        onchange="renderManualExerciseCheckboxes()"> Bahu (Shoulders)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="biceps"
+                                        onchange="renderManualExerciseCheckboxes()"> Bisep (Biceps)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="triceps"
+                                        onchange="renderManualExerciseCheckboxes()"> Trisep (Triceps)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="legs"
+                                        onchange="renderManualExerciseCheckboxes()"> Kaki (Legs)</label>
+                                <label class="checkbox-item"><input type="checkbox" value="abs_core"
+                                        onchange="renderManualExerciseCheckboxes()"> Perut & Core</label>
+                                <label class="checkbox-item"><input type="checkbox" value="rest_day"
+                                        onchange="renderManualExerciseCheckboxes()"> Rest Day</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pilih Gerakan Spesifik dari Database (Bisa Klik >1):</label>
+                            <div class="checkbox-group" id="manual-ex-checkboxes" style="max-height: 180px;">
+                                <span style="font-size:0.75rem; color:var(--text-muted);">Pilih jenis latihan terlebih
+                                    dahulu di atas.</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="margin-top:0;">Tetapkan Jadwal Hari
+                            Ini</button>
+                    </form>
+                </div>
+
+                <div id="schedule-cards-container" class="schedule-grid" style="margin-top:14px;"></div>
+            </div>
+        </section>
+
+        <!-- TAB 5: GERAKAN LATIHAN -->
+        <section id="database" class="tab-content">
+            <div class="card">
+                <h3>Gerakan Latihan (Bergambar & Interaktif)</h3>
+                <p class="subtitle">Pilih kelompok otot untuk melihat gerakan, detail eksekusi, dan tips latihan.</p>
+
+                <div class="form-group" style="max-width: 300px; margin-bottom: 16px;">
+                    <label for="db-category-select">Pilih Kategori Otot / Folder:</label>
+                    <select id="db-category-select" onchange="renderExerciseDatabase()">
+                        <option value="chest">📂 Folder Dada / Chest (20 Gerakan - Incline, Mid, Lower)</option>
+                        <option value="back">📂 Folder Punggung / Back (10 Gerakan)</option>
+                        <option value="shoulders">📂 Folder Bahu / Shoulders (10 Gerakan)</option>
+                        <option value="biceps">📂 Folder Bisep / Biceps (10 Gerakan)</option>
+                        <option value="triceps">📂 Folder Trisep / Triceps (10 Gerakan)</option>
+                        <option value="legs">📂 Folder Kaki / Legs (10 Gerakan)</option>
+                        <option value="abs_core">📂 Folder Perut & Core (10 Gerakan)</option>
+                        <option value="recovery_mobility">📂 Folder Pemulihan (10 Gerakan)</option>
+                    </select>
+                </div>
+
+                <div id="exercise-db-container"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: PAKET PROGRAM PRESET & CUSTOM BUILDER -->
+        <section id="programs" class="tab-content">
+            <div class="card">
+                <h3>Paket Program Latihan (Playable & Sesuai Level Biodata)</h3>
+                <p class="subtitle" id="program-level-tag">Menampilkan paket latihan yang relevan dengan level Anda.</p>
+
+                <div style="margin-bottom:16px;">
+                    <button type="button" class="btn-secondary" onclick="openCustomProgramBuilder()">➕ Buat Paket Custom
+                        (Multi-Select)</button>
+                </div>
+
+                <div id="program-package-list"></div>
+            </div>
+        </section>
+
+        <!-- TAB 7: PROGRAM SESI LATIHAN INTERAKTIF HARIAN -->
+        <section id="workout-session" class="tab-content">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h3 id="session-day-title">Sesi Latihan Interaktif Hari Ini</h3>
+                        <p class="subtitle" id="session-date-subtitle">Tanggal: -</p>
+                    </div>
+                    <button class="btn-primary" style="width:auto; padding:8px 16px;"
+                        onclick="completeCurrentWorkout()">✓ Selesaikan Latihan</button>
+                </div>
+
+                <div id="active-session-container"
+                    style="display:flex; flex-direction:column; gap:12px; margin-top:14px;"></div>
+            </div>
+        </section>
+
+        <!-- TAB 8: DASHBOARD PROGRESS -->
+        <section id="progress" class="tab-content">
+            <div class="grid-4-col">
+                <div class="stat-card">
+                    <h4>BB SAAT INI</h4>
+                    <div class="val" id="stat-current-weight">- kg</div>
+                </div>
+                <div class="stat-card">
+                    <h4>TARGET BB</h4>
+                    <div class="val" id="stat-target-weight">- kg</div>
+                </div>
+                <div class="stat-card">
+                    <h4>TOTAL LOG</h4>
+                    <div class="val" id="stat-total-logs">0 Log</div>
+                </div>
+                <div class="stat-card">
+                    <h4>PROGRESS PEKAN</h4>
+                    <div class="val" id="stat-progress-pct">0%</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px; border-color: var(--accent-info);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                    <h3 style="color: var(--accent-info); font-size: 1rem;">📊 Integrasi Data Nutrisi & Kepatuhan Harian
+                    </h3>
+                    <span
+                        style="font-size:0.75rem; background:var(--bg-input); padding:4px 8px; border-radius:4px; font-weight:bold;">Live
+                        Connected Data</span>
+                </div>
+                <p class="subtitle">Rekapitulasi otomatis data konsumsi nutrisi dan log harian yang terhubung langsung
+                    ke progress Anda:</p>
+                <div id="progress-nutrition-sync-box"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                </div>
+            </div>
+
+            <div class="grid-2-col">
+                <article class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3>Evaluasi Pekanan</h3>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="week-selector-btn active" id="btn-week-1"
+                                onclick="switchWeekView(1)">Pekan 1</button>
+                            <button type="button" class="week-selector-btn" id="btn-week-2"
+                                onclick="switchWeekView(2)">Pekan 2</button>
+                        </div>
+                    </div>
+
+                    <form id="log-form">
+                        <div class="form-group-inline">
+                            <div>
+                                <label for="log-week">Pekan Ke-:</label>
+                                <input type="number" id="log-week" value="1" readonly required>
+                            </div>
+                            <div>
+                                <label for="log-weight">Berat Badan (kg):</label>
+                                <input type="number" step="0.1" id="log-weight" placeholder="66.5" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="log-note">Catatan & Masukan Evaluasi (Auto-Saved):</label>
+                            <textarea id="log-note" rows="3"
+                                placeholder="Tuliskan catatan latihan atau masukan/perbaikan di sini..."
+                                oninput="autoSaveNote()"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Update Evaluasi Pekanan</button>
+                    </form>
+
+                    <h4 style="margin-top:16px; margin-bottom:8px; font-size:0.9rem;">Riwayat Progress Mingguan</h4>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                            <thead>
+                                <tr style="border-bottom:1px solid var(--border-color); text-align:left;">
+                                    <th style="padding:6px;">Pkn</th>
+                                    <th style="padding:6px;">BB (kg)</th>
+                                    <th style="padding:6px;">Catatan</th>
+                                    <th style="padding:6px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="progress-table-body"></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <h3>Kelola Data Cadangan</h3>
+                    <p class="subtitle">Ekspor atau impor data profil & log latihan Anda.</p>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <button class="btn-secondary" onclick="exportDataJSON()">📥 Ekspor Backup (JSON)</button>
+                        <input type="file" id="import-file" style="display:none;" onchange="importDataJSON(event)"
+                            accept=".json">
+                        <button class="btn-secondary" onclick="document.getElementById('import-file').click()">📤 Impor
+                            Backup (JSON)</button>
+                        <button class="btn-danger" style="margin-top:10px;" onclick="resetAllData()">🗑️ Hapus Semua
+                            Data</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- MODAL DETAIL GERAKAN DATABASE -->
+    <div class="modal-overlay" id="item-detail-modal">
+        <div class="modal-card">
+            <h3 id="item-modal-title" style="color:var(--accent-primary);">Nama Gerakan</h3>
+            <div id="item-modal-img" style="height:150px; margin:12px 0; border-radius:8px; overflow:hidden;"></div>
+            <p id="item-modal-desc" style="font-size:0.85rem; color:var(--text-main); margin-bottom:10px;"></p>
+            <p id="item-modal-tips"
+                style="font-size:0.8rem; color:var(--accent-info); font-style:italic; margin-bottom:14px;"></p>
+            <button type="button" class="btn-primary" onclick="closeItemModal()">Tutup</button>
+        </div>
+    </div>
+
+    <!-- MODAL LIVE WORKOUT SESSION -->
+    <div class="modal-overlay" id="live-workout-modal">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 id="live-ex-title" style="color:var(--accent-primary);">Mulai Latihan</h3>
+                <span class="timer-badge" id="rest-timer-display">Rest: 60s</span>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                    <span id="live-ex-indicator">Gerakan 1 dari 5</span>
+                    <span id="live-set-indicator">Set 1 dari 3</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="live-workout-progressbar"></div>
+                </div>
+            </div>
+
+            <div id="live-ex-visual"
+                style="height:140px; margin:12px 0; border-radius:8px; overflow:hidden; background:#1e293b;"></div>
+            <p id="live-ex-desc" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;"></p>
+
+            <div
+                style="background:var(--bg-main); padding:10px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:12px;">
+                <h4 style="font-size:0.82rem; color:var(--accent-primary); margin-bottom:6px;">Target & Beban</h4>
+                <div class="form-group-inline" style="margin-bottom:0;">
+                    <div>
+                        <label>Target Set x Reps:</label>
+                        <input type="text" id="live-set-reps" readonly>
+                    </div>
+                    <div>
+                        <label>Target Beban (kg):</label>
+                        <input type="number" id="live-weight" placeholder="10">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <button type="button" class="btn-primary" style="flex:2; margin-top:0;" id="live-start-set-btn"
+                    onclick="completeCurrentSetV9()">▶ Selesaikan Set</button>
+                <button type="button" class="btn-secondary" style="flex:1;" onclick="skipCurrentExercise()">⏭
+                    Lewati</button>
+                <button type="button" class="btn-secondary" style="flex:1;" onclick="closeLiveWorkoutModal()">⏸
+                    Jeda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM PROGRAM BUILDER -->
+    <div class="modal-overlay" id="custom-prog-modal">
+        <div class="modal-card">
+            <h3 style="color:var(--accent-primary);">Susun Paket Custom</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Pilih jenis latihan & gerakan
+                untuk paket kustom Anda.</p>
+
+            <form id="custom-prog-form">
+                <div class="form-group">
+                    <label for="custom-prog-title">Nama Paket Program:</label>
+                    <input type="text" id="custom-prog-title" placeholder="Contoh: Paket Upper Body Extreme" required>
+                </div>
+                <div class="form-group">
+                    <label for="custom-prog-desc">Deskripsi:</label>
+                    <input type="text" id="custom-prog-desc" placeholder="Contoh: Kombinasi dada & punggung 5 gerakan"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Kategori/Jenis Latihan:</label>
+                    <div class="checkbox-group" id="prog-cat-checkboxes">
+                        <label class="checkbox-item"><input type="checkbox" value="chest"
+                                onchange="renderProgExerciseCheckboxes()"> Dada</label>
+                        <label class="checkbox-item"><input type="checkbox" value="back"
+                                onchange="renderProgExerciseCheckboxes()"> Punggung</label>
+                        <label class="checkbox-item"><input type="checkbox" value="shoulders"
+                                onchange="renderProgExerciseCheckboxes()"> Bahu</label>
+                        <label class="checkbox-item"><input type="checkbox" value="biceps"
+                                onchange="renderProgExerciseCheckboxes()"> Bisep</label>
+                        <label class="checkbox-item"><input type="checkbox" value="triceps"
+                                onchange="renderProgExerciseCheckboxes()"> Trisep</label>
+                        <label class="checkbox-item"><input type="checkbox" value="legs"
+                                onchange="renderProgExerciseCheckboxes()"> Kaki</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Gerakan Spesifik:</label>
+                    <div class="checkbox-group" id="prog-ex-checkboxes" style="max-height: 160px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Centang kategori di atas lebih
+                            dulu.</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Simpan Paket Kustom</button>
+                <button type="button" class="btn-secondary" onclick="closeCustomProgModal()"
+                    style="width:100%; margin-top:6px;">Batal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL PAKET PROGRAM -->
+    <div class="modal-overlay" id="program-modal">
+        <div class="modal-card">
+            <h3 id="modal-prog-title" style="color:var(--accent-primary);">Detail Paket</h3>
+            <p id="modal-prog-desc" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;"></p>
+            <h4 style="margin:10px 0; font-size:0.9rem;">Daftar Gerakan Terjadwal:</h4>
+            <div id="modal-exercise-list"
+                style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;"></div>
+
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+                <button type="button" class="btn-primary" id="btn-play-package" style="flex: 1; margin-top: 0;"
+                    onclick="playPackageDirectly()">▶ Langsung Play Paket Ini</button>
+                <button type="button" class="btn-secondary" onclick="closeProgramModal()"
+                    style="flex: 1;">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getSVGImage(name, category) {
+            const label = name.length > 18 ? name.substring(0, 16) + '...' : name;
+            return `
+                <svg width="100%" height="100%" viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="130" fill="#1e293b"/>
+                    <circle cx="150" cy="45" r="24" fill="#3b82f6" opacity="0.2"/>
+                    <path d="M130 45 L170 45 M150 25 L150 65" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+                    <rect x="112" y="37" width="14" height="16" fill="#facc15" rx="2"/>
+                    <rect x="174" y="37" width="14" height="16" fill="#facc15" rx="2"/>
+                    <text x="150" y="98" font-family="Segoe UI, sans-serif" font-size="12" font-weight="bold" fill="#f8fafc" text-anchor="middle">${label}</text>
+                    <text x="150" y="115" font-family="Segoe UI, sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">[ ${category} ]</text>
+                </svg>
+            `;
+        }
+
+        function getExerciseVisual(ex) {
+            if (ex && ex.src) {
+                const alt = ex.alt || ex.name || 'Ilustrasi gerakan latihan';
+                return `<img src="${ex.src}" alt="${alt}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+            }
+            return getSVGImage(ex ? ex.name : 'Latihan', ex ? ex.category : 'Umum');
+        }
+
+        const EXERCISE_DATABASE = {
+            chest: [
+                { name: "Incline Barbell Bench Press", category: "Dada Atas", src: "GambarD6/dada/incline-barbell-press.gif", alt: "Incline Barbell Bench Press", description: "Bench miring 30-45 derajat melatih massa dada atas.", tips: "Turunkan barbell terkontrol menyentuh dada atas." },
+                { name: "Incline Dumbbell Press", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Press.gif", alt: "Incline Dumbbell Press", description: "Melatih keseimbangan dan rentang gerak dada atas.", tips: "Jaga telapak tangan semi-pronated." },
+                { name: "Incline Dumbbell Fly", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Fly.gif", alt: "Incline Dumbbell Fly", description: "Meregangkan serat otot dada bagian atas.", tips: "Tekuk siku sedikit sepanjang gerakan." },
+                { name: "Low-to-High Cable Fly", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Fly.gif", alt: "Low-to-High Cable Fly", description: "Kabel katrol bawah ditarik menyilang ke atas.", tips: "Tahan kontraksi 1 detik di puncak atas." },
+                { name: "Incline Smith Machine Press", category: "Dada Atas", src: "GambarD6/dada/Incline Smith Machine Press.gif", alt: "Incline Smith Machine Press", description: "Press miring lintasan stabil mesin Smith.", tips: "Posisikan bangku sejajar batang Smith." },
+                { name: "Landmine Chest Press", category: "Dada Atas", src: "GambarD6/dada/Landmine Chest Press.gif", alt: "Landmine Chest Press", description: "Mendorong ujung barbell miring ke depan atas.", tips: "Genggam erat dengan kedua tangan." },
+                { name: "Decline Push-Up", category: "Dada Atas", src: "GambarD6/dada/Decline Push-Up.gif", alt: "Decline Push-Up", description: "Push up dengan posisi kaki lebih tinggi di bangku.", tips: "Badan tetap lurus dari kepala hingga tumit." },
+                { name: "Incline Dumbbell Hex Press", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Hex Press.gif", alt: "Incline Dumbbell Hex Press", description: "Menekan dua dumbbell yang dirapatkan terus.", tips: "Rapatkan kedua dumbbell secara konstan." },
+                { name: "Incline Reverse Grip Press", category: "Dada Atas", src: "GambarD6/dada/Incline Reverse Grip Press.gif", alt: "Incline Reverse Grip Press", description: "Bench miring pegangan supinated.", tips: "Gunakan spotter untuk keamanan ekstra." },
+                { name: "Low-to-High Band Fly", category: "Dada Atas", src: "GambarD6/dada/Low-to-High Band Fly.gif", alt: "Low-to-High Band Fly", description: "Menggunakan resistance band dari bawah ke atas.", tips: "Injak bagian tengah karet dengan stabil." },
+                { name: "Flat Barbell Bench Press", category: "Dada Tengah", src: "GambarD6/dada/Flat Barbell Bench Press.gif", alt: "Flat Barbell Bench Press", description: "Gerakan compound utama penambah ketebalan dada.", tips: "Kunci belikat ke belakang dan bawah." },
+                { name: "Flat Dumbbell Press", category: "Dada Tengah", src: "GambarD6/dada/Flat Dumbbell Press.gif", alt: "Flat Dumbbell Press", description: "Press bangku datar dengan pergerakan alami.", tips: "Turunkan hingga sejajar garis dada." },
+                { name: "Chest Dips", category: "Dada Bawah", src: "GambarD6/dada/Chest Dips.gif", alt: "Chest Dips", description: "Dip memiringkan badan menargetkan dada bawah.", tips: "Condongkan badan 30 derajat ke depan." },
+                { name: "High-to-Low Cable Fly", category: "Dada Bawah", src: "GambarD6/dada/High-to-Low Cable Fly.gif", alt: "High-to-Low Cable Fly", description: "Tarik kabel atas menyilang ke paha bawah.", tips: "Busungkan dada saat menarik kabel." },
+                { name: "Decline Barbell Bench Press", category: "Dada Bawah", src: "GambarD6/dada/Decline Barbell Bench Press.gif", alt: "Decline Barbell Bench Press", description: "Press bangku menurun untuk penekanan dada bawah.", tips: "Kunci kaki dengan kuat pada bangku." },
+                { name: "Pec Deck Machine Fly", category: "Dada Tengah", src: "GambarD6/dada/Pec Deck Machine Fly.gif", alt: "Pec Deck Machine Fly", description: "Isolasi dada tengah tanpa ribet keseimbangan.", tips: "Atur tinggi kursi sejajar dada." },
+                { name: "Standing Cable Crossover", category: "Dada Tengah", src: "GambarD6/dada/Standing Cable Crossover.gif", alt: "Standing Cable Crossover", description: "Menyilangkan kabel berdiri untuk puncak kontraksi.", tips: "Satu kaki maju ke depan agar stabil." },
+                { name: "Dumbbell Pullover", category: "Dada Tengah", src: "GambarD6/dada/Dumbbell Pullover.gif", alt: "Dumbbell Pullover", description: "Berbaring melintang menarik dumbbell dari belakang.", tips: "Jaga siku tetap ditekuk sedikit." },
+                { name: "Push-Up Standar", category: "Dada Tengah", src: "GambarD6/dada/Push-Up Standar.gif", alt: "Push-Up Standar", description: "Latihan beban tubuh melatih seluruh area dada.", tips: "Tangan dibuka sedikit lebih lebar dari bahu." },
+                { name: "Svend Press", category: "Dada Tengah", src: "GambarD6/dada/Svend Press.gif", alt: "Svend Press", description: "Menjepit dan mendorong plat beban di dada.", tips: "Tekan telapak tangan sekuat mungkin pada plat." }
+            ],
+            back: [
+                { name: "Conventional Deadlift", category: "Punggung", src: "GambarD6/punggung/Conventional Deadlift.gif", alt: "Conventional Deadlift", description: "Mengangkat barbell dari lantai untuk seluruh posterior chain.", tips: "Punggung lurus netral, dorong dengan kaki." },
+                { name: "Barbell Bent-Over Row", category: "Punggung", src: "GambarD6/punggung/Barbell Bent-Over Row.gif", alt: "Barbell Bent-Over Row", description: "Dayung barbell membungkuk untuk tebal punggung.", tips: "Engsel pinggul 45 derajat, tarik ke pusar." },
+                { name: "Lat Pulldown Wide Grip", category: "Punggung", src: "GambarD6/punggung/Lat Pulldown Wide Grip.gif", alt: "Lat Pulldown Wide Grip", description: "Tarik kabel atas ke dada untuk melebar lats.", tips: "Tarik siku ke bawah dan belakang." },
+                { name: "Pull-Up", category: "Punggung", src: "GambarD6/punggung/Pull-Up.gif", alt: "Pull-Up", description: "Angkat beban tubuh pada palang tunggal.", tips: "Fokus tarik siku menuju pinggul." },
+                { name: "Single-Arm Dumbbell Row", category: "Punggung", src: "GambarD6/punggung/Single-Arm Dumbbell Row.gif", alt: "Single-Arm Dumbbell Row", description: "Row satu sisi bertumpu di bangku.", tips: "Jaga panggul sejajar lantai." },
+                { name: "Seated Cable Row", category: "Punggung", src: "GambarD6/punggung/Seated Cable Row.gif", alt: "Seated Cable Row", description: "Menarik kabel duduk ke arah perut.", tips: "Rapatkan belikat saat menarik." },
+                { name: "T-Bar Row", category: "Punggung", src: "GambarD6/punggung/T-Bar Row.gif", alt: "T-Bar Row", description: "Row beban berat menggunakan mesin T-Bar.", tips: "Pertahankan tulang belakang lurus." },
+                { name: "Face Pull", category: "Punggung", src: "GambarD6/punggung/Face Pull.gif", alt: "Face Pull", description: "Tarik tali kabel ke dahi melatih rear delt & upper back.", tips: "Posisi siku selalu tinggi." },
+                { name: "Straight-Arm Cable Pulldown", category: "Punggung", src: "GambarD6/punggung/Straight-Arm Cable Pulldown.gif", alt: "Straight-Arm Cable Pulldown", description: "Tarik batang kabel lurus ke bawah tanpa tekuk siku.", tips: "Tekan dengan otot lats hingga paha." },
+                { name: "Hyperextension", category: "Punggung", src: "GambarD6/punggung/Hyperextension.gif", alt: "Hyperextension", description: "Ekstensi punggung bawah pada bangku khusus.", tips: "Jangan melengkungkan punggung berlebihan." }
+            ],
+            shoulders: [
+                { name: "Seated Barbell Shoulder Press", category: "Bahu", src: "GambarD6/bahu/Seated Barbell Shoulder Press.gif", alt: "Seated Barbell Shoulder Press", description: "Press barbell lurus ke atas dari dada.", tips: "Duduk tegap, kencangkan glutes dan perut." },
+                { name: "Seated Dumbbell Press", category: "Bahu", src: "GambarD6/bahu/Seated Dumbbell Press.gif", alt: "Seated Dumbbell Press", description: "Press dumbbell duduk tegak melatih bahu.", tips: "Jangan benturkan dumbbell di atas." },
+                { name: "Dumbbell Lateral Raise", category: "Bahu", src: "GambarD6/bahu/Dumbbell Lateral Raise.gif", alt: "Dumbbell Lateral Raise", description: "Angkat dumbbell ke samping untuk bahu samping.", tips: "Ibu jari miring sedikit ke bawah." },
+                { name: "Arnold Press", category: "Bahu", src: "GambarD6/bahu/Arnold Press.gif", alt: "Arnold Press", description: "Press memutar lengan dari depan ke atas.", tips: "Putar pergelangan tangan halus." },
+                { name: "Cable Lateral Raise", category: "Bahu", src: "GambarD6/bahu/Cable Lateral Raise.gif", alt: "Cable Lateral Raise", description: "Raise kabel satu sisi untuk tegangan konstan.", tips: "Tarik kabel dari belakang tubuh." },
+                { name: "Bent-Over Rear Delt Fly", category: "Bahu", src: "GambarD6/bahu/Bent-Over Rear Delt Fly.gif", alt: "Bent-Over Rear Delt Fly", description: "Fly membungkuk untuk otot bahu belakang.", tips: "Bungkukkan badan paralel lantai." },
+                { name: "Front Dumbbell Raise", category: "Bahu", src: "GambarD6/bahu/Front Dumbbell Raise.gif", alt: "Front Dumbbell Raise", description: "Angkat dumbbell ke depan setinggi mata.", tips: "Hindari mengayunkan pinggul." },
+                { name: "Reverse Pec Deck Fly", category: "Bahu", src: "GambarD6/bahu/Reverse Pec Deck Fly.gif", alt: "Reverse Pec Deck Fly", description: "Fly mesin terbalik fokus bahu belakang.", tips: "Dorong pegangan dengan siku." },
+                { name: "Barbell Upright Row", category: "Bahu", src: "GambarD6/bahu/Barbell Upright Row.gif", alt: "Barbell Upright Row", description: "Tarik barbell menempel tubuh hingga dada.", tips: "Siku selalu memimpin di atas." },
+                { name: "Dumbbell Shrugs", category: "Bahu", src: "GambarD6/bahu/Dumbbell Shrugs.gif", alt: "Dumbbell Shrugs", description: "Angkat bahu ke atas mengisolasi trapezius.", tips: "Tahan 1 detik di puncak atas." }
+            ],
+            biceps: [
+                { name: "Barbell Bicep Curl", category: "Bisep", src: "GambarD6/bicep/Barbell Bicep Curl.gif", alt: "Barbell Bicep Curl", description: "Curl klasik barbell lurus untuk massa bisep.", tips: "Kunci siku di samping panggul." },
+                { name: "EZ-Bar Preacher Curl", category: "Bisep", src: "GambarD6/bicep/EZ-Bar Preacher Curl.gif", alt: "EZ-Bar Preacher Curl", description: "Curl bangku preacher mengisolasi puncak bisep.", tips: "Sandarkan ketiak secara penuh." },
+                { name: "Dumbbell Incline Curl", category: "Bisep", src: "GambarD6/bicep/Dumbbell Incline Curl.gif", alt: "Dumbbell Incline Curl", description: "Curl duduk miring untuk peregangan maksimal.", tips: "Biarkan lengan menggantung penuh." },
+                { name: "Dumbbell Hammer Curl", category: "Bisep", src: "GambarD6/bicep/Dumbbell Hammer Curl.gif", alt: "Dumbbell Hammer Curl", description: "Curl pegangan netral melatih brachialis.", tips: "Telapak tangan saling berhadapan." },
+                { name: "Concentration Curl", category: "Bisep", src: "GambarD6/bicep/Concentration Curl.gif", alt: "Concentration Curl", description: "Curl duduk bertumpu pada bagian dalam paha.", tips: "Fokus pada puncak kontraksi." },
+                { name: "Cable Bicep Curl", category: "Bisep", src: "GambarD6/bicep/Cable Bicep Curl.gif", alt: "Cable Bicep Curl", description: "Curl katrol kabel bawah tegangan konstan.", tips: "Tarik kabel hingga mendekati bahu." },
+                { name: "Spider Curl", category: "Bisep", src: "GambarD6/bicep/Spider Curl.gif", alt: "Spider Curl", description: "Curl telungkup di bangku miring.", tips: "Lengan menggantung tegak lurus." },
+                { name: "Reverse Grip Barbell Curl", category: "Bisep", src: "GambarD6/bicep/Reverse Grip Barbell Curl.gif", alt: "Reverse Grip Barbell Curl", description: "Curl pegangan telapak ke bawah untuk forearm.", tips: "Gunakan beban lebih ringan." },
+                { name: "Drag Curl", category: "Bisep", src: "GambarD6/bicep/Drag Curl.gif", alt: "Drag Curl", description: "Curl menggeser siku ke belakang menyusuri tubuh.", tips: "Batang menempel terus di badan." },
+                { name: "High Cable Peak Curl", category: "Bisep", src: "GambarD6/bicep/High Cable Peak Curl.gif", alt: "High Cable Peak Curl", description: "Curl dua katrol atas dalam posisi berdiri.", tips: "Tarik pegangan ke arah telinga." }
+            ],
+            triceps: [
+                { name: "Tricep Cable Pushdown", category: "Trisep", src: "GambarD6/tricep/Tricep Cable Pushdown.gif", alt: "Tricep Cable Pushdown", description: "Tekan tali kabel ke bawah melatih trisep.", tips: "Kunci siku dekat samping badan." },
+                { name: "Close-Grip Bench Press", category: "Trisep", src: "GambarD6/tricep/Close-Grip Bench Press.gif", alt: "Close-Grip Bench Press", description: "Press pegangan sempit selebar bahu.", tips: "Siku tetap dekat dengan tubuh." },
+                { name: "Skull Crusher", category: "Trisep", src: "GambarD6/tricep/Skull Crusher.gif", alt: "Skull Crusher", description: "Berbaring menurunkan batang EZ ke dahi.", tips: "Dorong kembali dengan trisep." },
+                { name: "Overhead Dumbbell Extension", category: "Trisep", src: "GambarD6/tricep/Overhead Dumbbell Extension.gif", alt: "Overhead Dumbbell Extension", description: "Press dumbbell dari belakang kepala ke atas.", tips: "Pegang dumbbell dengan dua tangan." },
+                { name: "Parallel Bar Dips", category: "Trisep", src: "GambarD6/tricep/Parallel Bar Dips.gif", alt: "Parallel Bar Dips", description: "Dip palang sejajar posisi badan tegak.", tips: "Jaga badan tidak terlalu miring." },
+                { name: "Dumbbell Kickback", category: "Trisep", src: "GambarD6/tricep/Dumbbell Kickback.gif", alt: "Dumbbell Kickback", description: "Meluruskan lengan ke belakang membungkuk.", tips: "Angkat siku sejajar punggung." },
+                { name: "Bench Dips", category: "Trisep", src: "GambarD6/tricep/Bench Dips.gif", alt: "Bench Dips", description: "Dip tumpuan tepi bangku.", tips: "Turunkan panggul lurus vertikal." },
+                { name: "Single-Arm Cable Extension", category: "Trisep", src: "GambarD6/tricep/Single-Arm Cable Extension.gif", alt: "Single-Arm Cable Extension", description: "Extension kabel satu tangan overhead.", tips: "Luruskan lengan penuh ke atas." },
+                { name: "Tate Press", category: "Trisep", src: "GambarD6/tricep/Tate Press.gif", alt: "Tate Press", description: "Press dumbbell mengarah ke luar di atas dada.", tips: "Tekuk siku ke luar perlahan." },
+                { name: "Diamond Push-Up", category: "Trisep", src: "GambarD6/tricep/Diamond Push-Up.gif", alt: "Diamond Push-Up", description: "Push up jari bentuk belah ketupat.", tips: "Tangan tepat di bawah dada." }
+            ],
+            legs: [
+                { name: "Barbell Back Squat", category: "Kaki", src: "GambarD6/kaki/Barbell Back Squat.gif", alt: "Barbell Back Squat", description: "Latihan utama leg day beban barbell di punggung.", tips: "Panggul turun sejajar lutut." },
+                { name: "Romanian Deadlift (RDL)", category: "Kaki", src: "GambarD6/kaki/Romanian Deadlift (RDL).gif", alt: "Romanian Deadlift (RDL)", description: "Menurunkan beban menelusuri paha melatih hamstring.", tips: "Dorong pinggul jauh ke belakang." },
+                { name: "Leg Press Machine", category: "Kaki", src: "GambarD6/kaki/Leg Press Machine.gif", alt: "Leg Press Machine", description: "Menekan plat beban pada mesin leg press.", tips: "Jangan kunci habis lutut di atas." },
+                { name: "Bulgarian Split Squat", category: "Kaki", src: "GambarD6/kaki/Bulgarian Split Squat.gif", alt: "Bulgarian Split Squat", description: "Squat satu kaki dengan kaki belakang di bangku.", tips: "Turunkan panggul tegak lurus." },
+                { name: "Walking Dumbbell Lunges", category: "Kaki", src: "GambarD6/kaki/Walking Dumbbell Lunges.gif", alt: "Walking Dumbbell Lunges", description: "Melangkah ke depan bergantian memegang beban.", tips: "Lutut depan tidak lewat jari kaki." },
+                { name: "Leg Extension Machine", category: "Kaki", src: "GambarD6/kaki/Leg Extension Machine.gif", alt: "Leg Extension Machine", description: "Isolasi paha depan (quadriceps) duduk.", tips: "Tendang dan tahan 1 detik di atas." },
+                { name: "Lying Leg Curl Machine", category: "Kaki", src: "GambarD6/kaki/Lying Leg Curl Machine.gif", alt: "Lying Leg Curl Machine", description: "Isolasi paha belakang (hamstrings) telungkup.", tips: "Tarik beban hingga mendekati glutes." },
+                { name: "Goblet Squat", category: "Kaki", src: "GambarD6/kaki/Goblet Squat.gif", alt: "Goblet Squat", description: "Squat memeluk dumbbell di depan dada.", tips: "Dada tegak, siku di dalam lutut." },
+                { name: "Standing Calf Raise", category: "Kaki", src: "GambarD6/kaki/Standing Calf Raise.gif", alt: "Standing Calf Raise", description: "Menjinjitkan kaki melatih betis.", tips: "Jinjit setinggi mungkin." },
+                { name: "Barbell Hip Thrust", category: "Kaki", src: "GambarD6/kaki/Barbell Hip Thrust.gif", alt: "Barbell Hip Thrust", description: "Dorong panggul barbell ke atas melatih glutes.", tips: "Bahu bersandar di bangku." }
+            ],
+            abs_core: [
+                { name: "Hanging Leg Raise", category: "Perut & Core", src: "GambarD6/perut&abs/Hanging Leg Raise.gif", alt: "Hanging Leg Raise", description: "Menggantung di palang mengangkat kaki 90 derajat.", tips: "Gunakan kekuatan otot perut." },
+                { name: "Ab Wheel Rollout", category: "Perut & Core", src: "GambarD6/perut&abs/Ab Wheel Rollout.gif", alt: "Ab Wheel Rollout", description: "Meluncurkan roda ab ke depan dari berlutut.", tips: "Kunci otot perut sepanjang luncuran." },
+                { name: "Cable Woodchopper", category: "Perut & Core", src: "GambarD6/perut&abs/Cable Woodchopper.gif", alt: "Cable Woodchopper", description: "Tarik kabel diagonal menguatkan obliques.", tips: "Putar batang tubuh secara terkontrol." },
+                { name: "Decline Sit-Up", category: "Perut & Core", src: "GambarD6/perut&abs/Decline Sit-Up.gif", alt: "Decline Sit-Up", description: "Sit up bangku miring menurun.", tips: "Fokus kontraksi perut atas." },
+                { name: "Plank Standar", category: "Perut & Core", src: "GambarD6/perut&abs/Plank Standar.gif", alt: "Plank Standar", description: "Tahan posisi lurus bertumpu pada siku.", tips: "Badan membentuk satu garis lurus." },
+                { name: "Russian Twist", category: "Perut & Core", src: "GambarD6/perut&abs/Russian Twist.gif", alt: "Russian Twist", description: "Duduk miring memutar badan kanan-kiri.", tips: "Angkat sedikit kedua kaki." },
+                { name: "Bicycle Crunch", category: "Perut & Core", src: "GambarD6/perut&abs/Bicycle Crunch.gif", alt: "Bicycle Crunch", description: "Crunch silang siku ke lutut berlawanan.", tips: "Gerakan halus dan terkontrol." },
+                { name: "Mountain Climber", category: "Perut & Core", src: "GambarD6/perut&abs/Mountain Climber.gif", alt: "Mountain Climber", description: "Posisi push up tarik lutut cepat bergantian.", tips: "Panggul tetap rendah." },
+                { name: "Captain Chair Leg Raise", category: "Perut & Core", src: "GambarD6/perut&abs/Captain Chair Leg Raise.gif", alt: "Captain Chair Leg Raise", description: "Angkat kaki/lutut pada alat captain chair.", tips: "Sandarkan punggung rapat." },
+                { name: "Dragon Flag", category: "Perut & Core", src: "GambarD6/perut&abs/Dragon Flag.gif", alt: "Dragon Flag", description: "Angkat seluruh tubuh bawah tumpuan bahu.", tips: "Latihan advanced tahan core." }
+            ],
+            recovery_mobility: [
+                { name: "Foam Rolling Quads", category: "Pemulihan", src: "GambarD6/recoverymobility/Foam Rolling Quads.gif", alt: "Foam Rolling Quads", description: "Pijat gulingan busa melepaskan simpul paha.", tips: "Geser tubuh perlahan 30 detik." },
+                { name: "World Greatest Stretch", category: "Pemulihan", src: "GambarD6/recoverymobility/World Greatest Stretch.gif", alt: "World Greatest Stretch", description: "Kombinasi lunge, rotasi dada & hamstring.", tips: "Lakukan 5-8 repetisi per sisi." },
+                { name: "Cat-Cow Stretch", category: "Pemulihan", src: "GambarD6/recoverymobility/Cat-Cow Stretch.gif", alt: "Cat-Cow Stretch", description: "Melengkungkan dan melekukkan tulang belakang.", tips: "Ikuti irama napas alami." },
+                { name: "Pigeon Pose Stretch", category: "Pemulihan", src: "GambarD6/recoverymobility/Pigeon Pose Stretch.gif", alt: "Pigeon Pose Stretch", description: "Peregangan mendalam glutes dan panggul.", tips: "Tahan 45 detik per sisi." },
+                { name: "Child Pose", category: "Pemulihan", src: "GambarD6/recoverymobility/Child's Pose.gif", alt: "Child Pose", description: "Duduk tumit mengulur lengan ke depan.", tips: "Tekan dada perlahan ke lantai." },
+                { name: "Banded Shoulder Dislocates", category: "Pemulihan", src: "GambarD6/recoverymobility/Banded Shoulder Dislocates.gif", alt: "Banded Shoulder Dislocates", description: "Putar karet dari depan ke belakang pinggul.", tips: "Gunakan pegangan lebar." },
+                { name: "Couch Stretch", category: "Pemulihan", src: "GambarD6/recoverymobility/Couch Stretch.gif", alt: "Couch Stretch", description: "Peregangan intensif quad & fleksor pinggul.", tips: "Kaki belakang bersandar dinding." },
+                { name: "Foam Roll Thoracic Spine", category: "Pemulihan", src: "GambarD6/recoverymobility/Foam Roll Thoracic Spine.gif", alt: "Foam Roll Thoracic Spine", description: "Menggulung busa di bawah punggung atas.", tips: "Silangkan tangan di dada." },
+                { name: "Scapular Wall Slides", category: "Pemulihan", src: "GambarD6/recoverymobility/Scapular Wall Slides.gif", alt: "Scapular Wall Slides", description: "Geser lengan di dinding melatih belikat.", tips: "Punggung menempel rapat." },
+            ]
+        };
+
+        const DYNAMIC_MEALS = {
+            "Bulking": [
+                [
+                    { time: "Sarapan", name: "Oatmeal 80g + 3 Telur Rebus + Pisang", detail: "Tinggi protein & karbohidrat." },
+                    { time: "Makan Siang", name: "Nasi Putih 200g + Dada Ayam 150g + Tempe", detail: "Protein hewani & nabati seimbang." },
+                    { time: "Makan Malam", name: "Nasi 150g + Ikan Tongkol 150g + Tumis Bayam", detail: "Asam lemak & nutrisi pemulihan." }
+                ],
+                [
+                    { time: "Sarapan", name: "Roti Gandum 4 Tangkap + Selai Kacang + 2 Telur", detail: "Kalori tinggi lemak sehat." },
+                    { time: "Makan Siang", name: "Nasi 200g + Daging Sapi 150g + Tahu", detail: "Zat besi penunjang massa otot." },
+                    { time: "Makan Malam", name: "Nasi 150g + Ayam Panggang 150g + Brokoli", detail: "Protein bersih malam hari." }
+                ]
+            ],
+            "Fat Loss": [
+                [
+                    { time: "Sarapan", name: "3 Putih Telur + 1 Utuh Rebus + 1 Apel", detail: "Tinggi protein kenyang lama." },
+                    { time: "Makan Siang", name: "Nasi Merah 100g + Dada Ayam 150g + Sup Brokoli", detail: "Rendah lemak kalori terkontrol." },
+                    { time: "Makan Malam", name: "Ikan Kukus 150g + Tumis Buncis & Tahu", detail: "Sangat ringan mudah dicerna." }
+                ]
+            ],
+            "Maintenance": [
+                [
+                    { time: "Sarapan", name: "2 Telur Dada + Roti Gandum 2 Lembar", detail: "Energi seimbang." },
+                    { time: "Makan Siang", name: "Nasi 150g + Ayam Goreng Airfryer 120g + Sayur", detail: "Nutrisi harian terpenuhi." },
+                    { time: "Makan Malam", name: "Nasi 100g + Ikan Bakar 120g + Kangkung", detail: "Menjaga kestabilan BB." }
+                ]
+            ]
+        };
+
+        // GLOBAL APP STATE
+        let isRegistered = false;
+        let scheduleMode = "auto";
+        let chartInstance = null;
+        let activeWeekView = 1;
+        let restTimerInterval = null;
+
+        // VARIABEL STATE UNTUK PLAYABLE PACKAGES & AUTO-TRANSITION
+        let activePlaylist = [];
+        let currentPlaylistIndex = 0;
+
+        // Penyimpanan yang aman untuk Safari/iPhone. Jika localStorage tidak
+        // tersedia (mis. file lokal atau private browsing), data tetap hidup
+        // selama halaman terbuka sehingga akses menu tidak ikut terkunci.
+        const volatileStorage = Object.create(null);
+        let storageWarningShown = false;
+
+        function appRead(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw !== null) return JSON.parse(raw);
+            } catch (error) {
+                // Safari dapat memblokir localStorage pada konteks tertentu.
+            }
+            return Object.prototype.hasOwnProperty.call(volatileStorage, key)
+                ? volatileStorage[key]
+                : fallback;
+        }
+
+        function appWrite(key, value) {
+            volatileStorage[key] = value;
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (error) {
+                if (!storageWarningShown) {
+                    storageWarningShown = true;
+                    setTimeout(() => alert('Data tersimpan sementara selama halaman ini terbuka. Untuk menyimpan permanen di iPhone, buka lewat Safari biasa (bukan Private Browsing) atau unggah ke hosting.'), 0);
+                }
+                return false;
+            }
+        }
+
+        function appGetText(key, fallback = null) {
+            try {
+                const value = localStorage.getItem(key);
+                if (value !== null) return value;
+            } catch (error) {
+                // Gunakan cadangan memori di bawah.
+            }
+            return Object.prototype.hasOwnProperty.call(volatileStorage, key)
+                ? volatileStorage[key]
+                : fallback;
+        }
+
+        function appSetText(key, value) {
+            volatileStorage[key] = value;
+            try { localStorage.setItem(key, value); return true; } catch (error) { return false; }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const bio = appRead("gym_bio_v7", null);
+            const dailyLogs = appRead("gym_daily_logs_v9", []);
+            const weeklyLogs = appRead("gym_weekly_logs_v8", []);
+            const customSchedule = appRead("gym_custom_sched_v7", {});
+
+            checkRegistrationGate(bio);
+            setupNavigation();
+            renderBioForm(bio);
+            setupListeners(dailyLogs, weeklyLogs, customSchedule);
+
+            // AUTO SINKRONISASI TANGGAL HARI INI
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById("daily-date").value = todayStr;
+
+            // Listener formulir telah aktif sebelum bagian opsional dirender.
+            // Dengan begitu, error pada grafik atau database latihan tidak
+            // membuat tombol Simpan Bio berhenti bekerja di iPhone.
+            try {
+                renderNutritionAndMeals(bio);
+                renderSchedule(bio, customSchedule);
+                renderExerciseDatabase();
+                renderPrograms(bio ? bio.level : "Beginner");
+                renderActiveWorkoutSession(bio, customSchedule);
+                renderDashboard(bio, weeklyLogs, dailyLogs);
+            } catch (error) {
+                console.error('Inisialisasi fitur tambahan gagal:', error);
+                showAppError('Beberapa fitur belum dimuat, tetapi formulir profil tetap dapat digunakan.');
+            }
+        });
+
+        function showToast(msg) {
+            const container = document.getElementById("toast-container");
+            if (!container) return;
+            const toast = document.createElement("div");
+            toast.className = "toast-banner";
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
+
+            if (undoCallback) {
+                const undoBtn = document.createElement("button");
+                undoBtn.className = "btn-secondary";
+                undoBtn.style.padding = "4px 8px";
+                undoBtn.style.fontSize = "0.75rem";
+                undoBtn.textContent = "Batalkan";
+                undoBtn.onclick = () => {
+                    undoCallback();
+                    toast.remove();
+                };
+                toast.appendChild(undoBtn);
+            }
+
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const bio = appRead("gym_bio_v7", null);
+            const dailyLogs = appRead("gym_daily_logs_v9", []);
+            const weeklyLogs = appRead("gym_weekly_logs_v8", []);
+            const customSchedule = appRead("gym_custom_sched_v7", {});
+
+            checkRegistrationGate(bio);
+            setupNavigation();
+            if (bio) renderBioForm(bio);
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById("daily-date");
+            if (dateInput) dateInput.value = todayStr;
+
+            try {
+                renderNutritionAndMeals(bio);
+                renderSchedule(bio, customSchedule);
+                renderExerciseDatabase();
+                renderPrograms(bio ? bio.level : "Beginner");
+                renderActiveWorkoutSession(bio, customSchedule);
+                renderDashboard(bio, weeklyLogs, dailyLogs);
+            } catch (error) {
+                console.error("Inisialisasi aplikasi:", error);
+            }
+
+            setupFormListeners();
+        });
+
+        function setupFormListeners() {
+            const manualForm = document.getElementById("manual-schedule-form");
+            if (manualForm) {
+                manualForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const day = document.getElementById("manual-day").value;
+                    const selectedEx = Array.from(document.querySelectorAll('input[name="manual_ex"]:checked')).map(cb => cb.value);
+                    const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
+
+                    if (selectedEx.length === 0) {
+                        showToast("Pilih minimal 1 gerakan latihan.");
+                        return;
+                    }
+
+                    const customSchedule = appRead("gym_custom_sched_v7", {});
+                    customSchedule[day] = {
+                        focus: selectedCats.join(" & ").toUpperCase() || "Custom Workout",
+                        exercises: selectedEx
+                    };
+
+                    appWrite("gym_custom_sched_v7", customSchedule);
+                    showToast(`Jadwal hari ${day} berhasil diperbarui!`);
+                    const bio = appRead("gym_bio_v7", null);
+                    renderSchedule(bio, customSchedule);
+                });
+            }
+
+            const customProgForm = document.getElementById("custom-prog-form");
+            if (customProgForm) {
+                customProgForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const title = document.getElementById("custom-prog-title").value.trim();
+                    const desc = document.getElementById("custom-prog-desc").value.trim();
+                    const selectedEx = Array.from(document.querySelectorAll('input[name="custom_prog_ex"]:checked')).map(cb => cb.value);
+
+                    if (!title || selectedEx.length === 0) {
+                        showToast("Sila isi nama paket dan pilih minimal 1 gerakan.");
+                        return;
+                    }
+
+                    const customProgs = appRead("gym_custom_programs_v1", []);
+                    customProgs.push({
+                        id: "custom-" + Date.now(),
+                        level: "Custom",
+                        title,
+                        desc,
+                        exercises: selectedEx
+                    });
+
+                    appWrite("gym_custom_programs_v1", customProgs);
+                    closeCustomProgModal();
+                    showToast("Paket program kustom berhasil disimpan!");
+                    const bio = appRead("gym_bio_v7", null);
+                    renderPrograms(bio ? bio.level : "Beginner");
+                });
+            }
+
+            const dailyLogForm = document.getElementById("daily-log-form");
+            if (dailyLogForm) {
+                dailyLogForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    const date = document.getElementById("daily-date").value;
+                    const sleep = document.getElementById("daily-sleep").value;
+                    const workoutStatus = document.getElementById("daily-workout-status").value;
+
+                    const logs = appRead("gym_daily_logs_v9", []);
+                    const existingIdx = logs.findIndex(l => l.date === date);
+                    const newLog = { date, sleep: Number(sleep), workoutStatus, timestamp: Date.now() };
+
+                    if (existingIdx >= 0) {
+                        logs[existingIdx] = newLog;
+                    } else {
+                        logs.push(newLog);
+                    }
+
+                    appWrite("gym_daily_logs_v9", logs);
+                    showToast("Log harian berhasil disimpan!");
+                    const bio = appRead("gym_bio_v7", null);
+                    renderDashboard(bio, appRead("gym_weekly_logs_v8", []), logs);
+                });
+            }
+        }
+
+        function checkRegistrationGate(bio) {
+            if (bio && typeof bio.name === 'string' && bio.name.trim()) {
+                isRegistered = true;
+                document.getElementById("user-badge").textContent = `Profil: ${bio.name} (${bio.level})`;
+                document.getElementById("lock-icon-bio").textContent = "✓";
+
+                document.querySelectorAll(".nav-btn").forEach(btn => {
+                    btn.classList.remove("locked");
+                    const lockTag = btn.querySelector(".lock-tag");
+                    if (lockTag) lockTag.textContent = "";
+                });
+            } else {
+                isRegistered = false;
+                document.getElementById("user-badge").textContent = "Status: Terkunci 🔒";
+                document.querySelectorAll(".nav-btn").forEach(btn => {
+                    if (btn.getAttribute("data-tab") !== "biodata") {
+                        btn.classList.add("locked");
+                    }
+                });
+            }
+        }
+
+        function forceUnlockFromBio() {
+            const form = document.getElementById('bio-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            const complaints = [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value);
+            const bio = {
+                name: document.getElementById('user-name').value.trim(),
+                age: Number(document.getElementById('user-age').value),
+                heightCm: Number(document.getElementById('user-height').value),
+                weightKg: Number(document.getElementById('user-weight-init').value),
+                targetWeightKg: Number(document.getElementById('user-target-weight').value),
+                goal: document.getElementById('user-goal').value,
+                level: document.getElementById('user-level-target').value,
+                complaints
+            };
+
+            appWrite("gym_bio_v7", bio);
+            checkRegistrationGate(bio);
+
+            renderNutritionAndMeals(bio);
+            renderPrograms(bio.level);
+            renderSchedule(bio, appRead("gym_custom_sched_v7", {}));
+            renderActiveWorkoutSession(bio, appRead("gym_custom_sched_v7", {}));
+            renderDashboard(bio, appRead("gym_weekly_logs_v8", []), appRead("gym_daily_logs_v9", []));
+
+            showToast("Profil berhasil disimpan & akses dibuka!");
+            switchTab("nutrition");
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll(".nav-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const targetTab = btn.getAttribute("data-tab");
+                    if (!isRegistered && targetTab !== "biodata") {
+                        showToast("🔒 Harap isi dan simpan biodata terlebih dahulu!");
+                        return;
+                    }
+                    switchTab(targetTab);
+                });
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+            const btn = document.querySelector(`.nav-btn[data-tab="${tabId}"]`);
+            const tab = document.getElementById(tabId);
+            if (btn) btn.classList.add("active");
+            if (tab) tab.classList.add("active");
+        }
+
+        function renderBioForm(bio) {
+            if (!bio) return;
+            document.getElementById("user-name").value = bio.name || "";
+            document.getElementById("user-age").value = bio.age || "";
+            document.getElementById("user-height").value = bio.heightCm || "";
+            document.getElementById("user-weight-init").value = bio.weightKg || "";
+            document.getElementById("user-target-weight").value = bio.targetWeightKg || "";
+            document.getElementById("user-goal").value = bio.goal || "Bulking";
+            document.getElementById("user-level-target").value = bio.level || "Beginner";
+
+            document.querySelectorAll('input[name="complaint"]').forEach(cb => {
+                cb.checked = bio.complaints && bio.complaints.includes(cb.value);
+            });
+        }
+
+        function renderNutritionAndMeals(bio) {
+            if (!bio) return;
+            const container = document.getElementById("nutrition-target-box");
+            const menuContainer = document.getElementById("daily-dynamic-menu");
+
+            let bmr = Math.round((10 * bio.weightKg) + (6.25 * bio.heightCm) - (5 * bio.age) + 5);
+            let tdee = Math.round(bmr * 1.35);
+            let targetCal = tdee;
+            if (bio.goal === "Bulking") targetCal += 400;
+            if (bio.goal === "Fat Loss") targetCal -= 400;
+
+            container.innerHTML = `
+                <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+                    <p style="font-size:0.8rem;">Target Kalori Goal <strong>${bio.goal}</strong>:</p>
+                    <p style="font-size:1.15rem; font-weight:800; color:var(--accent-primary); margin:2px 0;">
+                        ${targetCal} Kcal / hari | Protein: ~${Math.round(bio.weightKg * 1.8)}g
+                    </p>
+                </div>
+            `;
+
+            const dayIndex = (new Date().getDate()) % 2;
+            const goalMenus = DYNAMIC_MEALS[bio.goal] || DYNAMIC_MEALS["Bulking"];
+            const todayMenu = goalMenus[dayIndex] || goalMenus[0];
+
+            menuContainer.innerHTML = "";
+            todayMenu.forEach(item => {
+                const card = document.createElement("div");
+                card.style.background = "var(--bg-main)";
+                card.style.border = "1px solid var(--border-color)";
+                card.style.borderRadius = "8px";
+                card.style.padding = "8px 12px";
+                card.style.marginBottom = "6px";
+                card.innerHTML = `
+                    <span style="font-weight:700; color:var(--accent-primary); font-size:0.8rem;">${item.time}</span>
+                    <p style="font-size:0.85rem; font-weight:600;">${item.name}</p>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">${item.detail}</p>
+                `;
+                menuContainer.appendChild(card);
+            });
+        }
+
+        function setScheduleMode(mode) {
+            scheduleMode = mode;
+            const bio = appRead("gym_bio_v7", null);
+            const customSchedule = appRead("gym_custom_sched_v7", {});
+
+            document.getElementById("btn-mode-auto").style.borderColor = mode === "auto" ? "var(--accent-primary)" : "var(--border-color)";
+            document.getElementById("btn-mode-manual").style.borderColor = mode === "manual" ? "var(--accent-primary)" : "var(--border-color)";
+            document.getElementById("manual-edit-box").style.display = mode === "manual" ? "block" : "none";
+            document.getElementById("schedule-mode-subtitle").textContent = mode === "auto" ?
+                "Mode Otomatis (Sinkron dengan tanggal & paket Anda)." : "Mode Custom Multi-Select (Bisa pilih banyak jenis & gerakan).";
+
+            renderSchedule(bio, customSchedule);
+            renderActiveWorkoutSession(bio, customSchedule);
+        }
+
+        function renderManualExerciseCheckboxes() {
+            const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
+            const container = document.getElementById("manual-ex-checkboxes");
+            container.innerHTML = "";
+
+            if (selectedCats.length === 0) {
+                container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">Pilih jenis latihan terlebih dahulu di atas.</span>`;
+                return;
+            }
+
+            selectedCats.forEach(cat => {
+                const list = EXERCISE_DATABASE[cat] || [];
+                list.forEach(ex => {
+                    const label = document.createElement("label");
+                    label.className = "checkbox-item";
+                    label.innerHTML = `<input type="checkbox" name="manual_ex" value="${ex.name}"> ${ex.name} (${ex.category})`;
+                    container.appendChild(label);
+                });
+            });
+        }
+
+        function renderSchedule(bio, customSchedule) {
+            const container = document.getElementById("schedule-cards-container");
+            container.innerHTML = "";
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+
+            days.forEach(day => {
+                let focus = "Rest Day";
+                let itemsList = ["Pemulihan & Istirahat Otot"];
+
+                if (scheduleMode === "manual" && customSchedule[day]) {
+                    focus = customSchedule[day].focus;
+                    itemsList = customSchedule[day].exercises;
+                } else {
+                    if (day === "Senin") {
+                        focus = "Dada & Trisep Ultra";
+                        itemsList = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.triceps[0].name];
+                    } else if (day === "Selasa") {
+                        focus = "Punggung & Bisep Max";
+                        itemsList = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.biceps[0].name];
+                    } else if (day === "Kamis") {
+                        focus = "Leg Day Heavy";
+                        itemsList = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name];
+                    } else if (day === "Jumat") {
+                        focus = "Bahu & Perut Core";
+                        itemsList = [EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.abs_core[0].name];
+                    } else if (day === "Sabtu") {
+                        focus = "Full Body Conditioning";
+                        itemsList = [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name, EXERCISE_DATABASE.legs[7].name];
+                    }
+                }
+
+                const card = document.createElement("div");
+                card.className = "schedule-day-card";
+                card.innerHTML = `
+                    <h4>${day}</h4>
+                    <p style="font-weight:700; font-size:0.82rem; color:var(--accent-primary); margin-bottom:6px;">${focus} (${itemsList.length} Gerakan)</p>
+                    <ul style="padding-left:14px; font-size:0.75rem; color:var(--text-muted);">
+                        ${itemsList.map(it => `<li style="margin-bottom:2px;">${it}</li>`).join('')}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderExerciseDatabase() {
+            const queryInput = document.getElementById("db-search-input");
+            const query = queryInput ? queryInput.value.toLowerCase() : "";
+            const cat = document.getElementById("db-category-select").value;
+            const container = document.getElementById("exercise-db-container");
+            container.innerHTML = "";
+
+            let exercises = [];
+            if (cat === "all") {
+                Object.keys(EXERCISE_DATABASE).forEach(k => {
+                    exercises = exercises.concat(EXERCISE_DATABASE[k]);
+                });
+            } else {
+                exercises = EXERCISE_DATABASE[cat] || [];
+            }
+
+            const filtered = exercises.filter(ex => ex.name.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="font-size:0.85rem; color:var(--text-muted); grid-column: 1/-1;">Tidak ada gerakan yang cocok.</p>`;
+                return;
+            }
+
+            filtered.forEach(ex => {
+                const card = document.createElement("div");
+                card.className = "exercise-card";
+                card.onclick = () => openItemModal(ex);
+                card.innerHTML = `
+                    <div class="exercise-img-box">${getExerciseVisual(ex)}</div>
+                    <div class="exercise-body">
+                        <h5>${ex.name}</h5>
+                        <p>${ex.description}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openItemModal(ex) {
+            document.getElementById("item-modal-title").textContent = ex.name;
+            document.getElementById("item-modal-img").innerHTML = getExerciseVisual(ex);
+            document.getElementById("item-modal-desc").textContent = ex.description;
+            document.getElementById("item-modal-tips").textContent = `💡 Tips: ${ex.tips}`;
+            document.getElementById("item-detail-modal").classList.add("active");
+        }
+
+        function closeItemModal() {
+            document.getElementById("item-detail-modal").classList.remove("active");
+        }
+
+        function renderPrograms(userLevel) {
+            const container = document.getElementById("program-package-list");
+            if (!container) return;
+            document.getElementById("program-level-tag").textContent = `Menampilkan rekomendasi untuk Level: ${userLevel}`;
+            container.innerHTML = "";
+
+            const defaultProgs = [
+                {
+                    id: "preset-beginner",
+                    level: "Beginner",
+                    title: "Beginner Full-Body Starter",
+                    desc: "Format 3x seminggu ramah pemula.",
+                    exercises: [
+                        EXERCISE_DATABASE.chest[10].name,
+                        EXERCISE_DATABASE.back[2].name,
+                        EXERCISE_DATABASE.legs[7].name,
+                        EXERCISE_DATABASE.abs_core[4].name,
+                        EXERCISE_DATABASE.shoulders[2].name
+                    ]
+                },
+                {
+                    id: "preset-intermediate",
+                    level: "Intermediate",
+                    title: "Intermediate Upper-Lower Split",
+                    desc: "Volume menengah 5-6 gerakan per sesi.",
+                    exercises: [
+                        EXERCISE_DATABASE.chest[0].name,
+                        EXERCISE_DATABASE.chest[1].name,
+                        EXERCISE_DATABASE.back[0].name,
+                        EXERCISE_DATABASE.back[1].name,
+                        EXERCISE_DATABASE.shoulders[0].name,
+                        EXERCISE_DATABASE.triceps[0].name
+                    ]
+                },
+                {
+                    id: "preset-advanced",
+                    level: "Advanced",
+                    title: "Advanced PPL High Volume",
+                    desc: "Intensitas tinggi untuk pembentukan massa otot maksimal.",
+                    exercises: [
+                        EXERCISE_DATABASE.chest[0].name,
+                        EXERCISE_DATABASE.chest[1].name,
+                        EXERCISE_DATABASE.shoulders[0].name,
+                        EXERCISE_DATABASE.triceps[0].name,
+                        EXERCISE_DATABASE.triceps[2].name
+                    ]
+                }
+            ];
+
+            const customProgs = appRead("gym_custom_programs_v1", []);
+            const allProgs = [...defaultProgs, ...customProgs];
+
+            allProgs.forEach(prog => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.style.marginBottom = "12px";
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4>${prog.title}</h4>
+                        <span style="font-size:0.75rem; background:var(--bg-input); padding:4px 8px; border-radius:4px;">${prog.level || 'Custom'}</span>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin:6px 0;">${prog.desc}</p>
+                    <p style="font-size:0.78rem; color:var(--accent-primary); font-weight:600;">${prog.exercises.length} Gerakan Terjadwal</p>
+                    <button class="btn-primary" style="margin-top:10px; width:auto; padding:6px 14px; font-size:0.8rem;" onclick='openProgramModal(${JSON.stringify(prog).replace(/'/g, "&apos;")})'>Lihat & Mainkan Paket</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openProgramModal(prog) {
+            currentSelectedProg = prog;
+            document.getElementById("modal-prog-title").textContent = prog.title;
+            document.getElementById("modal-prog-desc").textContent = prog.desc;
+            const list = document.getElementById("modal-exercise-list");
+            list.innerHTML = "";
+            prog.exercises.forEach(exName => {
+                const item = document.createElement("div");
+                item.style.cssText = "background:var(--bg-main); padding:8px; border-radius:6px; font-size:0.8rem; border:1px solid var(--border-color);";
+                item.textContent = `• ${exName}`;
+                list.appendChild(item);
+            });
+            document.getElementById("program-modal").classList.add("active");
+        }
+
+        function closeProgramModal() {
+            document.getElementById("program-modal").classList.remove("active");
+        }
+
+        function playPackageDirectly() {
+            if (!currentSelectedProg) return;
+            closeProgramModal();
+            activePlaylist = [];
+
+            currentSelectedProg.exercises.forEach(exName => {
+                let found = null;
+                Object.keys(EXERCISE_DATABASE).forEach(cat => {
+                    const match = EXERCISE_DATABASE[cat].find(e => e.name === exName);
+                    if (match) found = match;
+                });
+                if (found) {
+                    activePlaylist.push(found);
+                } else {
+                    activePlaylist.push({ name: exName, category: "Latihan", description: "Lakukan gerakan dengan form yang tepat.", tips: "Atur napas dengan teratur." });
+                }
+            });
+
+            if (activePlaylist.length > 0) {
+                currentPlaylistIndex = 0;
+                currentSetIndex = 1;
+                totalSetsPerExercise = 3;
+                openLiveWorkoutModal();
+            } else {
+                showToast("Tidak ada gerakan yang dapat dimainkan.");
+            }
+        }
+
+        function openLiveWorkoutModal() {
+            if (activePlaylist.length === 0) return;
+            const currentEx = activePlaylist[currentPlaylistIndex];
+            document.getElementById("live-ex-title").textContent = currentEx.name;
+            document.getElementById("live-ex-visual").innerHTML = getExerciseVisual(currentEx);
+            document.getElementById("live-ex-desc").textContent = currentEx.description || "";
+            document.getElementById("live-set-reps").value = "3 Set x 10-12 Reps";
+
+            updateWorkoutProgressUI();
+            document.getElementById("live-workout-modal").classList.add("active");
+        }
+
+        function updateWorkoutProgressUI() {
+            document.getElementById("live-ex-indicator").textContent = `Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length}`;
+            document.getElementById("live-set-indicator").textContent = `Set ${currentSetIndex} dari ${totalSetsPerExercise}`;
+
+            const totalSteps = activePlaylist.length * totalSetsPerExercise;
+            const completedSteps = (currentPlaylistIndex * totalSetsPerExercise) + (currentSetIndex - 1);
+            const pct = Math.round((completedSteps / totalSteps) * 100);
+            document.getElementById("live-workout-progressbar").style.width = `${pct}%`;
+        }
+
+        function completeCurrentSetV9() {
+            if (currentSetIndex < totalSetsPerExercise) {
+                currentSetIndex++;
+                showToast(`Set ${currentSetIndex - 1} selesai! Istirahat sejenak.`);
+            } else {
+                currentSetIndex = 1;
+                currentPlaylistIndex++;
+                if (currentPlaylistIndex < activePlaylist.length) {
+                    showToast("Gerakan selesai! Lanjut ke gerakan berikutnya.");
+                    openLiveWorkoutModal();
+                } else {
+                    closeLiveWorkoutModal();
+                    showToast("🎉 Seluruh sesi latihan telah selesai!");
+                    return;
+                }
+            }
+            updateWorkoutProgressUI();
+        }
+
+        function skipCurrentExercise() {
+            if (confirm("Apakah Anda yakin ingin melewati gerakan ini?")) {
+                currentSetIndex = 1;
+                currentPlaylistIndex++;
+                if (currentPlaylistIndex < activePlaylist.length) {
+                    showToast("Gerakan dilewati.");
+                    openLiveWorkoutModal();
+                } else {
+                    closeLiveWorkoutModal();
+                    showToast("Sesi latihan selesai.");
+                }
+            }
+        }
+
+        function closeLiveWorkoutModal() {
+            document.getElementById("live-workout-modal").classList.remove("active");
+        }
+
+        function openCustomProgramBuilder() {
+            document.getElementById("custom-prog-modal").classList.add("active");
+        }
+
+        function closeCustomProgModal() {
+            document.getElementById("custom-prog-modal").classList.remove("active");
+        }
+
+        function renderProgExerciseCheckboxes() {
+            const selectedCats = Array.from(document.querySelectorAll('#prog-cat-checkboxes input:checked')).map(cb => cb.value);
+            const container = document.getElementById("prog-ex-checkboxes");
+            container.innerHTML = "";
+
+            if (selectedCats.length === 0) {
+                container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">Centang kategori di atas lebih dulu.</span>`;
+                return;
+            }
+
+            selectedCats.forEach(cat => {
+                const list = EXERCISE_DATABASE[cat] || [];
+                list.forEach(ex => {
+                    const label = document.createElement("label");
+                    label.className = "checkbox-item";
+                    label.innerHTML = `<input type="checkbox" name="custom_prog_ex" value="${ex.name}"> ${ex.name}`;
+                    container.appendChild(label);
+                });
+            });
+        }
+
+        function renderActiveWorkoutSession(bio, customSchedule) {
+            const container = document.getElementById("active-session-container");
+            if (!container) return;
+
+            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const todayName = days[new Date().getDay()];
+            const todayStr = new Date().toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById("session-day-title").textContent = `Sesi Latihan Hari Ini (${todayName})`;
+            document.getElementById("session-date-subtitle").textContent = `Tanggal: ${todayStr}`;
+
+            let exercises = [];
+            if (scheduleMode === "manual" && customSchedule[todayName]) {
+                exercises = customSchedule[todayName].exercises || [];
+            } else {
+                if (todayName === "Senin") exercises = [EXERCISE_DATABASE.chest[0].name, EXERCISE_DATABASE.chest[1].name, EXERCISE_DATABASE.triceps[0].name];
+                else if (todayName === "Selasa") exercises = [EXERCISE_DATABASE.back[0].name, EXERCISE_DATABASE.back[1].name, EXERCISE_DATABASE.biceps[0].name];
+                else if (todayName === "Kamis") exercises = [EXERCISE_DATABASE.legs[0].name, EXERCISE_DATABASE.legs[1].name, EXERCISE_DATABASE.legs[2].name];
+                else if (todayName === "Jumat") exercises = [EXERCISE_DATABASE.shoulders[0].name, EXERCISE_DATABASE.abs_core[0].name];
+                else if (todayName === "Sabtu") exercises = [EXERCISE_DATABASE.chest[10].name, EXERCISE_DATABASE.back[2].name];
+            }
+
+            container.innerHTML = "";
+
+            if (exercises.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align:center;">
+                        <p style="color:var(--text-muted);">Hari ini adalah jadwal Rest Day / Pemulihan. Istirahatkan tubuh Anda dengan maksimal!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            exercises.forEach((exName, idx) => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.style.marginBottom = "10px";
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4 style="color:var(--accent-primary);">${idx + 1}. ${exName}</h4>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">3 Set x 10-12 Reps</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            const playBtn = document.createElement("button");
+            playBtn.className = "btn-primary";
+            playBtn.textContent = "▶ Mulai Sesi Interaktif";
+            playBtn.onclick = () => {
+                activePlaylist = [];
+                exercises.forEach(exName => {
+                    let found = null;
+                    Object.keys(EXERCISE_DATABASE).forEach(cat => {
+                        const match = EXERCISE_DATABASE[cat].find(e => e.name === exName);
+                        if (match) found = match;
+                    });
+                    if (found) activePlaylist.push(found);
+                    else activePlaylist.push({ name: exName, category: "Latihan", description: "Lakukan gerakan secara terkontrol.", tips: "Atur napas." });
+                });
+                currentPlaylistIndex = 0;
+                currentSetIndex = 1;
+                totalSetsPerExercise = 3;
+                openLiveWorkoutModal();
+            };
+            container.appendChild(playBtn);
+        }
+
+        function completeCurrentWorkout() {
+            showToast("🎉 Latihan hari ini telah ditandai selesai!");
+            const dailyLogs = appRead("gym_daily_logs_v9", []);
+            const todayStr = new Date().toISOString().split('T')[0];
+            const existing = dailyLogs.find(l => l.date === todayStr);
+            if (existing) {
+                existing.workoutStatus = "Tuntas Dipraktekkan";
+            } else {
+                dailyLogs.push({ date: todayStr, sleep: 8, workoutStatus: "Tuntas Dipraktekkan", timestamp: Date.now() });
+            }
+            appWrite("gym_daily_logs_v9", dailyLogs);
+            const bio = appRead("gym_bio_v7", null);
+            renderDashboard(bio, appRead("gym_weekly_logs_v8", []), dailyLogs);
+        }
+
+        function renderDashboard(bio, weeklyLogs, dailyLogs) {
+            if (!bio) return;
+
+            document.getElementById("stat-current-weight").textContent = `${bio.weightKg} kg`;
+            document.getElementById("stat-target-weight").textContent = `${bio.targetWeightKg} kg`;
+            document.getElementById("stat-total-logs").textContent = `${dailyLogs.length} Log`;
+
+            const diff = Math.abs(bio.weightKg - bio.targetWeightKg);
+            const progressPct = diff === 0 ? 100 : Math.min(100, Math.round((dailyLogs.length / 30) * 100));
+            document.getElementById("stat-progress-pct").textContent = `${progressPct}%`;
+
+            const syncBox = document.getElementById("progress-nutrition-sync-box");
+            if (syncBox) {
+                const targetWater = Math.round(bio.weightKg * 35);
+                const targetProtein = Math.round(bio.weightKg * 1.8);
+                syncBox.innerHTML = `
+                    <div class="stat-card">
+                        <h4>TARGET AIR HARIAN</h4>
+                        <div class="val">${targetWater} ml</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>TARGET PROTEIN</h4>
+                        <div class="val">${targetProtein} g</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>KEPATUHAN LOG</h4>
+                        <div class="val">${dailyLogs.length > 0 ? 'Baik' : 'Belum Ada Data'}</div>
+                    </div>
+                `;
+            }
+
+            renderChart(weeklyLogs, bio);
+        }
+
+        function renderChart(weeklyLogs, bio) {
+            const ctx = document.getElementById("progressChart");
+            if (!ctx) return;
+
+            const labels = weeklyLogs.length > 0 ? weeklyLogs.map(w => `Pkn ${w.week}`) : ["Pekan 1", "Pekan 2", "Pekan 3", "Pekan 4"];
+            const data = weeklyLogs.length > 0 ? weeklyLogs.map(w => w.weight) : [bio.weightKg];
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            if (typeof Chart !== 'undefined') {
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Berat Badan (kg)',
+                            data: data,
+                            borderColor: '#facc15',
+                            backgroundColor: 'rgba(250, 204, 21, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                grid: { color: '#334155' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            x: {
+                                grid: { color: '#334155' },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#f8fafc' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function exportDataJSON() {
+            const data = {
+                bio: appRead("gym_bio_v7", null),
+                logs: appRead("gym_daily_logs_v9", []),
+                weekly: appRead("gym_weekly_logs_v8", []),
+                customSchedule: appRead("gym_custom_sched_v7", {}),
+                customPrograms: appRead("gym_custom_programs_v1", [])
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `GetYourGoals_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast("Data cadangan berhasil diunduh.");
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.bio) appWrite("gym_bio_v7", data.bio);
+                    if (data.logs) appWrite("gym_daily_logs_v9", data.logs);
+                    if (data.weekly) appWrite("gym_weekly_logs_v8", data.weekly);
+                    if (data.customSchedule) appWrite("gym_custom_sched_v7", data.customSchedule);
+                    if (data.customPrograms) appWrite("gym_custom_programs_v1", data.customPrograms);
+                    showToast("Data berhasil dipulihkan!");
+                    setTimeout(() => location.reload(), 1000);
+                } catch (err) {
+                    showToast("Gagal mengimpor file JSON.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetAllData() {
+            if (confirm("Apakah Anda yakin ingin menghapus seluruh data aplikasi? Tindakan ini tidak dapat dibatalkan.")) {
+                localStorage.clear();
+                showToast("Seluruh data telah dihapus.");
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+
+        // ==========================================
+        // KODE PENANGAN TRANSI SELERASAI SET / GERAKAN
+        // ==========================================
+        let activeSetIndex = 1;
+        const MAX_SETS_PER_EXERCISE = 3;
+
+        function completeCurrentSetV9() {
+            if (!activePlaylist || activePlaylist.length === 0) {
+                showToast("Sesi latihan tidak ditemukan.");
+                closeLiveWorkoutModal();
+                return;
+            }
+
+            if (activeSetIndex < MAX_SETS_PER_EXERCISE) {
+                activeSetIndex++;
+                updateLiveWorkoutModalUI();
+                startRestTimer(60);
+                showToast(`Set ${activeSetIndex - 1} selesai! Lanjut Set ${activeSetIndex}.`);
+            } else {
+                activeSetIndex = 1;
+                currentPlaylistIndex++;
+
+                if (currentPlaylistIndex < activePlaylist.length) {
+                    updateLiveWorkoutModalUI();
+                    startRestTimer(90);
+                    showToast(`Gerakan selesai! Lanjut ke gerakan ke-${currentPlaylistIndex + 1}.`);
+                } else {
+                    closeLiveWorkoutModal();
+                    if (typeof completeCurrentWorkout === "function") {
+                        completeCurrentWorkout();
+                    }
+                    showToast("🎉 Selamat! Seluruh sesi latihan hari ini telah selesai!");
+                }
+            }
+        }
+
+        function updateLiveWorkoutModalUI() {
+            const currentExercise = activePlaylist[currentPlaylistIndex];
+            if (!currentExercise) return;
+
+            let exDetail = null;
+            if (typeof EXERCISE_DATABASE !== "undefined") {
+                Object.keys(EXERCISE_DATABASE).forEach(cat => {
+                    const found = EXERCISE_DATABASE[cat].find(ex => ex.name === currentExercise || ex.name === currentExercise.name);
+                    if (found) exDetail = found;
+                });
+            }
+
+            const exName = exDetail ? exDetail.name : (currentExercise.name || currentExercise);
+            const exDesc = exDetail ? exDetail.description : "Lakukan gerakan sesuai arahan.";
+
+            const titleEl = document.getElementById("live-ex-title");
+            const indEl = document.getElementById("live-ex-indicator");
+            const setIndEl = document.getElementById("live-set-indicator");
+            const descEl = document.getElementById("live-ex-desc");
+            const repsEl = document.getElementById("live-set-reps");
+            const visualEl = document.getElementById("live-ex-visual");
+
+            if (titleEl) titleEl.textContent = exName;
+            if (indEl) indEl.textContent = `Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length}`;
+            if (setIndEl) setIndEl.textContent = `Set ${activeSetIndex} dari ${MAX_SETS_PER_EXERCISE}`;
+            if (descEl) descEl.textContent = exDesc;
+            if (repsEl) repsEl.value = `${activeSetIndex} Set x 10-12 Reps`;
+            if (visualEl && typeof getExerciseVisual === "function") {
+                visualEl.innerHTML = getExerciseVisual(exDetail || { name: exName, category: "Latihan" });
+            }
+
+            const totalSteps = activePlaylist.length * MAX_SETS_PER_EXERCISE;
+            const currentStep = (currentPlaylistIndex * MAX_SETS_PER_EXERCISE) + activeSetIndex;
+            const pct = Math.round((currentStep / totalSteps) * 100);
+            const progressBar = document.getElementById("live-workout-progressbar");
+            if (progressBar) progressBar.style.width = `${pct}%`;
+        }
+
+        function skipCurrentExercise() {
+            if (currentPlaylistIndex < activePlaylist.length - 1) {
+                currentPlaylistIndex++;
+                activeSetIndex = 1;
+                updateLiveWorkoutModalUI();
+                showToast("Gerakan dilewati.");
+            } else {
+                closeLiveWorkoutModal();
+                showToast("Sesi latihan selesai.");
+            }
+        }
+
+        function startRestTimer(seconds) {
+            if (typeof restTimerInterval !== "undefined" && restTimerInterval) {
+                clearInterval(restTimerInterval);
+            }
+            let timeLeft = seconds;
+            const timerDisplay = document.getElementById("rest-timer-display");
+
+            restTimerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(restTimerInterval);
+                    if (timerDisplay) timerDisplay.textContent = "Rest: 0s";
+                } else {
+                    if (timerDisplay) timerDisplay.textContent = `Rest: ${timeLeft}s`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        function closeLiveWorkoutModal() {
+            if (typeof restTimerInterval !== "undefined" && restTimerInterval) {
+                clearInterval(restTimerInterval);
+            }
+            const modal = document.getElementById("live-workout-modal");
+            if (modal) modal.classList.remove("active");
+        }
+    </script>
+</body>
+
+</html>
