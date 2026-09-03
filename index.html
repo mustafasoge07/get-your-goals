@@ -748,8 +748,6 @@
                                         onchange="renderManualExerciseCheckboxes()"> Kaki (Legs)</label>
                                 <label class="checkbox-item"><input type="checkbox" value="abs_core"
                                         onchange="renderManualExerciseCheckboxes()"> Perut & Core</label>
-                                <label class="checkbox-item"><input type="checkbox" value="rest_day"
-                                        onchange="renderManualExerciseCheckboxes()"> Rest Day</label>
                             </div>
                         </div>
 
@@ -1083,7 +1081,7 @@
             return getSVGImage(ex.name, ex.category);
         }
 
-       const EXERCISE_DATABASE = {
+        const EXERCISE_DATABASE = {
             chest: [
                 { name: "Incline Barbell Bench Press", category: "Dada Atas", src: "GambarD6/dada/incline-barbell-press.gif", alt: "Incline Barbell Bench Press", description: "Bench miring 30-45 derajat melatih massa dada atas.", tips: "Turunkan barbell terkontrol menyentuh dada atas." },
                 { name: "Incline Dumbbell Press", category: "Dada Atas", src: "GambarD6/dada/Incline Dumbbell Press.gif", alt: "Incline Dumbbell Press", description: "Melatih keseimbangan dan rentang gerak dada atas.", tips: "Jaga telapak tangan semi-pronated." },
@@ -1795,29 +1793,11 @@
                 return;
             }
 
-            activePlaylist = [];
-            const allExercises = Object.values(EXERCISE_DATABASE).flat();
+            activePlaylist = prog.exercises;
             currentPlaylistIndex = 0;
             closeProgramModal();
             switchTab("workout-session");
             startLiveWorkoutFromPlaylist();
-        }
-
-        function openLiveWorkoutModal() {
-            if (!activePlaylist || activePlaylist.length === 0) return;
-            const currentEx = activePlaylist[currentPlaylistIndex];
-
-            document.getElementById("live-ex-title").textContent = `${currentEx.name} (${currentPlaylistIndex + 1}/${activePlaylist.length})`;
-            document.getElementById("live-ex-visual").innerHTML = getExerciseVisual(currentEx);
-            document.getElementById("live-ex-desc").textContent = currentEx.description || "";
-            document.getElementById("live-set-reps").value = `Set ${currentEx.currentSet} dari ${currentEx.totalSets} (${currentEx.targetReps} reps)`;
-            document.getElementById("live-weight").value = currentEx.targetWeight || 10;
-
-            const progressPct = Math.round(((currentPlaylistIndex) / activePlaylist.length) * 100);
-            document.getElementById("live-progress-bar").style.width = `${progressPct}%`;
-            document.getElementById("live-progress-info").textContent = `Progres Sesi: Gerakan ${currentPlaylistIndex + 1} dari ${activePlaylist.length} (${progressPct}%)`;
-
-            document.getElementById("live-workout-modal").classList.add("active");
         }
 
         // 6. PROGRAM SESI LATIHAN INTERAKTIF HARIAN & FITUR 1: OTOMATISASI GERAKAN & REST TIME BERKELANJUTAN
@@ -1941,23 +1921,27 @@
         }
 
         function closeLiveWorkoutModal() {
-            clearInterval(restTimerInterval);
+            if (restTimerInterval) clearInterval(restTimerInterval);
             document.getElementById("live-workout-modal").classList.remove("active");
         }
 
-       function startRestTimer(seconds, onComplete) {
-            clearInterval(restTimerInterval);
-            let timeLeft = seconds;
-            const timerDisplay = document.getElementById("rest-timer-display");
+        function startRestTimer() {
+            if (restTimerInterval) clearInterval(restTimerInterval);
+            let seconds = 60;
+            const display = document.getElementById("rest-timer-display");
 
             restTimerInterval = setInterval(() => {
-                timerDisplay.textContent = `Rest: ${timeLeft}s`;
-                if (timeLeft <= 0) {
+                seconds--;
+                display.textContent = `Rest: ${seconds}s`;
+                if (seconds <= 0) {
                     clearInterval(restTimerInterval);
-                    timerDisplay.textContent = "Rest: Done!";
-                    if (onComplete) onComplete();
+                    display.textContent = "Rest Selesai! 🎉 Transisi Otomatis...";
+                    // Otomatis pindah ke gerakan berikutnya setelah rest set selesai
+                    setTimeout(() => {
+                        currentPlaylistIndex++;
+                        startLiveWorkoutFromPlaylist();
+                    }, 800);
                 }
-                timeLeft--;
             }, 1000);
         }
 
@@ -2346,7 +2330,7 @@
             return ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][new Date().getDay()];
         }
 
-        function getProgramV8(level) { return { days: { Senin: { focus: "Dada", ex: [1,2] } } }; }
+        function getProgramV8(level) { return PROGRAM_V8[level] || PROGRAM_V8.Beginner; }
 
         function getProgressiveSetsV8(program, week) {
             const cycle = ((week - 1) % 4) + 1;
@@ -2443,20 +2427,11 @@
             container.innerHTML = data.ex.length ? data.ex.map((ex, idx) => `<div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:.75rem;color:var(--accent-info);font-weight:bold">Urutan #${idx + 1}</span><h5 style="font-size:.88rem;margin:2px 0">${ex}</h5><p style="font-size:.72rem;color:var(--text-muted)">${getProgressiveSetsV8(program, week)}</p></div><button class="btn-primary" style="width:auto;padding:6px 14px;font-size:.8rem" onclick="startPlaylistSession(${idx})">▶ Mulai</button></div>`).join('') : `<div style="padding:18px;text-align:center;color:var(--text-muted)">Hari ini adalah Rest Day. Fokus pemulihan, tidur, makan, dan hidrasi.</div>`;
         }
 
-       function startPlaylistSession(startIndex) {
-            const bio = appRead("gym_bio_v7", { level: "Beginner" });
-            const program = getProgramV8(bio.level);
-            const day = getCurrentDayV8();
-            const dayData = program.days[day];
-
-            if (!dayData || !dayData.ex || dayData.ex.length === 0) {
-                alert("Hari ini adalah jadwal istirahat (Rest Day), tidak ada gerakan latihan.");
-                return;
-            }
-
-            activePlaylist = dayData.ex;
-            currentPlaylistIndex = startIndex;
-            startLiveWorkoutFromPlaylist();
+        function startPlaylistSession(startIndex) {
+            const bio = JSON.parse(localStorage.getItem("gym_bio_v7")) || { level: "Beginner" };
+            const p = getProgramV8(bio.level); const d = p.days[getCurrentDayV8()] || p.days.Minggu;
+            if (!d.ex.length) { alert("Hari ini Rest Day. Tidak ada sesi latihan."); return; }
+            activePlaylist = d.ex; currentPlaylistIndex = startIndex || 0; startLiveWorkoutFromPlaylist();
         }
 
         function completeCurrentWorkout() {
@@ -2660,15 +2635,9 @@
         let v9Session = { exerciseIndex: 0, setIndex: 1, sets: 3, repsMin: 10, repsMax: 12, rest: 60, running: false };
         let v9RestInterval = null;
 
-        function v9Read(key, fallback) {
-            return appRead(key, fallback); 
-        }
-        function v9Write(key, value) { 
-            return appWrite(key, value); 
-        }
-        function v9Date() { 
-            return new Date().toISOString().split('T')[0];
-        }
+        function v9Read(key, fallback) { return appRead(key, fallback); }
+        function v9Write(key, val) { return appWrite(key, val); }
+        function v9Date() { return new Date().toISOString().split('T')[0]; }
         function v9WeekForDate(date) {
             const start = appGetText('gym_program_start_v8');
             if (!start) return 1;
@@ -2693,10 +2662,7 @@
             const menus = DYNAMIC_MEALS[bio.goal] || DYNAMIC_MEALS.Bulking; const base = menus[(week - 1) % menus.length] || menus[0];
             return MEAL_TIMES_V8.map((slot, i) => ({ id: 'm' + i, time: slot.time, label: slot.label, name: base[i % base.length]?.name || slot.label, detail: base[i % base.length]?.detail || 'Sesuai target nutrisi.' }));
         }
-        function v9GetDayRecord(dateStr) {
-            const logs = appRead("gym_daily_logs_v9", []);
-            return logs.find(log => log.date === dateStr) || null;
-        }
+        function v9GetDayRecord(date) { return v9Read('gym_daily_logs_v9', []).find(x => x.date === date) || null; }
         function renderNutritionAndMeals(bio) {
             if (!bio) return;
             const t = getNutritionTargetsV8(bio), week = getProgramWeekV8();
@@ -2761,24 +2727,14 @@
         }
         function startPlaylistSession(i) { const b = v9Read('gym_bio_v7', { level: 'Beginner' }); const p = getProgramV8(b.level), d = p.days[getCurrentDayV8()]; if (!d?.ex?.length) { alert('Rest Day.'); return; } activePlaylist = d.ex; currentPlaylistIndex = 0; v9Session = { exerciseIndex: 0, setIndex: 1, ...v9WorkoutPrescription(b.level, getProgramWeekV8()), running: true }; renderLiveWorkoutV9(); }
         function completeCurrentSetV9() {
-            if (!activePlaylist || activePlaylist.length === 0) return;
-            const currentEx = activePlaylist[currentPlaylistIndex];
-
-            if (currentEx.currentSet < currentEx.totalSets) {
-                currentEx.currentSet++;
-                startRestTimer(60, () => {
-                    openLiveWorkoutModal();
-                });
+            if (v9RestInterval) return;
+            const btn = document.getElementById('live-start-set-btn'); btn.disabled = true;
+            if (v9Session.setIndex < v9Session.sets) {
+                let sec = v9Session.rest; document.getElementById('rest-timer-display').textContent = `Rest: ${sec}s`;
+                v9RestInterval = setInterval(() => { sec--; document.getElementById('rest-timer-display').textContent = `Rest: ${sec}s`; if (sec <= 0) { clearInterval(v9RestInterval); v9RestInterval = null; v9Session.setIndex++; renderLiveWorkoutV9(); } }, 1000);
             } else {
-                if (currentPlaylistIndex < activePlaylist.length - 1) {
-                    currentPlaylistIndex++;
-                    startRestTimer(60, () => {
-                        openLiveWorkoutModal();
-                    });
-                } else {
-                    alert("🎉 Selamat! Seluruh rangkaian paket latihan telah selesai!");
-                    closeLiveWorkoutModal();
-                }
+                document.getElementById('rest-timer-display').textContent = 'Set terakhir selesai ✓';
+                setTimeout(() => { v9Session.exerciseIndex++; v9Session.setIndex = 1; currentPlaylistIndex = v9Session.exerciseIndex; renderLiveWorkoutV9(); }, 500);
             }
         }
         function startRestTimer() { completeCurrentSetV9(); }
@@ -2826,90 +2782,6 @@
         // Versi listener terakhir: pindah tab sebelum proses render tambahan.
         function setupListeners(dailyLogs, weeklyLogs, customSchedule) {
             const bioForm = document.getElementById('bio-form');
-            (bioForm) {
-                bioForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    forceUnlockFromBio();
-                });
-            }
-
-            const dailyForm = document.getElementById("daily-log-form");
-            if (dailyForm) {
-                dailyForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const date = document.getElementById("daily-date").value || v9Date();
-                    const water = parseFloat(document.getElementById("daily-water")?.value || 0);
-                    const sleep = parseFloat(document.getElementById("daily-sleep")?.value || 0);
-                    const mealPct = parseInt(document.getElementById("daily-meal-status")?.value || 0);
-                    const workout = document.getElementById("daily-workout-status")?.value || "Selesai";
-
-                    let dLogs = appRead("gym_daily_logs_v9", []);
-                    const existingIndex = dLogs.findIndex(l => l.date === date);
-                    const newLog = { date, water, sleep, mealPct, workout };
-
-                    if (existingIndex !== -1) {
-                        dLogs[existingIndex] = newLog;
-                    } else {
-                        dLogs.push(newLog);
-                    }
-
-                    appWrite("gym_daily_logs_v9", dLogs);
-                    const bio = appRead("gym_bio_v7", null);
-                    const wLogs = appRead("gym_weekly_logs_v8", []);
-                    
-                    renderDashboard(bio, wLogs, dLogs);
-                    renderTodayHome(bio);
-                    alert("Catatan harian berhasil diperbarui!");
-                });
-            }
-
-            const manualSchedForm = document.getElementById("manual-schedule-form");
-            if (manualSchedForm) {
-                manualSchedForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const day = document.getElementById("manual-day").value;
-                    const selectedCats = Array.from(document.querySelectorAll('#manual-cat-checkboxes input:checked')).map(cb => cb.value);
-                    const selectedEx = Array.from(document.querySelectorAll('#manual-ex-checkboxes input:checked')).map(cb => cb.value);
-
-                    customSchedule[day] = {
-                        focus: selectedCats.length ? `Custom (${selectedCats.join(', ')})` : "Custom Workout",
-                        exercises: selectedEx.length ? selectedEx : ["Latihan Bebas"]
-                    };
-
-                    appWrite("gym_custom_sched_v7", customSchedule);
-                    const bio = appRead("gym_bio_v7", null);
-                    renderSchedule(bio, customSchedule);
-                    renderActiveWorkoutSession(bio, customSchedule);
-                    alert(`Jadwal kustom hari ${day} berhasil disimpan!`);
-                });
-            }
-
-            const weeklyLogForm = document.getElementById("log-form");
-            if (weeklyLogForm) {
-                weeklyLogForm.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const week = parseInt(document.getElementById("log-week").value);
-                    const weightKg = parseFloat(document.getElementById("log-weight").value);
-                    const note = document.getElementById("log-note").value;
-
-                    let wLogs = appRead("gym_weekly_logs_v8", []);
-                    let dLogs = appRead("gym_daily_logs_v9", []);
-                    let bio = appRead("gym_bio_v7", null);
-
-                    const logIndex = wLogs.findIndex(l => l.week === week);
-                    if (logIndex !== -1) {
-                        wLogs[logIndex].weightKg = weightKg;
-                        wLogs[logIndex].note = note;
-                    } else {
-                        wLogs.push({ week, weightKg, note });
-                    }
-
-                    appWrite("gym_weekly_logs_v8", wLogs);
-                    renderDashboard(bio, wLogs, dLogs);
-                    alert(`Evaluasi Pekan ${week} berhasil disimpan!`);
-                });
-            }
-        
             bioForm.addEventListener('submit', e => {
                 e.preventDefault();
                 const complaints = [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value);
