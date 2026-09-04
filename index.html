@@ -488,6 +488,88 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* === STYLING WIDGET MUSIC PLAYER === */
+        .music-player-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .player-title {
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .track-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0 0 12px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        /* Styling Tombol Controls */
+        .btn-ctrl {
+            background-color: #2a2a2a;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-ctrl:hover {
+            background-color: #3a3a3a;
+        }
+
+        .btn-play {
+            background-color: var(--accent-primary);
+            color: #000;
+            font-weight: bold;
+            padding: 6px 16px;
+            border: none;
+        }
+
+        .btn-play:hover {
+            background-color: #00c853;
+        }
+
+        .volume-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .volume-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        input[type="range"] {
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -632,7 +714,8 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn-primary" onclick="forceUnlockFromBio()">Simpan Data & Buka Akses 🔑</button>
+                    <button type="button" class="btn-primary" onclick="forceUnlockFromBio()">Simpan Data & Buka Akses
+                        🔑</button>
                 </form>
             </div>
         </section>
@@ -776,7 +859,8 @@
 
                 <div class="form-group" style="max-width:420px;margin-bottom:12px">
                     <label for="exercise-search">Cari gerakan:</label>
-                    <input type="search" id="exercise-search" placeholder="Contoh: squat, dumbbell, plank" oninput="renderExerciseDatabase()">
+                    <input type="search" id="exercise-search" placeholder="Contoh: squat, dumbbell, plank"
+                        oninput="renderExerciseDatabase()">
                 </div>
 
                 <div class="form-group" style="max-width: 300px; margin-bottom: 16px;">
@@ -975,7 +1059,8 @@
                 style="background:var(--bg-main);padding:10px;border-radius:8px;margin-bottom:10px;font-size:.78rem">
             </div>
             <div style="height:8px;background:var(--bg-main);border-radius:999px;overflow:hidden;margin:-2px 0 12px">
-                <div id="live-progress-bar" style="height:100%;width:0;background:var(--accent-success);transition:width .25s ease"></div>
+                <div id="live-progress-bar"
+                    style="height:100%;width:0;background:var(--accent-success);transition:width .25s ease"></div>
             </div>
             <div style="display:flex; gap:8px;">
                 <button type="button" class="btn-primary" style="flex:1;" id="live-start-set-btn"
@@ -1052,6 +1137,28 @@
                 <button type="button" class="btn-secondary" onclick="closeProgramModal()"
                     style="flex: 1;">Tutup</button>
             </div>
+        </div>
+    </div>
+
+    <!-- KOMPONEN PEMUTAR MUSIK -->
+    <div class="music-player-card">
+        <h4 class="player-title">🎵 Music Player</h4>
+        <p id="music-track-title" class="track-name">Pilih lagu...</p>
+        
+        <!-- Tag Audio Tersembunyi -->
+        <audio id="audio-element" style="display: none;"></audio>
+
+        <!-- Tombol Kontrol Musik -->
+        <div class="controls">
+            <button type="button" class="btn-ctrl" onclick="prevTrack()">⏮</button>
+            <button type="button" class="btn-ctrl btn-play" id="btn-play-pause" onclick="togglePlayPause()">▶ Play</button>
+            <button type="button" class="btn-ctrl" onclick="nextTrack()">⏭</button>
+        </div>
+
+        <!-- Pengatur Volume -->
+        <div class="volume-container">
+            <label for="music-volume" class="volume-label">Volume</label>
+            <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.7" oninput="adjustVolume(this.value)">
         </div>
     </div>
 
@@ -3067,7 +3174,7 @@
         }
 
         function v11ClearState() {
-            try { localStorage.removeItem(v11SessionKey()); } catch (e) {}
+            try { localStorage.removeItem(v11SessionKey()); } catch (e) { }
             v11RestRemainingMs = 0;
             v11Paused = false;
         }
@@ -3437,50 +3544,100 @@
     </script>
 
 
-<!-- V12 FEATURE PATCH: SKIP, MEDIA FIT, MANUAL REST/RECOVERY, BUDGET NUTRITION, GENDER PROFILE -->
-<style id="v12-feature-style">
-  .exercise-img-box img, #item-modal-img img, #live-ex-visual img {
-    width:100% !important; height:100% !important; object-fit:contain !important;
-    object-position:center !important; display:block !important; background:#111827;
-  }
-  .v12-workout-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
-  .v12-skip-btn { background:var(--bg-input); color:var(--text-main); border:1px solid var(--accent-info); padding:10px 8px; border-radius:8px; font-weight:700; cursor:pointer; font-size:.78rem; }
-  .v12-skip-btn:hover { border-color:var(--accent-primary); }
-  .v12-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-  .v12-type-card { background:var(--bg-main); border:1px solid var(--border-color); border-radius:8px; padding:9px; cursor:pointer; }
-  .v12-type-card input { width:auto; margin-right:6px; }
-  @media(max-width:600px){ .v12-type-grid{grid-template-columns:1fr;} .v12-workout-actions{grid-template-columns:1fr;} }
-</style>
-<script>
-(function(){
-  'use strict';
-  const V12_DAY_NAMES = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
-  const V12_CUSTOM_KEY = 'gym_custom_sched_v7';
-  const V12_GENDER_KEY = 'gym_bio_v7';
+    <!-- V12 FEATURE PATCH: SKIP, MEDIA FIT, MANUAL REST/RECOVERY, BUDGET NUTRITION, GENDER PROFILE -->
+    <style id="v12-feature-style">
+        .exercise-img-box img,
+        #item-modal-img img,
+        #live-ex-visual img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center !important;
+            display: block !important;
+            background: #111827;
+        }
 
-  // ---------- 1) MEDIA: always fit the complete image inside its frame ----------
-  const v12OldVisual = getExerciseVisual;
-  window.getExerciseVisual = function(ex){
-    if (ex && ex.src) {
-      const alt = ex.alt || ex.name || 'Ilustrasi gerakan latihan';
-      return `<img src="${ex.src}" alt="${alt}" loading="lazy" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#111827;">`;
-    }
-    return v12OldVisual(ex);
-  };
-  function v12FitImages(){
-    document.querySelectorAll('.exercise-img-box img, #item-modal-img img, #live-ex-visual img').forEach(img=>{
-      img.style.objectFit='contain'; img.style.objectPosition='center'; img.style.width='100%'; img.style.height='100%'; img.style.display='block';
-    });
-  }
-  new MutationObserver(v12FitImages).observe(document.body,{subtree:true,childList:true});
+        .v12-workout-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
 
-  // ---------- 2) PROFILE: gender + broader health-related complaints ----------
-  function v12EnsureBioFields(){
-    const form=document.getElementById('bio-form');
-    if(!form || document.getElementById('user-gender')) return;
-    const age=document.getElementById('user-age')?.closest('.form-group-inline');
-    const genderWrap=document.createElement('div');
-    genderWrap.className='form-group'; genderWrap.innerHTML=`
+        .v12-skip-btn {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--accent-info);
+            padding: 10px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .78rem;
+        }
+
+        .v12-skip-btn:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .v12-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .v12-type-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 9px;
+            cursor: pointer;
+        }
+
+        .v12-type-card input {
+            width: auto;
+            margin-right: 6px;
+        }
+
+        @media(max-width:600px) {
+            .v12-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .v12-workout-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script>
+        (function () {
+            'use strict';
+            const V12_DAY_NAMES = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            const V12_CUSTOM_KEY = 'gym_custom_sched_v7';
+            const V12_GENDER_KEY = 'gym_bio_v7';
+
+            // ---------- 1) MEDIA: always fit the complete image inside its frame ----------
+            const v12OldVisual = getExerciseVisual;
+            window.getExerciseVisual = function (ex) {
+                if (ex && ex.src) {
+                    const alt = ex.alt || ex.name || 'Ilustrasi gerakan latihan';
+                    return `<img src="${ex.src}" alt="${alt}" loading="lazy" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#111827;">`;
+                }
+                return v12OldVisual(ex);
+            };
+            function v12FitImages() {
+                document.querySelectorAll('.exercise-img-box img, #item-modal-img img, #live-ex-visual img').forEach(img => {
+                    img.style.objectFit = 'contain'; img.style.objectPosition = 'center'; img.style.width = '100%'; img.style.height = '100%'; img.style.display = 'block';
+                });
+            }
+            new MutationObserver(v12FitImages).observe(document.body, { subtree: true, childList: true });
+
+            // ---------- 2) PROFILE: gender + broader health-related complaints ----------
+            function v12EnsureBioFields() {
+                const form = document.getElementById('bio-form');
+                if (!form || document.getElementById('user-gender')) return;
+                const age = document.getElementById('user-age')?.closest('.form-group-inline');
+                const genderWrap = document.createElement('div');
+                genderWrap.className = 'form-group'; genderWrap.innerHTML = `
       <label for="user-gender">Gender:</label>
       <select id="user-gender">
         <option value="Laki-laki">Laki-laki</option>
@@ -3488,324 +3645,422 @@
         <option value="Tidak ingin menyebutkan">Tidak ingin menyebutkan</option>
       </select>
       <p style="font-size:.7rem;color:var(--text-muted)">Gender dipakai sebagai salah satu faktor personalisasi pola latihan, bukan sebagai pengganti penilaian kondisi fisik/medis.</p>`;
-    if(age && age.parentNode) age.parentNode.insertBefore(genderWrap, age.nextSibling); else form.insertBefore(genderWrap,form.firstChild?.nextSibling||null);
+                if (age && age.parentNode) age.parentNode.insertBefore(genderWrap, age.nextSibling); else form.insertBefore(genderWrap, form.firstChild?.nextSibling || null);
 
-    const cg=document.querySelector('#bio-form .checkbox-group');
-    if(cg){
-      const extras=[
-        ['Mudah Lelah / Stamina Rendah','Mudah Lelah / Stamina Rendah'],
-        ['Kaku Sendi','Kaku Sendi'],
-        ['Nyeri Pergelangan','Nyeri Pergelangan'],
-        ['Nyeri Leher','Nyeri Leher'],
-        ['Sering Kurang Tidur','Sering Kurang Tidur'],
-        ['Stres Tinggi','Stres Tinggi'],
-        ['Kebugaran Rendah','Kebugaran Rendah'],
-        ['Berat Badan Berlebih','Berat Badan Berlebih'],
-        ['Riwayat Cedera','Riwayat Cedera']
-      ];
-      extras.forEach(([v,l])=>{ if(![...cg.querySelectorAll('input')].some(x=>x.value===v)){ const lab=document.createElement('label'); lab.className='checkbox-item'; lab.innerHTML=`<input type="checkbox" name="complaint" value="${v}"> ${l}`; cg.appendChild(lab); }});
-      cg.querySelectorAll('input[name="complaint"]').forEach(x=>x.addEventListener('change',()=>{ if(x.value==='Tidak Ada'&&x.checked) cg.querySelectorAll('input[name="complaint"]').forEach(y=>{if(y!==x)y.checked=false}); else if(x.value!=='Tidak Ada'&&x.checked){const none=cg.querySelector('input[value="Tidak Ada"]');if(none)none.checked=false;} }));
-    }
-  }
-  function v12LoadGender(){ v12EnsureBioFields(); const b=v9Read('gym_bio_v7',null); const g=document.getElementById('user-gender'); if(g)g.value=b?.gender||'Tidak ingin menyebutkan'; }
-  const v12OldRenderBio=renderBioForm;
-  window.renderBioForm=function(bio){ v12OldRenderBio(bio); v12LoadGender(); };
-  const v12OldForceUnlock=forceUnlockFromBio;
-  window.forceUnlockFromBio=function(){
-    v12EnsureBioFields();
-    const form=document.getElementById('bio-form'); if(!form.checkValidity()){form.reportValidity();return;}
-    const b={
-      name:document.getElementById('user-name').value.trim(), age:Number(document.getElementById('user-age').value),
-      heightCm:Number(document.getElementById('user-height').value), weightKg:Number(document.getElementById('user-weight-init').value),
-      targetWeightKg:Number(document.getElementById('user-target-weight').value), goal:document.getElementById('user-goal').value,
-      level:document.getElementById('user-level-target').value, gender:document.getElementById('user-gender')?.value||'Tidak ingin menyebutkan',
-      complaints:[...document.querySelectorAll('input[name="complaint"]:checked')].map(x=>x.value)
-    };
-    saveBioAndUnlock(b);
-  };
+                const cg = document.querySelector('#bio-form .checkbox-group');
+                if (cg) {
+                    const extras = [
+                        ['Mudah Lelah / Stamina Rendah', 'Mudah Lelah / Stamina Rendah'],
+                        ['Kaku Sendi', 'Kaku Sendi'],
+                        ['Nyeri Pergelangan', 'Nyeri Pergelangan'],
+                        ['Nyeri Leher', 'Nyeri Leher'],
+                        ['Sering Kurang Tidur', 'Sering Kurang Tidur'],
+                        ['Stres Tinggi', 'Stres Tinggi'],
+                        ['Kebugaran Rendah', 'Kebugaran Rendah'],
+                        ['Berat Badan Berlebih', 'Berat Badan Berlebih'],
+                        ['Riwayat Cedera', 'Riwayat Cedera']
+                    ];
+                    extras.forEach(([v, l]) => { if (![...cg.querySelectorAll('input')].some(x => x.value === v)) { const lab = document.createElement('label'); lab.className = 'checkbox-item'; lab.innerHTML = `<input type="checkbox" name="complaint" value="${v}"> ${l}`; cg.appendChild(lab); } });
+                    cg.querySelectorAll('input[name="complaint"]').forEach(x => x.addEventListener('change', () => { if (x.value === 'Tidak Ada' && x.checked) cg.querySelectorAll('input[name="complaint"]').forEach(y => { if (y !== x) y.checked = false }); else if (x.value !== 'Tidak Ada' && x.checked) { const none = cg.querySelector('input[value="Tidak Ada"]'); if (none) none.checked = false; } }));
+                }
+            }
+            function v12LoadGender() { v12EnsureBioFields(); const b = v9Read('gym_bio_v7', null); const g = document.getElementById('user-gender'); if (g) g.value = b?.gender || 'Tidak ingin menyebutkan'; }
+            const v12OldRenderBio = renderBioForm;
+            window.renderBioForm = function (bio) { v12OldRenderBio(bio); v12LoadGender(); };
+            const v12OldForceUnlock = forceUnlockFromBio;
+            window.forceUnlockFromBio = function () {
+                v12EnsureBioFields();
+                const form = document.getElementById('bio-form'); if (!form.checkValidity()) { form.reportValidity(); return; }
+                const b = {
+                    name: document.getElementById('user-name').value.trim(), age: Number(document.getElementById('user-age').value),
+                    heightCm: Number(document.getElementById('user-height').value), weightKg: Number(document.getElementById('user-weight-init').value),
+                    targetWeightKg: Number(document.getElementById('user-target-weight').value), goal: document.getElementById('user-goal').value,
+                    level: document.getElementById('user-level-target').value, gender: document.getElementById('user-gender')?.value || 'Tidak ingin menyebutkan',
+                    complaints: [...document.querySelectorAll('input[name="complaint"]:checked')].map(x => x.value)
+                };
+                saveBioAndUnlock(b);
+            };
 
-  // ---------- 3) GENDER-AWARE PROGRAM PERSONALIZATION ----------
-  const v12BaseGetProgram=v12SafeGetProgram();
-  function v12SafeGetProgram(){ return getProgramV8; }
-  window.getProgramV8=function(level){
-    const base=v12BaseGetProgram(level); const b=v9Read('gym_bio_v7',null); const gender=b?.gender||'Tidak ingin menyebutkan';
-    const clone=JSON.parse(JSON.stringify(base));
-    clone.baseLevel=level;
-    clone.gender=gender;
-    if(gender==='Perempuan') clone.personalization='Prioritas tambahan: glutes, hamstring, lower body, core dan teknik stabilitas; volume tetap disesuaikan level.';
-    else if(gender==='Laki-laki') clone.personalization='Prioritas tambahan: compound upper/lower body, kekuatan dan progresi beban; volume tetap disesuaikan level.';
-    else clone.personalization='Pola latihan seimbang dan dapat dipersonalisasi dari target, level, dan keluhan.';
-    return clone;
-  };
-  // Keep the original level-based progression working after cloning the program.
-  const v12BaseProgressiveSets=getProgressiveSetsV8;
-  window.getProgressiveSetsV8=function(program,week){
-    if(program && program.baseLevel){
-      const base=PROGRAM_V8[program.baseLevel];
-      return v12BaseProgressiveSets(base,week);
-    }
-    return v12BaseProgressiveSets(program,week);
-  };
-  // Gender is a personalization factor for emphasis, while goal/level remain the main load variables.
-  
+            // ---------- 3) GENDER-AWARE PROGRAM PERSONALIZATION ----------
+            const v12BaseGetProgram = v12SafeGetProgram();
+            function v12SafeGetProgram() { return getProgramV8; }
+            window.getProgramV8 = function (level) {
+                const base = v12BaseGetProgram(level); const b = v9Read('gym_bio_v7', null); const gender = b?.gender || 'Tidak ingin menyebutkan';
+                const clone = JSON.parse(JSON.stringify(base));
+                clone.baseLevel = level;
+                clone.gender = gender;
+                if (gender === 'Perempuan') clone.personalization = 'Prioritas tambahan: glutes, hamstring, lower body, core dan teknik stabilitas; volume tetap disesuaikan level.';
+                else if (gender === 'Laki-laki') clone.personalization = 'Prioritas tambahan: compound upper/lower body, kekuatan dan progresi beban; volume tetap disesuaikan level.';
+                else clone.personalization = 'Pola latihan seimbang dan dapat dipersonalisasi dari target, level, dan keluhan.';
+                return clone;
+            };
+            // Keep the original level-based progression working after cloning the program.
+            const v12BaseProgressiveSets = getProgressiveSetsV8;
+            window.getProgressiveSetsV8 = function (program, week) {
+                if (program && program.baseLevel) {
+                    const base = PROGRAM_V8[program.baseLevel];
+                    return v12BaseProgressiveSets(base, week);
+                }
+                return v12BaseProgressiveSets(program, week);
+            };
+            // Gender is a personalization factor for emphasis, while goal/level remain the main load variables.
 
-  // ---------- 4) MANUAL SCHEDULE: WORKOUT / RECOVERY / REST ----------
-  function v12EnsureManualType(){
-    const box=document.getElementById('manual-edit-box'); if(!box||document.getElementById('manual-day-type'))return;
-    const anchor=box.querySelector('#manual-day')?.closest('.form-group');
-    const wrap=document.createElement('div'); wrap.className='form-group'; wrap.innerHTML=`
+
+            // ---------- 4) MANUAL SCHEDULE: WORKOUT / RECOVERY / REST ----------
+            function v12EnsureManualType() {
+                const box = document.getElementById('manual-edit-box'); if (!box || document.getElementById('manual-day-type')) return;
+                const anchor = box.querySelector('#manual-day')?.closest('.form-group');
+                const wrap = document.createElement('div'); wrap.className = 'form-group'; wrap.innerHTML = `
       <label>Jenis Hari:</label><div class="v12-type-grid" id="manual-day-type">
         <label class="v12-type-card"><input type="radio" name="manualDayType" value="workout" checked> 🏋️ Workout</label>
         <label class="v12-type-card"><input type="radio" name="manualDayType" value="recovery"> 🧘 Pemulihan</label>
         <label class="v12-type-card"><input type="radio" name="manualDayType" value="rest"> 😴 Rest Day</label>
       </div>`;
-    if(anchor)anchor.parentNode.insertBefore(wrap,anchor.nextSibling); else box.insertBefore(wrap,box.firstChild);
-    const catBox=document.getElementById('manual-cat-checkboxes');
-    if(catBox && !catBox.querySelector('input[value="recovery_mobility"]')){ const lab=document.createElement('label'); lab.className='checkbox-item'; lab.innerHTML='<input type="checkbox" value="recovery_mobility" onchange="renderManualExerciseCheckboxes()"> Pemulihan / Mobility'; catBox.appendChild(lab); }
-    const sync=()=>{
-      const type=document.querySelector('input[name="manualDayType"]:checked')?.value||'workout';
-      const cats=document.getElementById('manual-cat-checkboxes'), ex=document.getElementById('manual-ex-checkboxes');
-      if(type==='rest'){ if(cats)cats.style.display='none'; if(ex)ex.style.display='none'; }
-      else if(type==='recovery'){ if(cats)cats.style.display='block'; if(ex)ex.style.display='block'; const r=cats?.querySelector('input[value="recovery_mobility"]'); if(r){r.checked=true;r.dispatchEvent(new Event('change'));} }
-      else { if(cats)cats.style.display='block'; if(ex)ex.style.display='block'; }
-    };
-    document.querySelectorAll('input[name="manualDayType"]').forEach(x=>x.addEventListener('change',sync)); sync();
-  }
-  function v12GetCustom(){return v9Read(V12_CUSTOM_KEY,{});}
-  function v12SetCustom(x){v9Write(V12_CUSTOM_KEY,x);}
-  function v12ManualSubmit(e){
-    e.preventDefault(); e.stopImmediatePropagation();
-    const day=document.getElementById('manual-day').value;
-    const type=document.querySelector('input[name="manualDayType"]:checked')?.value||'workout';
-    const cats=[...document.querySelectorAll('#manual-cat-checkboxes input:checked')].map(x=>x.value);
-    const ex=[...document.querySelectorAll('#manual-ex-checkboxes input:checked')].map(x=>x.value);
-    const custom=v12GetCustom();
-    if(type==='rest') custom[day]={type:'rest',focus:'Rest Day',ex:[],exercises:[]};
-    else if(type==='recovery') custom[day]={type:'recovery',focus:'Pemulihan / Recovery',cats:['recovery_mobility'],ex:ex.length?ex:['World Greatest Stretch','Cat-Cow Stretch'],exercises:ex.length?ex:['World Greatest Stretch','Cat-Cow Stretch']};
-    else custom[day]={type:'workout',focus:cats.length?`Custom (${cats.join(', ')})`:'Custom Workout',cats,ex:ex.length?ex:['Latihan Bebas Pilihan'],exercises:ex.length?ex:['Latihan Bebas Pilihan']};
-    v12SetCustom(custom); scheduleMode='manual'; appSetText('gym_schedule_mode_v12','manual');
-    const bio=v9Read('gym_bio_v7',null); renderSchedule(bio,custom); renderActiveWorkoutSession(bio,custom); renderTodayHome(bio); alert(`Jadwal ${day} disimpan sebagai ${type==='rest'?'Rest Day':type==='recovery'?'Pemulihan':'Workout'}.`);
-  }
-  function v12InstallManual(){
-    v12EnsureManualType(); const f=document.getElementById('manual-schedule-form'); if(!f||f.dataset.v12Bound)return;
-    f.dataset.v12Bound='1'; f.addEventListener('submit',v12ManualSubmit,true);
-  }
+                if (anchor) anchor.parentNode.insertBefore(wrap, anchor.nextSibling); else box.insertBefore(wrap, box.firstChild);
+                const catBox = document.getElementById('manual-cat-checkboxes');
+                if (catBox && !catBox.querySelector('input[value="recovery_mobility"]')) { const lab = document.createElement('label'); lab.className = 'checkbox-item'; lab.innerHTML = '<input type="checkbox" value="recovery_mobility" onchange="renderManualExerciseCheckboxes()"> Pemulihan / Mobility'; catBox.appendChild(lab); }
+                const sync = () => {
+                    const type = document.querySelector('input[name="manualDayType"]:checked')?.value || 'workout';
+                    const cats = document.getElementById('manual-cat-checkboxes'), ex = document.getElementById('manual-ex-checkboxes');
+                    if (type === 'rest') { if (cats) cats.style.display = 'none'; if (ex) ex.style.display = 'none'; }
+                    else if (type === 'recovery') { if (cats) cats.style.display = 'block'; if (ex) ex.style.display = 'block'; const r = cats?.querySelector('input[value="recovery_mobility"]'); if (r) { r.checked = true; r.dispatchEvent(new Event('change')); } }
+                    else { if (cats) cats.style.display = 'block'; if (ex) ex.style.display = 'block'; }
+                };
+                document.querySelectorAll('input[name="manualDayType"]').forEach(x => x.addEventListener('change', sync)); sync();
+            }
+            function v12GetCustom() { return v9Read(V12_CUSTOM_KEY, {}); }
+            function v12SetCustom(x) { v9Write(V12_CUSTOM_KEY, x); }
+            function v12ManualSubmit(e) {
+                e.preventDefault(); e.stopImmediatePropagation();
+                const day = document.getElementById('manual-day').value;
+                const type = document.querySelector('input[name="manualDayType"]:checked')?.value || 'workout';
+                const cats = [...document.querySelectorAll('#manual-cat-checkboxes input:checked')].map(x => x.value);
+                const ex = [...document.querySelectorAll('#manual-ex-checkboxes input:checked')].map(x => x.value);
+                const custom = v12GetCustom();
+                if (type === 'rest') custom[day] = { type: 'rest', focus: 'Rest Day', ex: [], exercises: [] };
+                else if (type === 'recovery') custom[day] = { type: 'recovery', focus: 'Pemulihan / Recovery', cats: ['recovery_mobility'], ex: ex.length ? ex : ['World Greatest Stretch', 'Cat-Cow Stretch'], exercises: ex.length ? ex : ['World Greatest Stretch', 'Cat-Cow Stretch'] };
+                else custom[day] = { type: 'workout', focus: cats.length ? `Custom (${cats.join(', ')})` : 'Custom Workout', cats, ex: ex.length ? ex : ['Latihan Bebas Pilihan'], exercises: ex.length ? ex : ['Latihan Bebas Pilihan'] };
+                v12SetCustom(custom); scheduleMode = 'manual'; appSetText('gym_schedule_mode_v12', 'manual');
+                const bio = v9Read('gym_bio_v7', null); renderSchedule(bio, custom); renderActiveWorkoutSession(bio, custom); renderTodayHome(bio); alert(`Jadwal ${day} disimpan sebagai ${type === 'rest' ? 'Rest Day' : type === 'recovery' ? 'Pemulihan' : 'Workout'}.`);
+            }
+            function v12InstallManual() {
+                v12EnsureManualType(); const f = document.getElementById('manual-schedule-form'); if (!f || f.dataset.v12Bound) return;
+                f.dataset.v12Bound = '1'; f.addEventListener('submit', v12ManualSubmit, true);
+            }
 
-  // ---------- 5) SCHEDULE RENDERING WITH CUSTOM DAYS ----------
-  const v12AutoProgramGet=v12BaseGetProgram;
-  window.renderSchedule=function(bio,customSchedule){
-    const container=document.getElementById('schedule-cards-container'); if(!container)return;
-    const b=bio||v9Read('gym_bio_v7',null)||{level:'Beginner'}; const program=getProgramV8(b.level), week=getProgramWeekV8(); const custom=(scheduleMode==='manual')?(customSchedule||v12GetCustom()):{};
-    container.innerHTML=V12_DAY_NAMES.map(day=>{
-      const c=custom?.[day]; const d=c||program.days[day]; const type=c?.type || (d?.ex?.length?'workout':'rest'); const items=d?.ex||d?.exercises||[];
-      const typeLabel=type==='rest'?'😴 Rest Day':type==='recovery'?'🧘 Pemulihan':'🏋️ Workout';
-      return `<div class="schedule-day-card" style="${day===getCurrentDayV8()?'border-color:var(--accent-primary)':''}"><h4>${day}</h4><p style="font-weight:700;font-size:.82rem;color:var(--accent-primary);margin-bottom:6px">${d?.focus||typeLabel}</p><p style="font-size:.7rem;color:var(--accent-info)">${typeLabel}</p>${items.length?`<ul style="padding-left:14px;font-size:.75rem;color:var(--text-muted)">${items.map(x=>`<li>${x}</li>`).join('')}</ul>`:`<p style="font-size:.75rem;color:var(--text-muted)">${type==='recovery'?'Pemulihan ringan, mobilitas dan stretching.':'Istirahat total / pemulihan.'}</p>`}<p style="font-size:.68rem;color:var(--text-muted);margin-top:6px">${c?'Jadwal manual':'Paket otomatis'} • Pekan ${week}</p></div>`;
-    }).join('');
-  };
-  window.renderActiveWorkoutSession=function(bio,customSchedule){
-    const b=bio||v9Read('gym_bio_v7',null); if(!b)return; const day=getCurrentDayV8(), program=getProgramV8(b.level), custom=(scheduleMode==='manual')?(customSchedule||v12GetCustom()):{}, data=custom?.[day]||program.days[day], type=custom?.[day]?.type||(data?.ex?.length?'workout':'rest'), items=data?.ex||data?.exercises||[]; const week=getProgramWeekV8();
-    document.getElementById('session-day-title').textContent=`Sesi ${data?.focus||'Hari Ini'} • Pekan ${week}`;
-    document.getElementById('session-date-subtitle').textContent=`Tanggal: ${new Date().toLocaleDateString('id-ID')} | ${b.gender||'Gender tidak disebutkan'} | Level: ${b.level}`;
-    const c=document.getElementById('active-session-container'); if(!c)return;
-    if(type==='rest'||!items.length){c.innerHTML=`<div style="padding:18px;text-align:center;color:var(--text-muted)">${type==='recovery'?'🧘 Hari pemulihan. Lakukan mobilitas ringan sesuai kebutuhan.':'😴 Rest Day. Fokus tidur, hidrasi, nutrisi, dan pemulihan.'}</div>`;return;}
-    const prescription=v9WorkoutPrescription(b.level,week);
-    c.innerHTML=`<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:8px;padding:12px"><strong>▶ Sesi ${type==='recovery'?'Pemulihan':'Workout'}</strong><p style="font-size:.75rem;color:var(--text-muted);margin:5px 0 10px">${program.personalization||''}</p><button class="btn-primary" onclick="playDayPackageV9('${day}')">▶ START SESI</button></div>${items.map((x,i)=>`<div class="schedule-day-card"><span style="font-size:.7rem;color:var(--accent-info)">Gerakan #${i+1}</span><h5>${x}</h5><p style="font-size:.72rem;color:var(--text-muted)">${prescription.sets} Set × ${prescription.repsMin}-${prescription.repsMax} Reps • rest ${prescription.rest}s</p></div>`).join('')}`;
-  };
+            // ---------- 5) SCHEDULE RENDERING WITH CUSTOM DAYS ----------
+            const v12AutoProgramGet = v12BaseGetProgram;
+            window.renderSchedule = function (bio, customSchedule) {
+                const container = document.getElementById('schedule-cards-container'); if (!container) return;
+                const b = bio || v9Read('gym_bio_v7', null) || { level: 'Beginner' }; const program = getProgramV8(b.level), week = getProgramWeekV8(); const custom = (scheduleMode === 'manual') ? (customSchedule || v12GetCustom()) : {};
+                container.innerHTML = V12_DAY_NAMES.map(day => {
+                    const c = custom?.[day]; const d = c || program.days[day]; const type = c?.type || (d?.ex?.length ? 'workout' : 'rest'); const items = d?.ex || d?.exercises || [];
+                    const typeLabel = type === 'rest' ? '😴 Rest Day' : type === 'recovery' ? '🧘 Pemulihan' : '🏋️ Workout';
+                    return `<div class="schedule-day-card" style="${day === getCurrentDayV8() ? 'border-color:var(--accent-primary)' : ''}"><h4>${day}</h4><p style="font-weight:700;font-size:.82rem;color:var(--accent-primary);margin-bottom:6px">${d?.focus || typeLabel}</p><p style="font-size:.7rem;color:var(--accent-info)">${typeLabel}</p>${items.length ? `<ul style="padding-left:14px;font-size:.75rem;color:var(--text-muted)">${items.map(x => `<li>${x}</li>`).join('')}</ul>` : `<p style="font-size:.75rem;color:var(--text-muted)">${type === 'recovery' ? 'Pemulihan ringan, mobilitas dan stretching.' : 'Istirahat total / pemulihan.'}</p>`}<p style="font-size:.68rem;color:var(--text-muted);margin-top:6px">${c ? 'Jadwal manual' : 'Paket otomatis'} • Pekan ${week}</p></div>`;
+                }).join('');
+            };
+            window.renderActiveWorkoutSession = function (bio, customSchedule) {
+                const b = bio || v9Read('gym_bio_v7', null); if (!b) return; const day = getCurrentDayV8(), program = getProgramV8(b.level), custom = (scheduleMode === 'manual') ? (customSchedule || v12GetCustom()) : {}, data = custom?.[day] || program.days[day], type = custom?.[day]?.type || (data?.ex?.length ? 'workout' : 'rest'), items = data?.ex || data?.exercises || []; const week = getProgramWeekV8();
+                document.getElementById('session-day-title').textContent = `Sesi ${data?.focus || 'Hari Ini'} • Pekan ${week}`;
+                document.getElementById('session-date-subtitle').textContent = `Tanggal: ${new Date().toLocaleDateString('id-ID')} | ${b.gender || 'Gender tidak disebutkan'} | Level: ${b.level}`;
+                const c = document.getElementById('active-session-container'); if (!c) return;
+                if (type === 'rest' || !items.length) { c.innerHTML = `<div style="padding:18px;text-align:center;color:var(--text-muted)">${type === 'recovery' ? '🧘 Hari pemulihan. Lakukan mobilitas ringan sesuai kebutuhan.' : '😴 Rest Day. Fokus tidur, hidrasi, nutrisi, dan pemulihan.'}</div>`; return; }
+                const prescription = v9WorkoutPrescription(b.level, week);
+                c.innerHTML = `<div style="background:var(--bg-main);border:1px solid var(--accent-primary);border-radius:8px;padding:12px"><strong>▶ Sesi ${type === 'recovery' ? 'Pemulihan' : 'Workout'}</strong><p style="font-size:.75rem;color:var(--text-muted);margin:5px 0 10px">${program.personalization || ''}</p><button class="btn-primary" onclick="playDayPackageV9('${day}')">▶ START SESI</button></div>${items.map((x, i) => `<div class="schedule-day-card"><span style="font-size:.7rem;color:var(--accent-info)">Gerakan #${i + 1}</span><h5>${x}</h5><p style="font-size:.72rem;color:var(--text-muted)">${prescription.sets} Set × ${prescription.repsMin}-${prescription.repsMax} Reps • rest ${prescription.rest}s</p></div>`).join('')}`;
+            };
 
-  // ---------- 6) WORKOUT ENGINE: SKIP SET / SKIP EXERCISE ----------
-  function v12Save(){ try{ localStorage.setItem('gym_active_workout_v11',JSON.stringify({playlist:activePlaylist,session:v9Session,restRemainingMs:v11RestRemainingMs,paused:v11Paused})); }catch(e){} }
-  function v12ClearRest(){ if(typeof v11StopTimerOnly==='function')v11StopTimerOnly(); v11RestRemainingMs=0; }
-  window.skipToNextSetV12=function(){
-    if(!v9Session?.running)return;
-    v12ClearRest();
-    if(v9Session.setIndex < v9Session.sets){ v9Session.setIndex++; v9Session.skippedSets=(v9Session.skippedSets||0)+1; v9Session.running=true; v12Save(); renderLiveWorkoutV9(); }
-    else { v9Session.exerciseIndex++; v9Session.setIndex=1; v9Session.skippedSets=(v9Session.skippedSets||0)+1; currentPlaylistIndex=v9Session.exerciseIndex; v12Save(); if(v9Session.exerciseIndex>=activePlaylist.length)v11FinishSession();else renderLiveWorkoutV9(); }
-  };
-  window.skipToNextExerciseV12=function(){
-    if(!v9Session?.running||!activePlaylist?.length)return;
-    if(!confirm('Lewati gerakan ini? Set yang belum selesai akan dicatat sebagai dilewati.'))return;
-    v12ClearRest(); v9Session.skippedExercises=(v9Session.skippedExercises||0)+1; v9Session.exerciseIndex++; v9Session.setIndex=1; currentPlaylistIndex=v9Session.exerciseIndex; v12Save(); if(v9Session.exerciseIndex>=activePlaylist.length)v11FinishSession();else renderLiveWorkoutV9();
-  };
-  const v12BaseRenderLive=renderLiveWorkoutV9;
-  window.renderLiveWorkoutV9=function(){
-    v12BaseRenderLive();
-    const actions=document.getElementById('v12-workout-actions'); if(actions)actions.remove();
-    const modal=document.getElementById('live-workout-modal'); if(!modal?.classList.contains('active'))return;
-    const card=modal.querySelector('.modal-card'); if(!card)return;
-    const box=document.createElement('div'); box.id='v12-workout-actions'; box.className='v12-workout-actions'; box.innerHTML=`<button type="button" class="v12-skip-btn" onclick="skipToNextSetV12()">⏭ Lewati ke Set Berikutnya</button><button type="button" class="v12-skip-btn" onclick="skipToNextExerciseV12()">⏩ Lewati ke Gerakan Berikutnya</button>`; card.appendChild(box);
-  };
-  // During rest, clicking skip-set should immediately advance instead of waiting.
-  const v12OldStartRest=v11StartRest;
-  window.v11StartRest=function(seconds){ v12OldStartRest(seconds); const b=document.getElementById('live-start-set-btn'); if(b)b.disabled=false; };
+            // ---------- 6) WORKOUT ENGINE: SKIP SET / SKIP EXERCISE ----------
+            function v12Save() { try { localStorage.setItem('gym_active_workout_v11', JSON.stringify({ playlist: activePlaylist, session: v9Session, restRemainingMs: v11RestRemainingMs, paused: v11Paused })); } catch (e) { } }
+            function v12ClearRest() { if (typeof v11StopTimerOnly === 'function') v11StopTimerOnly(); v11RestRemainingMs = 0; }
+            window.skipToNextSetV12 = function () {
+                if (!v9Session?.running) return;
+                v12ClearRest();
+                if (v9Session.setIndex < v9Session.sets) { v9Session.setIndex++; v9Session.skippedSets = (v9Session.skippedSets || 0) + 1; v9Session.running = true; v12Save(); renderLiveWorkoutV9(); }
+                else { v9Session.exerciseIndex++; v9Session.setIndex = 1; v9Session.skippedSets = (v9Session.skippedSets || 0) + 1; currentPlaylistIndex = v9Session.exerciseIndex; v12Save(); if (v9Session.exerciseIndex >= activePlaylist.length) v11FinishSession(); else renderLiveWorkoutV9(); }
+            };
+            window.skipToNextExerciseV12 = function () {
+                if (!v9Session?.running || !activePlaylist?.length) return;
+                if (!confirm('Lewati gerakan ini? Set yang belum selesai akan dicatat sebagai dilewati.')) return;
+                v12ClearRest(); v9Session.skippedExercises = (v9Session.skippedExercises || 0) + 1; v9Session.exerciseIndex++; v9Session.setIndex = 1; currentPlaylistIndex = v9Session.exerciseIndex; v12Save(); if (v9Session.exerciseIndex >= activePlaylist.length) v11FinishSession(); else renderLiveWorkoutV9();
+            };
+            const v12BaseRenderLive = renderLiveWorkoutV9;
+            window.renderLiveWorkoutV9 = function () {
+                v12BaseRenderLive();
+                const actions = document.getElementById('v12-workout-actions'); if (actions) actions.remove();
+                const modal = document.getElementById('live-workout-modal'); if (!modal?.classList.contains('active')) return;
+                const card = modal.querySelector('.modal-card'); if (!card) return;
+                const box = document.createElement('div'); box.id = 'v12-workout-actions'; box.className = 'v12-workout-actions'; box.innerHTML = `<button type="button" class="v12-skip-btn" onclick="skipToNextSetV12()">⏭ Lewati ke Set Berikutnya</button><button type="button" class="v12-skip-btn" onclick="skipToNextExerciseV12()">⏩ Lewati ke Gerakan Berikutnya</button>`; card.appendChild(box);
+            };
+            // During rest, clicking skip-set should immediately advance instead of waiting.
+            const v12OldStartRest = v11StartRest;
+            window.v11StartRest = function (seconds) { v12OldStartRest(seconds); const b = document.getElementById('live-start-set-btn'); if (b) b.disabled = false; };
 
-  // Use manual custom day in the V11 session opener.
-  const v12OldOpenSession=v11OpenSession;
-  window.v11OpenSession=function(day,startIndex,forceNew){
-    const custom=(scheduleMode==='manual')?v12GetCustom():{}, c=custom?.[day];
-    if(c){
-      const type=c.type||((c.ex||c.exercises||[]).length?'workout':'rest'); const items=c.ex||c.exercises||[];
-      if(type==='rest'||!items.length){alert('😴 Hari ini Rest Day. Tidak ada sesi latihan untuk dimainkan.');return;}
-      const bio=v11GetBio(); v11StopTimerOnly(); v11RestRemainingMs=0; v11Paused=false; activePlaylist=items.slice(); const safe=Math.max(0,Math.min(Number(startIndex)||0,activePlaylist.length-1)); currentPlaylistIndex=safe; v9Session={exerciseIndex:safe,setIndex:1,...v9WorkoutPrescription(bio.level,getProgramWeekV8()),running:true,completed:false,day,startedAt:Date.now(),setsCompleted:0,customType:type}; v12Save(); renderLiveWorkoutV9(); document.getElementById('workout-session')?.scrollIntoView({behavior:'smooth',block:'start'}); return;
-    }
-    v12OldOpenSession(day,startIndex,forceNew);
-  };
+            // Use manual custom day in the V11 session opener.
+            const v12OldOpenSession = v11OpenSession;
+            window.v11OpenSession = function (day, startIndex, forceNew) {
+                const custom = (scheduleMode === 'manual') ? v12GetCustom() : {}, c = custom?.[day];
+                if (c) {
+                    const type = c.type || ((c.ex || c.exercises || []).length ? 'workout' : 'rest'); const items = c.ex || c.exercises || [];
+                    if (type === 'rest' || !items.length) { alert('😴 Hari ini Rest Day. Tidak ada sesi latihan untuk dimainkan.'); return; }
+                    const bio = v11GetBio(); v11StopTimerOnly(); v11RestRemainingMs = 0; v11Paused = false; activePlaylist = items.slice(); const safe = Math.max(0, Math.min(Number(startIndex) || 0, activePlaylist.length - 1)); currentPlaylistIndex = safe; v9Session = { exerciseIndex: safe, setIndex: 1, ...v9WorkoutPrescription(bio.level, getProgramWeekV8()), running: true, completed: false, day, startedAt: Date.now(), setsCompleted: 0, customType: type }; v12Save(); renderLiveWorkoutV9(); document.getElementById('workout-session')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
+                }
+                v12OldOpenSession(day, startIndex, forceNew);
+            };
 
-  // ---------- 7) AFFORDABLE NUTRITION / PROTEIN RECOMMENDATIONS ----------
-  window.renderNutritionAndMeals=function(bio){
-    if(!bio)return; const t=getNutritionTargetsV8(bio), target=document.getElementById('nutrition-target-box'), menu=document.getElementById('daily-dynamic-menu');
-    if(target)target.innerHTML=`<div style="background:var(--bg-main);padding:12px;border-radius:8px;border:1px solid var(--border-color)"><p style="font-size:.8rem">Target <strong>${bio.goal}</strong></p><p style="font-size:1.15rem;font-weight:800;color:var(--accent-primary)">${t.calories} Kcal/hari | Protein ~${t.protein}g/hari</p><p style="font-size:.78rem;color:var(--accent-info);margin-top:4px">💧 Target air: <strong>${t.water.toFixed(1)} L/hari</strong> = ${t.glasses} gelas × ${t.glassMl} ml</p></div>`;
-    const budget=[
-      ['Telur ayam','~6 g protein/butir','Rebus, dadar, atau campur nasi/mi.'],['Tempe','~18–20 g/100 g','Sumber protein nabati yang biasanya ekonomis.'],['Tahu','~8–10 g/100 g','Cocok untuk lauk, tumis, atau sup.'],['Ikan kembung/tongkol','~20–25 g/100 g','Pilih ikan lokal sesuai harga pasar.'],['Ayam bagian paha/dada','~20–27 g/100 g','Beli ukuran ekonomis; masak tanpa banyak minyak.'],['Sarden kaleng ekonomis','~20 g/100 g','Pilih versi yang sesuai anggaran dan perhatikan natrium.'],['Kacang tanah','~25 g/100 g','Padat energi; cocok untuk tambahan kalori.'],['Susu UHT/plain atau susu kedelai','~3–7 g/100 ml','Gunakan sesuai toleransi dan anggaran.'],['Kacang hijau','~7 g/100 g matang','Bisa menjadi snack/pendamping karbohidrat.']
-    ];
-    const tips=bio.goal==='Bulking'?'Utamakan nasi, kentang, oats, pisang + protein murah untuk menambah kalori.' : bio.goal==='Fat Loss'?'Utamakan protein murah + sayur; kontrol porsi nasi/minyak agar kalori lebih mudah dijaga.':'Gunakan pola porsi seimbang dan prioritaskan protein di setiap makan.';
-    if(menu)menu.innerHTML=`<div style="display:grid;gap:8px"><div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:10px"><strong>🍽️ Menu hari ini</strong><p style="font-size:.76rem;color:var(--text-muted);margin-top:4px">${tips}</p></div><div style="background:var(--bg-main);border:1px solid var(--accent-success);border-radius:8px;padding:10px"><strong style="color:var(--accent-success)">💰 Rekomendasi hemat: protein & bahan makanan</strong><div style="display:grid;gap:6px;margin-top:8px">${budget.map(x=>`<div style="padding:8px;border:1px solid var(--border-color);border-radius:6px"><strong>${x[0]}</strong> <span style="font-size:.7rem;color:var(--accent-info)">${x[1]}</span><div style="font-size:.72rem;color:var(--text-muted)">${x[2]}</div></div>`).join('')}</div></div></div>`;
-    renderDailyChecklistV9();
-  };
+            // ---------- 7) AFFORDABLE NUTRITION / PROTEIN RECOMMENDATIONS ----------
+            window.renderNutritionAndMeals = function (bio) {
+                if (!bio) return; const t = getNutritionTargetsV8(bio), target = document.getElementById('nutrition-target-box'), menu = document.getElementById('daily-dynamic-menu');
+                if (target) target.innerHTML = `<div style="background:var(--bg-main);padding:12px;border-radius:8px;border:1px solid var(--border-color)"><p style="font-size:.8rem">Target <strong>${bio.goal}</strong></p><p style="font-size:1.15rem;font-weight:800;color:var(--accent-primary)">${t.calories} Kcal/hari | Protein ~${t.protein}g/hari</p><p style="font-size:.78rem;color:var(--accent-info);margin-top:4px">💧 Target air: <strong>${t.water.toFixed(1)} L/hari</strong> = ${t.glasses} gelas × ${t.glassMl} ml</p></div>`;
+                const budget = [
+                    ['Telur ayam', '~6 g protein/butir', 'Rebus, dadar, atau campur nasi/mi.'], ['Tempe', '~18–20 g/100 g', 'Sumber protein nabati yang biasanya ekonomis.'], ['Tahu', '~8–10 g/100 g', 'Cocok untuk lauk, tumis, atau sup.'], ['Ikan kembung/tongkol', '~20–25 g/100 g', 'Pilih ikan lokal sesuai harga pasar.'], ['Ayam bagian paha/dada', '~20–27 g/100 g', 'Beli ukuran ekonomis; masak tanpa banyak minyak.'], ['Sarden kaleng ekonomis', '~20 g/100 g', 'Pilih versi yang sesuai anggaran dan perhatikan natrium.'], ['Kacang tanah', '~25 g/100 g', 'Padat energi; cocok untuk tambahan kalori.'], ['Susu UHT/plain atau susu kedelai', '~3–7 g/100 ml', 'Gunakan sesuai toleransi dan anggaran.'], ['Kacang hijau', '~7 g/100 g matang', 'Bisa menjadi snack/pendamping karbohidrat.']
+                ];
+                const tips = bio.goal === 'Bulking' ? 'Utamakan nasi, kentang, oats, pisang + protein murah untuk menambah kalori.' : bio.goal === 'Fat Loss' ? 'Utamakan protein murah + sayur; kontrol porsi nasi/minyak agar kalori lebih mudah dijaga.' : 'Gunakan pola porsi seimbang dan prioritaskan protein di setiap makan.';
+                if (menu) menu.innerHTML = `<div style="display:grid;gap:8px"><div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:8px;padding:10px"><strong>🍽️ Menu hari ini</strong><p style="font-size:.76rem;color:var(--text-muted);margin-top:4px">${tips}</p></div><div style="background:var(--bg-main);border:1px solid var(--accent-success);border-radius:8px;padding:10px"><strong style="color:var(--accent-success)">💰 Rekomendasi hemat: protein & bahan makanan</strong><div style="display:grid;gap:6px;margin-top:8px">${budget.map(x => `<div style="padding:8px;border:1px solid var(--border-color);border-radius:6px"><strong>${x[0]}</strong> <span style="font-size:.7rem;color:var(--accent-info)">${x[1]}</span><div style="font-size:.72rem;color:var(--text-muted)">${x[2]}</div></div>`).join('')}</div></div></div>`;
+                renderDailyChecklistV9();
+            };
 
-  // ---------- 8) INITIALIZE PATCH ----------
-  const v12OldSetScheduleMode=setScheduleMode;
-  window.setScheduleMode=function(mode){ scheduleMode=mode; appSetText('gym_schedule_mode_v12',mode); v12OldSetScheduleMode(mode); };
+            // ---------- 8) INITIALIZE PATCH ----------
+            const v12OldSetScheduleMode = setScheduleMode;
+            window.setScheduleMode = function (mode) { scheduleMode = mode; appSetText('gym_schedule_mode_v12', mode); v12OldSetScheduleMode(mode); };
 
-  function v12Init(){
-    scheduleMode=appGetText('gym_schedule_mode_v12','auto')||'auto';
-    v12EnsureBioFields(); v12LoadGender(); v12EnsureManualType(); v12InstallManual();
-    const b=v9Read('gym_bio_v7',null), custom=v12GetCustom();
-    if(b){ renderSchedule(b,custom); renderActiveWorkoutSession(b,custom); renderNutritionAndMeals(b); }
-  }
-  // ---------- 9) WORKOUT SOUND CUES ----------
-  // Suara dibuat dengan Web Audio API agar tidak membutuhkan file MP3 eksternal.
-  // Browser biasanya mengizinkan audio setelah pengguna menekan START SESI.
-  const V12_SOUND_KEY='gym_workout_sound_v12';
-  let v12AudioCtx=null, v12SoundEnabled=appGetText(V12_SOUND_KEY,'on')!=='off';
-  let v12SoundCountdownToken=0;
-  function v12Audio(){
-    try{
-      if(!v12AudioCtx) v12AudioCtx=new (window.AudioContext||window.webkitAudioContext)();
-      if(v12AudioCtx.state==='suspended') v12AudioCtx.resume();
-      return v12AudioCtx;
-    }catch(e){ return null; }
-  }
-  function v12Tone(freq,dur,type='sine',gain=.055,delay=0){
-    if(!v12SoundEnabled)return;
-    const ctx=v12Audio(); if(!ctx)return;
-    const t=ctx.currentTime+delay, o=ctx.createOscillator(), g=ctx.createGain();
-    o.type=type; o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(.001,gain),t+.012);
-    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+dur+.03);
-  }
-  function v12SoundCue(kind){
-    if(!v12SoundEnabled)return;
-    switch(kind){
-      case 'count': v12Tone(660,.11,'sine',.05); break;
-      case 'go': v12Tone(660,.12,'sine',.06); v12Tone(990,.22,'sine',.065,.13); break;
-      case 'rest': v12Tone(440,.14,'triangle',.05); v12Tone(330,.22,'triangle',.05,.16); break;
-      case 'nextset': v12Tone(523,.10,'sine',.05); v12Tone(784,.18,'sine',.055,.12); break;
-      case 'nextex': v12Tone(523,.10,'sine',.05); v12Tone(659,.10,'sine',.05,.12); v12Tone(988,.25,'sine',.065,.24); break;
-      case 'pause': v12Tone(330,.18,'triangle',.045); break;
-      case 'resume': v12Tone(659,.12,'sine',.05); v12Tone(880,.20,'sine',.055,.13); break;
-      case 'finish': v12Tone(523,.12,'sine',.055); v12Tone(659,.12,'sine',.055,.13); v12Tone(784,.35,'sine',.07,.26); break;
-      case 'skip': v12Tone(300,.10,'square',.035); v12Tone(520,.18,'square',.04,.11); break;
-    }
-  }
-  window.toggleWorkoutSoundV12=function(){
-    v12SoundEnabled=!v12SoundEnabled; appSetText(V12_SOUND_KEY,v12SoundEnabled?'on':'off');
-    v12Audio(); v12SoundCue(v12SoundEnabled?'go':'pause'); v12RenderSoundButton();
-  };
-  function v12RenderSoundButton(){
-    const modal=document.getElementById('live-workout-modal'); if(!modal)return;
-    let b=document.getElementById('v12-sound-toggle');
-    if(!b){
-      const card=modal.querySelector('.modal-card'); if(!card)return;
-      b=document.createElement('button'); b.id='v12-sound-toggle'; b.type='button'; b.className='v12-sound-toggle';
-      b.onclick=window.toggleWorkoutSoundV12; card.insertBefore(b,card.firstChild);
-    }
-    b.textContent=v12SoundEnabled?'🔊 Suara ON':'🔇 Suara OFF';
-    b.title=v12SoundEnabled?'Matikan efek suara sesi latihan':'Nyalakan efek suara sesi latihan';
-  }
-  function v12ScheduleStartCue(){
-    const token=++v12SoundCountdownToken;
-    v12Audio();
-    [3,2,1].forEach((n,i)=>setTimeout(()=>{
-      if(token!==v12SoundCountdownToken)return;
-      v12SoundCue('count');
-    },i*650));
-    setTimeout(()=>{if(token===v12SoundCountdownToken)v12SoundCue('go');},1950);
-  }
-  function v12CancelCue(){v12SoundCountdownToken++;}
+            function v12Init() {
+                scheduleMode = appGetText('gym_schedule_mode_v12', 'auto') || 'auto';
+                v12EnsureBioFields(); v12LoadGender(); v12EnsureManualType(); v12InstallManual();
+                const b = v9Read('gym_bio_v7', null), custom = v12GetCustom();
+                if (b) { renderSchedule(b, custom); renderActiveWorkoutSession(b, custom); renderNutritionAndMeals(b); }
+            }
+            // ---------- 9) WORKOUT SOUND CUES ----------
+            // Suara dibuat dengan Web Audio API agar tidak membutuhkan file MP3 eksternal.
+            // Browser biasanya mengizinkan audio setelah pengguna menekan START SESI.
+            const V12_SOUND_KEY = 'gym_workout_sound_v12';
+            let v12AudioCtx = null, v12SoundEnabled = appGetText(V12_SOUND_KEY, 'on') !== 'off';
+            let v12SoundCountdownToken = 0;
+            function v12Audio() {
+                try {
+                    if (!v12AudioCtx) v12AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (v12AudioCtx.state === 'suspended') v12AudioCtx.resume();
+                    return v12AudioCtx;
+                } catch (e) { return null; }
+            }
+            function v12Tone(freq, dur, type = 'sine', gain = .055, delay = 0) {
+                if (!v12SoundEnabled) return;
+                const ctx = v12Audio(); if (!ctx) return;
+                const t = ctx.currentTime + delay, o = ctx.createOscillator(), g = ctx.createGain();
+                o.type = type; o.frequency.setValueAtTime(freq, t);
+                g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(.001, gain), t + .012);
+                g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+                o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + dur + .03);
+            }
+            function v12SoundCue(kind) {
+                if (!v12SoundEnabled) return;
+                switch (kind) {
+                    case 'count': v12Tone(660, .11, 'sine', .05); break;
+                    case 'go': v12Tone(660, .12, 'sine', .06); v12Tone(990, .22, 'sine', .065, .13); break;
+                    case 'rest': v12Tone(440, .14, 'triangle', .05); v12Tone(330, .22, 'triangle', .05, .16); break;
+                    case 'nextset': v12Tone(523, .10, 'sine', .05); v12Tone(784, .18, 'sine', .055, .12); break;
+                    case 'nextex': v12Tone(523, .10, 'sine', .05); v12Tone(659, .10, 'sine', .05, .12); v12Tone(988, .25, 'sine', .065, .24); break;
+                    case 'pause': v12Tone(330, .18, 'triangle', .045); break;
+                    case 'resume': v12Tone(659, .12, 'sine', .05); v12Tone(880, .20, 'sine', .055, .13); break;
+                    case 'finish': v12Tone(523, .12, 'sine', .055); v12Tone(659, .12, 'sine', .055, .13); v12Tone(784, .35, 'sine', .07, .26); break;
+                    case 'skip': v12Tone(300, .10, 'square', .035); v12Tone(520, .18, 'square', .04, .11); break;
+                }
+            }
+            window.toggleWorkoutSoundV12 = function () {
+                v12SoundEnabled = !v12SoundEnabled; appSetText(V12_SOUND_KEY, v12SoundEnabled ? 'on' : 'off');
+                v12Audio(); v12SoundCue(v12SoundEnabled ? 'go' : 'pause'); v12RenderSoundButton();
+            };
+            function v12RenderSoundButton() {
+                const modal = document.getElementById('live-workout-modal'); if (!modal) return;
+                let b = document.getElementById('v12-sound-toggle');
+                if (!b) {
+                    const card = modal.querySelector('.modal-card'); if (!card) return;
+                    b = document.createElement('button'); b.id = 'v12-sound-toggle'; b.type = 'button'; b.className = 'v12-sound-toggle';
+                    b.onclick = window.toggleWorkoutSoundV12; card.insertBefore(b, card.firstChild);
+                }
+                b.textContent = v12SoundEnabled ? '🔊 Suara ON' : '🔇 Suara OFF';
+                b.title = v12SoundEnabled ? 'Matikan efek suara sesi latihan' : 'Nyalakan efek suara sesi latihan';
+            }
+            function v12ScheduleStartCue() {
+                const token = ++v12SoundCountdownToken;
+                v12Audio();
+                [3, 2, 1].forEach((n, i) => setTimeout(() => {
+                    if (token !== v12SoundCountdownToken) return;
+                    v12SoundCue('count');
+                }, i * 650));
+                setTimeout(() => { if (token === v12SoundCountdownToken) v12SoundCue('go'); }, 1950);
+            }
+            function v12CancelCue() { v12SoundCountdownToken++; }
 
-  // Tombol suara ditampilkan setiap kali modal sesi dibuka.
-  const v12SoundBaseRender=window.renderLiveWorkoutV9;
-  window.renderLiveWorkoutV9=function(){
-    v12SoundBaseRender();
-    v12RenderSoundButton();
-  };
+            // Tombol suara ditampilkan setiap kali modal sesi dibuka.
+            const v12SoundBaseRender = window.renderLiveWorkoutV9;
+            window.renderLiveWorkoutV9 = function () {
+                v12SoundBaseRender();
+                v12RenderSoundButton();
+            };
 
-  // START sesi: hitung mundur 3-2-1 lalu bunyi GO.
-  const v12SoundBaseOpen=window.v11OpenSession;
-  window.v11OpenSession=function(day,startIndex,forceNew){
-    v12Audio();
-    const before=v9Session?.startedAt;
-    v12SoundBaseOpen(day,startIndex,forceNew);
-    if(v9Session && v9Session.running && v9Session.startedAt!==before) v12ScheduleStartCue();
-  };
+            // START sesi: hitung mundur 3-2-1 lalu bunyi GO.
+            const v12SoundBaseOpen = window.v11OpenSession;
+            window.v11OpenSession = function (day, startIndex, forceNew) {
+                v12Audio();
+                const before = v9Session?.startedAt;
+                v12SoundBaseOpen(day, startIndex, forceNew);
+                if (v9Session && v9Session.running && v9Session.startedAt !== before) v12ScheduleStartCue();
+            };
 
-  // Selesai set -> bunyi selesai, lalu rest.
-  const v12SoundBaseComplete=window.completeCurrentSetV9;
-  window.completeCurrentSetV9=function(){
-    if(!v9Session?.running || v10Finishing || v10RestEndsAt)return;
-    const last=(Number(v9Session.setIndex||1)>=Number(v9Session.sets||1));
-    v12SoundCue(last?'nextex':'rest');
-    v12SoundBaseComplete();
-  };
+            // Selesai set -> bunyi selesai, lalu rest.
+            const v12SoundBaseComplete = window.completeCurrentSetV9;
+            window.completeCurrentSetV9 = function () {
+                if (!v9Session?.running || v10Finishing || v10RestEndsAt) return;
+                const last = (Number(v9Session.setIndex || 1) >= Number(v9Session.sets || 1));
+                v12SoundCue(last ? 'nextex' : 'rest');
+                v12SoundBaseComplete();
+            };
 
-  // Awal jeda set.
-  const v12SoundBaseStartRest=window.v11StartRest;
-  window.v11StartRest=function(seconds){
-    v12SoundCue('rest');
-    v12SoundBaseStartRest(seconds);
-  };
+            // Awal jeda set.
+            const v12SoundBaseStartRest = window.v11StartRest;
+            window.v11StartRest = function (seconds) {
+                v12SoundCue('rest');
+                v12SoundBaseStartRest(seconds);
+            };
 
-  // Detik 3-2-1 menjelang set berikutnya, lalu GO saat rest selesai.
-  const v12SoundBaseUpdateRest=window.v11UpdateRestTimer;
-  window.v11UpdateRestTimer=function(){
-    const before=v11RestRemainingMs;
-    v12SoundBaseUpdateRest();
-    const after=v11RestRemainingMs;
-    if(before>0){
-      const b=Math.ceil(before/1000), a=Math.ceil(after/1000);
-      if(a<=3 && a>=1 && a<b) v12SoundCue('count');
-      if(before>0 && after<=0) v12SoundCue('nextset');
-    }
-  };
+            // Detik 3-2-1 menjelang set berikutnya, lalu GO saat rest selesai.
+            const v12SoundBaseUpdateRest = window.v11UpdateRestTimer;
+            window.v11UpdateRestTimer = function () {
+                const before = v11RestRemainingMs;
+                v12SoundBaseUpdateRest();
+                const after = v11RestRemainingMs;
+                if (before > 0) {
+                    const b = Math.ceil(before / 1000), a = Math.ceil(after / 1000);
+                    if (a <= 3 && a >= 1 && a < b) v12SoundCue('count');
+                    if (before > 0 && after <= 0) v12SoundCue('nextset');
+                }
+            };
 
-  // Jeda / lanjutkan.
-  const v12SoundBasePause=window.v11PauseSession;
-  window.v11PauseSession=function(){ v12CancelCue(); v12SoundCue('pause'); v12SoundBasePause(); };
-  const v12SoundBaseResume=window.v11ResumeSession;
-  window.v11ResumeSession=function(){ v12Audio(); v12SoundCue('resume'); v12SoundBaseResume(); };
+            // Jeda / lanjutkan.
+            const v12SoundBasePause = window.v11PauseSession;
+            window.v11PauseSession = function () { v12CancelCue(); v12SoundCue('pause'); v12SoundBasePause(); };
+            const v12SoundBaseResume = window.v11ResumeSession;
+            window.v11ResumeSession = function () { v12Audio(); v12SoundCue('resume'); v12SoundBaseResume(); };
 
-  // Skip juga diberi tanda suara agar terasa jelas.
-  const v12SoundBaseSkipSet=window.skipToNextSetV12;
-  window.skipToNextSetV12=function(){ v12SoundCue('skip'); v12SoundBaseSkipSet(); };
-  const v12SoundBaseSkipEx=window.skipToNextExerciseV12;
-  window.skipToNextExerciseV12=function(){ v12SoundCue('skip'); v12SoundBaseSkipEx(); };
+            // Skip juga diberi tanda suara agar terasa jelas.
+            const v12SoundBaseSkipSet = window.skipToNextSetV12;
+            window.skipToNextSetV12 = function () { v12SoundCue('skip'); v12SoundBaseSkipSet(); };
+            const v12SoundBaseSkipEx = window.skipToNextExerciseV12;
+            window.skipToNextExerciseV12 = function () { v12SoundCue('skip'); v12SoundBaseSkipEx(); };
 
-  // Sesi selesai.
-  const v12SoundBaseFinish=window.v11FinishSession;
-  window.v11FinishSession=function(){ v12CancelCue(); v12SoundCue('finish'); v12SoundBaseFinish(); };
+            // Sesi selesai.
+            const v12SoundBaseFinish = window.v11FinishSession;
+            window.v11FinishSession = function () { v12CancelCue(); v12SoundCue('finish'); v12SoundBaseFinish(); };
 
-  // Gaya kontrol suara.
-  const v12SoundStyle=document.createElement('style');
-  v12SoundStyle.textContent=`
+            // Gaya kontrol suara.
+            const v12SoundStyle = document.createElement('style');
+            v12SoundStyle.textContent = `
     .v12-sound-toggle{display:block;width:100%;margin:0 0 10px;padding:9px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-main);color:var(--text-main);font-weight:700;cursor:pointer}
     .v12-sound-toggle:hover{border-color:var(--accent-primary)}
   `;
-  document.head.appendChild(v12SoundStyle);
+            document.head.appendChild(v12SoundStyle);
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(v12Init,30)); else setTimeout(v12Init,30);
-})();
-</script>
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(v12Init, 30)); else setTimeout(v12Init, 30);
+        })();
+
+    </script>
+
+    <script>
+
+        // 1. DAFTAR PLAYLIST LAGU LOKAL (Sesuaikan nama file di folder music/)
+        const MUSIC_PLAYLIST = [
+            { title: "Track 01 - Green Day", src: "music/Green Day - American Idiot [Official Music Video] [4K Upgrade].mp3" },
+            { title: "Track 02 - Justin Bieber", src: "music/Justin Bieber - Off My Face (Live from Paris).mp3" },
+            { title: "Track 03 - Maroon 5", src: "music/Maroon 5 - Won't Go Home Without You (Official Music Video).mp3" },
+            { title: "Track 04 - My Chemical Romance", src: "music/My Chemical Romance - I Don't Love You [Official Music Video] [HD].mp3" },
+            { title: "Track 05 - One Direction", src: "music/One Direction - Night Changes.mp3" },
+            { title: "Track 06 - Taylor Swift", src: "music/Taylor Swift - Everything Has Changed ft. Ed Sheeran.mp3" }
+
+        ];
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+
+        const audioElement = document.getElementById("audio-element");
+        const trackTitleDisplay = document.getElementById("music-track-title");
+        const playPauseBtn = document.getElementById("btn-play-pause");
+
+        // Memuat Lagu berdasarkan Index
+        function loadTrack(index) {
+            if (MUSIC_PLAYLIST.length === 0) return;
+            currentTrackIndex = index;
+            audioElement.src = MUSIC_PLAYLIST[currentTrackIndex].src;
+            trackTitleDisplay.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+        }
+
+        // Play / Pause Toggle
+        function togglePlayPause() {
+            if (!audioElement.src || audioElement.src === "") {
+                loadTrack(0);
+            }
+            
+            if (isPlaying) {
+                audioElement.pause();
+                isPlaying = false;
+                playPauseBtn.textContent = "▶ Play";
+            } else {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                    playPauseBtn.textContent = "⏸ Pause";
+                }).catch(err => {
+                    console.error("Gagal memutar audio. Pastikan file ada di folder music/", err);
+                });
+            }
+        }
+
+        // Lagu Berikutnya
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
+            loadTrack(currentTrackIndex);
+            if (isPlaying) audioElement.play();
+        }
+
+        // Lagu Sebelumnya
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
+            loadTrack(currentTrackIndex);
+            if (isPlaying) audioElement.play();
+        }
+
+        // Pengatur Volume
+        function adjustVolume(val) {
+            audioElement.volume = parseFloat(val);
+        }
+
+        // Otomatis pindah ke lagu berikutnya saat lagu selesai
+        audioElement.addEventListener("ended", () => {
+            nextTrack();
+        });
+
+        // 2. EFEK SUARA SINTETIS (Web Audio API - Nada Beep Tanpa File Audio)
+        function playBeepSFX(frequency = 440, type = 'sine', duration = 0.15) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                console.warn("Web Audio API tidak didukung browser.", e);
+            }
+        }
+
+    </script>
 </body>
 
 </html>
