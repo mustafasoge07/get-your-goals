@@ -1531,6 +1531,136 @@
         const volatileStorage = Object.create(null);
         let storageWarningShown = false;
 
+        // ONLINE BACKEND BRIDGE (Node.js + Express + PostgreSQL + JWT)
+        const BACKEND_API = (window.GYM_BACKEND_URL || '').replace(/\/$/, '') || (location.protocol === 'file:' ? 'http://localhost:3000/api' : '/api');
+        const AUTH_TOKEN_KEY = 'gym_auth_token';
+        const AUTH_USER_KEY = 'gym_auth_user';
+        let backendSyncTimer = null;
+        let backendSyncBusy = false;
+        let backendHydrated = false;
+
+        function getAuthToken() { try { return localStorage.getItem(AUTH_TOKEN_KEY) || ''; } catch (_) { return ''; } }
+        function setAuth(token, user) {
+            try { localStorage.setItem(AUTH_TOKEN_KEY, token); localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user || {})); } catch (_) {}
+        }
+        function clearAuth() {
+            try { localStorage.removeItem(AUTH_TOKEN_KEY); localStorage.removeItem(AUTH_USER_KEY); } catch (_) {}
+        }
+        function readAllGymState() {
+            const state = {};
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key || !key.startsWith('gym_')) continue;
+                    if (key === AUTH_TOKEN_KEY || key === AUTH_USER_KEY) continue;
+                    const raw = localStorage.getItem(key);
+                    try { state[key] = JSON.parse(raw); } catch (_) { state[key] = raw; }
+                }
+            } catch (_) {}
+            for (const [key, value] of Object.entries(volatileStorage)) {
+                if (key.startsWith('gym_') && key !== AUTH_TOKEN_KEY && key !== AUTH_USER_KEY && !(key in state)) state[key] = value;
+            }
+            return state;
+        }
+        function restoreGymState(state) {
+            if (!state || typeof state !== 'object') return;
+            Object.entries(state).forEach(([key, value]) => {
+                if (!key.startsWith('gym_')) return;
+                volatileStorage[key] = value;
+                try { localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value)); } catch (_) {}
+            });
+        }
+        async function backendFetch(path, options = {}) {
+            const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+            const token = getAuthToken();
+            if (token) headers.Authorization = `Bearer ${token}`;
+            const response = await fetch(`${BACKEND_API}${path}`, Object.assign({}, options, { headers }));
+            let data = {};
+            try { data = await response.json(); } catch (_) {}
+            if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+            return data;
+        }
+        async function syncBackendNow() {
+            if (backendSyncBusy || !getAuthToken()) return;
+            backendSyncBusy = true;
+            try { await backendFetch('/state', { method: 'PUT', body: JSON.stringify({ state: readAllGymState() }) }); }
+            catch (error) { console.warn('Backend sync skipped:', error.message); }
+            finally { backendSyncBusy = false; }
+        }
+        function queueBackendSync() {
+            clearTimeout(backendSyncTimer);
+            backendSyncTimer = setTimeout(syncBackendNow, 700);
+        }
+        async function hydrateFromBackend() {
+            if (backendHydrated || !getAuthToken()) return;
+            try {
+                const result = await backendFetch('/state');
+                const serverState = result.state || {};
+                const hasServerData = Object.keys(serverState).length > 0;
+                if (hasServerData) {
+                    restoreGymState(serverState);
+                } else {
+                    await syncBackendNow();
+                }
+                backendHydrated = true;
+                try { sessionStorage.setItem('gym_backend_hydrated', '1'); } catch (_) {}
+                if (document.readyState !== 'loading') location.reload();
+            } catch (error) {
+                console.warn('Backend unavailable; app continues in local/offline mode.', error.message);
+            }
+        }
+        function clearGymLocalState() {
+            try {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('gym_') && key !== AUTH_TOKEN_KEY && key !== AUTH_USER_KEY) keys.push(key);
+                }
+                keys.forEach(k => localStorage.removeItem(k));
+            } catch (_) {}
+            Object.keys(volatileStorage).forEach(k => { if (k.startsWith('gym_')) delete volatileStorage[k]; });
+        }
+        function showOnlineAuth() {
+            if (document.getElementById('online-auth-overlay')) return;
+            const style = document.createElement('style');
+            style.id = 'online-auth-style';
+            style.textContent = `
+              #online-auth-overlay{position:fixed;inset:0;z-index:999999;background:rgba(8,12,20,.96);display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit}
+              #online-auth-card{width:min(420px,100%);background:#fff;border-radius:20px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.35);color:#111}
+              #online-auth-card h2{margin:0 0 8px;font-size:25px} #online-auth-card p{margin:0 0 20px;color:#666}
+              #online-auth-card input{width:100%;box-sizing:border-box;padding:13px 14px;margin:7px 0;border:1px solid #ddd;border-radius:10px;font-size:15px}
+              #online-auth-actions{display:flex;gap:10px;margin-top:12px} #online-auth-actions button{flex:1;padding:13px;border:0;border-radius:10px;font-weight:700;cursor:pointer}
+              #online-login{background:#111;color:#fff} #online-register{background:#eee;color:#111} #online-auth-msg{min-height:22px;margin-top:12px;font-size:13px;color:#b00020}
+            `;
+            document.head.appendChild(style);
+            const overlay = document.createElement('div'); overlay.id = 'online-auth-overlay';
+            overlay.innerHTML = `<div id="online-auth-card"><h2>Get Your Goals</h2><p>Login untuk menyimpan data latihan ke cloud dan mengaksesnya dari perangkat lain.</p><input id="online-email" type="email" autocomplete="email" placeholder="Email"><input id="online-password" type="password" autocomplete="current-password" placeholder="Password (min. 8 karakter)"><div id="online-auth-actions"><button id="online-login">Login</button><button id="online-register">Daftar</button></div><div id="online-auth-msg"></div></div>`;
+            document.body.appendChild(overlay);
+            const msg = text => { document.getElementById('online-auth-msg').textContent = text || ''; };
+            async function submit(mode) {
+                const email = document.getElementById('online-email').value.trim();
+                const password = document.getElementById('online-password').value;
+                msg('Memproses...');
+                try {
+                    const result = await backendFetch(`/auth/${mode}`, { method:'POST', body:JSON.stringify({email,password}) });
+                    if (mode === 'register') clearGymLocalState();
+                    setAuth(result.token, result.user);
+                    try { sessionStorage.removeItem('gym_backend_hydrated'); } catch (_) {}
+                    overlay.remove();
+                    location.reload();
+                } catch (e) { msg(e.message); }
+            }
+            document.getElementById('online-login').onclick = () => submit('login');
+            document.getElementById('online-register').onclick = () => submit('register');
+        }
+        function setupOnlineBackend() {
+            const token = getAuthToken();
+            let hydratedFlag = false; try { hydratedFlag = sessionStorage.getItem('gym_backend_hydrated') === '1'; } catch (_) {}
+            if (!token) { showOnlineAuth(); return; }
+            if (!hydratedFlag) hydrateFromBackend();
+            else setInterval(syncBackendNow, 5000);
+        }
+
         function appRead(key, fallback) {
             try {
                 const raw = localStorage.getItem(key);
@@ -1547,8 +1677,10 @@
             volatileStorage[key] = value;
             try {
                 localStorage.setItem(key, JSON.stringify(value));
+                queueBackendSync();
                 return true;
             } catch (error) {
+                queueBackendSync();
                 if (!storageWarningShown) {
                     storageWarningShown = true;
                     setTimeout(() => alert('Data tersimpan sementara selama halaman ini terbuka. Untuk menyimpan permanen di iPhone, buka lewat Safari biasa (bukan Private Browsing) atau unggah ke hosting.'), 0);
@@ -1571,10 +1703,11 @@
 
         function appSetText(key, value) {
             volatileStorage[key] = value;
-            try { localStorage.setItem(key, value); return true; } catch (error) { return false; }
+            try { localStorage.setItem(key, value); queueBackendSync(); return true; } catch (error) { queueBackendSync(); return false; }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            setupOnlineBackend();
             const bio = appRead("gym_bio_v7", null);
             const dailyLogs = appRead("gym_daily_logs_v9", []);
             const weeklyLogs = appRead("gym_weekly_logs_v8", []);
