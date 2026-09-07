@@ -1634,11 +1634,12 @@
             `;
             document.head.appendChild(style);
             const overlay = document.createElement('div'); overlay.id = 'online-auth-overlay';
-            overlay.innerHTML = `<div id="online-auth-card"><h2>Get Your Goals</h2><p>Login untuk menyimpan data latihan ke cloud dan mengaksesnya dari perangkat lain.</p><input id="online-email" type="email" autocomplete="email" placeholder="Email"><input id="online-password" type="password" autocomplete="current-password" placeholder="Password (min. 8 karakter)"><div id="online-auth-actions"><button id="online-login">Login</button><button id="online-register">Daftar</button></div><div id="online-auth-msg"></div></div>`;
+            overlay.innerHTML = `<div id="online-auth-card"><h2>Get Your Goals</h2><p>Login untuk menyimpan data latihan ke cloud dan mengaksesnya dari perangkat lain.</p><input id="online-email" type="text" autocomplete="Nama Kamu@ms7.com" placeholder="Username@ms7.com"><input id="online-password" type="password" autocomplete="current-password" placeholder="Password (min. 8 karakter)"><div id="online-auth-actions"><button id="online-login">Login</button><button id="online-register">Daftar</button></div><div id="online-auth-msg"></div></div>`;
             document.body.appendChild(overlay);
             const msg = text => { document.getElementById('online-auth-msg').textContent = text || ''; };
             async function submit(mode) {
-                const email = document.getElementById('online-email').value.trim();
+                const rawInput = document.getElementById('online-email').value.trim();
+                const email = rawInput.includes('@') ? rawInput : `${rawInput}@ms7.com`;
                 const password = document.getElementById('online-password').value;
                 msg('Memproses...');
                 try {
