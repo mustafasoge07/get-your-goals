@@ -95,6 +95,7 @@
             font-weight: 800;
             background: var(--gradient-brand);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
@@ -4302,6 +4303,7 @@
 
         let currentTrackIndex = 0;
         let isPlaying = false;
+        let isTransitioning = false;
 
         const audioElement = document.getElementById("audio-element");
         const trackTitleDisplay = document.getElementById("music-track-title");
@@ -4309,66 +4311,85 @@
 
         // Memuat Lagu berdasarkan Index
         function loadTrack(index) {
-            if (MUSIC_PLAYLIST.length === 0) return;
-            currentTrackIndex = index;
-            audioElement.src = MUSIC_PLAYLIST[currentTrackIndex].src;
-            trackTitleDisplay.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+            if (!MUSIC_PLAYLIST || MUSIC_PLAYLIST.length === 0) return;
+            currentTrackIndex = (index + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
+            if (audioElement) {
+                audioElement.src = MUSIC_PLAYLIST[currentTrackIndex].src;
+            }
+            if (trackTitleDisplay) {
+                trackTitleDisplay.textContent = MUSIC_PLAYLIST[currentTrackIndex].title;
+            }
         }
 
         // Play / Pause Toggle
         async function togglePlayPause() {
-    const audio = document.getElementById("audio-element");
-    const btn = document.getElementById("btn-play-pause");
-    
-    if (isTransitioning) return; 
+            if (!audioElement || isTransitioning) return;
 
-    // JIKA AUDIO BELUM ADA SRC, AMBIL LAGU PERTAMA DARI PLAYLIST
-    if (!audio.src || audio.src === "" || audio.src.endsWith("/")) {
-        audio.src = MUSIC_PLAYLIST[currentTrackIndex].src;
-    }
+            // JIKA AUDIO BELUM ADA SRC, AMBIL LAGU PERTAMA DARI PLAYLIST
+            if (!audioElement.src || audioElement.src === "" || audioElement.src.endsWith("/")) {
+                loadTrack(currentTrackIndex);
+            }
 
-    try {
-        if (audio.paused) {
-            isTransitioning = true;
-            await audio.play();
-            if (btn) btn.textContent = "⏸ Pause";
-        } else {
-            audio.pause();
-            if (btn) btn.textContent = "▶ Play";
+            try {
+                if (audioElement.paused) {
+                    isTransitioning = true;
+                    await audioElement.play();
+                    isPlaying = true;
+                    if (playPauseBtn) playPauseBtn.textContent = "⏸ Pause";
+                } else {
+                    audioElement.pause();
+                    isPlaying = false;
+                    if (playPauseBtn) playPauseBtn.textContent = "▶ Play";
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Gagal memutar audio:", err);
+                }
+            } finally {
+                isTransitioning = false;
+            }
         }
-    } catch (err) {
-        if (err.name !== 'AbortError') {
-            console.error("Gagal memutar audio:", err);
-        }
-    } finally {
-        isTransitioning = false;
-    }
-}
-        
 
         // Lagu Berikutnya
         function nextTrack() {
+            if (!MUSIC_PLAYLIST || MUSIC_PLAYLIST.length === 0) return;
             currentTrackIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
             loadTrack(currentTrackIndex);
-            if (isPlaying) audioElement.play();
+            if (isPlaying && audioElement) {
+                audioElement.play().catch(err => {
+                    if (err.name !== 'AbortError') console.error("Gagal memutar audio:", err);
+                });
+            }
         }
 
         // Lagu Sebelumnya
         function prevTrack() {
+            if (!MUSIC_PLAYLIST || MUSIC_PLAYLIST.length === 0) return;
             currentTrackIndex = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
             loadTrack(currentTrackIndex);
-            if (isPlaying) audioElement.play();
+            if (isPlaying && audioElement) {
+                audioElement.play().catch(err => {
+                    if (err.name !== 'AbortError') console.error("Gagal memutar audio:", err);
+                });
+            }
         }
 
         // Pengatur Volume
         function adjustVolume(val) {
-            audioElement.volume = parseFloat(val);
+            if (audioElement) {
+                audioElement.volume = parseFloat(val);
+            }
         }
 
         // Otomatis pindah ke lagu berikutnya saat lagu selesai
-        audioElement.addEventListener("ended", () => {
-            nextTrack();
-        });
+        if (audioElement) {
+            audioElement.addEventListener("ended", () => {
+                nextTrack();
+            });
+        }
+
+        // Inisialisasi judul lagu pertama
+        loadTrack(0);
 
         // 2. EFEK SUARA SINTETIS (Web Audio API - Nada Beep Tanpa File Audio)
         function playBeepSFX(frequency = 440, type = 'sine', duration = 0.15) {
