@@ -172,10 +172,13 @@ app.delete('/api/state', auth, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/{*splat}', (req, res) => {
-  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
-  res.sendFile(path.join(__dirname, 'public', 'githubsoge.html'));
+app.use(express.static(path.join(__dirname)));
+
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Endpoint API tidak ditemukan' });
+  }
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 async function start() {
