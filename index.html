@@ -4316,22 +4316,32 @@
         }
 
         // Play / Pause Toggle
-        function togglePlayPause() {
-            const audio = document.getElementById("audio-element");
-            if (!audio.src) {
-        // Set audio source jika belum ada
-        audio.src = "music/track1.mp3"; 
-            }
+        async function togglePlayPause() {
+    const audio = document.getElementById("audio-element");
+    const btn = document.getElementById("btn-play-pause");
+    
+    if (isTransitioning) return; 
 
+    // JIKA AUDIO BELUM ADA SRC, AMBIL LAGU PERTAMA DARI PLAYLIST
+    if (!audio.src || audio.src === "" || audio.src.endsWith("/")) {
+        audio.src = MUSIC_PLAYLIST[currentTrackIndex].src;
+    }
+
+    try {
         if (audio.paused) {
-            audio.play().then(() => {
-            document.getElementById("btn-play-pause").textContent = "⏸ Pause";
-        }).catch(err => {
-            console.error("Gagal memutar audio:", err);
-        });
+            isTransitioning = true;
+            await audio.play();
+            if (btn) btn.textContent = "⏸ Pause";
         } else {
-        audio.pause();
-        document.getElementById("btn-play-pause").textContent = "▶ Play";
+            audio.pause();
+            if (btn) btn.textContent = "▶ Play";
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') {
+            console.error("Gagal memutar audio:", err);
+        }
+    } finally {
+        isTransitioning = false;
     }
 }
         
