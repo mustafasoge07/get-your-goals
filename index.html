@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Get Your Goals by MS7 - Pro Fitness & Gym Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         :root {
-            /* Futuristic Dark Glass Palette */
+            /* Futuristic Dark Glass Palette */ 
             --bg-main: #090d16;
             --bg-sidebar: #0f172a;
             --bg-card: rgba(30, 41, 59, 0.7);
@@ -4383,6 +4386,15 @@
             }
         }
 
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA Service Worker registered!'))
+                    .catch(err => console.log('Service Worker failed: ', err));
+            });
+        }
     </script>
 </body>
 
